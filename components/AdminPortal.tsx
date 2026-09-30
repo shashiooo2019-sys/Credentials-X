@@ -43,9 +43,9 @@ export default function AdminPortal({
   isAuthenticated,
   onAuthenticated
 }: AdminPortalProps) {
-  // Login form state
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('Admin220!');
+  // Login form state (empty by default for security)
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -444,8 +444,9 @@ export default function AdminPortal({
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
+                placeholder="Enter username"
                 required
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </div>
 
@@ -457,8 +458,9 @@ export default function AdminPortal({
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                placeholder="Enter password"
                 required
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </div>
 
@@ -487,14 +489,6 @@ export default function AdminPortal({
               )}
             </button>
           </form>
-
-          {/* Credentials hint for evaluation convenience */}
-          <div className="mt-6 border-t border-slate-100 pt-4 dark:border-slate-800 text-center text-xs text-slate-500">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Authorized Credentials:</span>
-            <div className="mt-1 font-mono text-[11px] bg-slate-50 dark:bg-slate-800 p-2 rounded-md border border-slate-200 dark:border-slate-700">
-              Username: <span className="font-bold text-sky-600">admin</span> · Password: <span className="font-bold text-sky-600">Admin220!</span>
-            </div>
-          </div>
         </div>
       </div>
     );

@@ -71,16 +71,6 @@ export default function UserVerificationFlow() {
   // Step 4 state
   const [completedSubmission, setCompletedSubmission] = useState<SubmissionRecord | null>(null);
 
-  // Quick pick samples from PDF
-  const sampleUsers = [
-    { uNum: 'U194283', name: 'Rakesh Parmar', role: 'SUP Altea' },
-    { uNum: 'U194317', name: 'Jaspreet Malik', role: 'SUP + SBH' },
-    { uNum: 'U148030', name: 'Simarpreet Kaur', role: 'DASGO Edit' },
-    { uNum: 'U152261', name: 'Ronak Singh', role: 'Multi-TAC' },
-    { uNum: 'U148685', name: 'Ankit Mishra', role: 'Full Ops' },
-    { uNum: 'U142649', name: 'Sona Gauri', role: 'EMM Active' }
-  ];
-
   // Helper: check if a field is visible for the current user
   const isFieldVisible = (cfg: (typeof CREDENTIAL_FIELD_CONFIG)[number]) => {
     if (!staffData) return false;
@@ -686,32 +676,6 @@ export default function UserVerificationFlow() {
               </form>
             </div>
           )}
-
-          {/* Quick-test helpers from the actual PDF */}
-          <div className="mt-10 border-t border-slate-100 pt-6 dark:border-slate-800">
-            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-              <span>Quick Test Profiles from Master PDF</span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-w-xl mx-auto">
-              {sampleUsers.map((item, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setUNumberInput(item.uNum);
-                    setShowNamePrompt(false);
-                    handleLookup(item.uNum);
-                  }}
-                  className="flex flex-col text-left rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 hover:border-sky-300 hover:bg-sky-50/50 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:border-sky-700 transition-all text-xs"
-                >
-                  <span className="font-mono font-bold text-sky-600 dark:text-sky-400">{item.uNum}</span>
-                  <span className="font-medium text-slate-800 dark:text-slate-200 truncate">{item.name}</span>
-                  <span className="text-[10px] text-slate-500 truncate">{item.role}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
