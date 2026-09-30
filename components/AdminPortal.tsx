@@ -837,34 +837,32 @@ export default function AdminPortal({
               </div>
 
               {/* Refresh & CSV Export Actions */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                 <button
                   type="button"
                   onClick={fetchFortnightData}
                   disabled={loadingAudit}
                   title="Reload audit data"
-                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${loadingAudit ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
                 </button>
 
-                <div className="relative group">
-                  <button
-                    type="button"
-                    onClick={() => exportToCsv('current-view')}
-                    className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition-colors"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    <span>Export CSV</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => exportToCsv('current-view')}
+                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition-colors shrink-0"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Export CSV</span>
+                </button>
 
                 <button
                   type="button"
                   onClick={exportConfirmationsPerLoginType}
                   title="Export all confirmations per log-in type per staff for this reporting period"
-                  className="flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
+                  className="flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200 shadow-2xs shrink-0"
                 >
                   <FileSpreadsheet className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
                   <span>Confirmations by Login Type (.CSV)</span>
@@ -874,7 +872,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('change-requests')}
                   title="Export only flagged change requests"
-                  className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+                  className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 shadow-2xs shrink-0"
                 >
                   <span>Change Requests CSV</span>
                 </button>
@@ -883,7 +881,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('missing-staff')}
                   title="Export list of staff who have not verified"
-                  className="flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  className="flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
                 >
                   <span>Missing Staff CSV</span>
                 </button>
@@ -1491,8 +1489,8 @@ export default function AdminPortal({
           </div>
 
           {/* Master Staff Database Table */}
-          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs dark:border-slate-800 dark:bg-slate-900">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs dark:border-slate-800 dark:bg-slate-900 w-full">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                   Active Master Credentials Registry ({masterStaffList.length} Staff Profiles)
@@ -1502,9 +1500,9 @@ export default function AdminPortal({
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                 {/* Search Bar */}
-                <div className="relative">
+                <div className="relative flex-1 sm:flex-initial min-w-[160px] w-full sm:w-48 lg:w-56">
                   <input
                     type="text"
                     value={masterSearch}
@@ -1516,7 +1514,7 @@ export default function AdminPortal({
                       });
                     }}
                     placeholder="Search name or U-Number..."
-                    className="w-44 sm:w-56 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-slate-900 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-slate-900 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                   <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
                 </div>
@@ -1526,7 +1524,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportMasterCredentialsFileLatest}
                   title="Export complete master credentials roster as latest CSV"
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
                 >
                   <Download className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
                   <span>Export Master File (Latest)</span>
@@ -1537,16 +1535,16 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportConfirmationsPerLoginType}
                   title="Export all confirmations per log-in type per staff for this reporting period"
-                  className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 shadow-2xs"
+                  className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 shadow-2xs shrink-0"
                 >
                   <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span>Export Confirmations by Login Type (.CSV)</span>
+                  <span>Export Confirmations (.CSV)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsNewStaffModalOpen(true)}
-                  className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors shadow-2xs"
+                  className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors shadow-2xs shrink-0"
                 >
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span>Add Staff Record</span>
@@ -1595,85 +1593,96 @@ export default function AdminPortal({
                 No staff records match your search criteria.
               </div>
             ) : (
-              <div className="overflow-x-auto max-h-[620px]">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 text-slate-600 sticky top-0 border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 z-10">
+              <div className="overflow-x-auto max-h-[620px] w-full border-t border-slate-100 dark:border-slate-800">
+                <table className="w-full text-left text-xs border-separate border-spacing-0">
+                  <thead className="bg-slate-50 text-slate-600 sticky top-0 border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 z-20">
                     <tr>
-                      <th className="py-2.5 px-3 font-semibold">U-Number</th>
-                      <th className="py-2.5 px-3 font-semibold">Name</th>
-                      <th className="py-2.5 px-3 font-semibold">EX-No (ALS)</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">CUTE</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">Altea LH</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">LOOK</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">EBASE</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">LMS</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">MesWeb</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">WorldTrac</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">SBH</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">DASGO</th>
-                      <th className="py-2.5 px-3 font-semibold text-center">M365</th>
-                      <th className="py-2.5 px-3 font-semibold text-center" title="Turnaround companion App (Codes: Y, MOD, ALS)">
+                      {/* Frozen Pane Column 1: U-Number (narrower on mobile: 68px, standard on desktop: 95px) */}
+                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-3 font-semibold sticky left-0 top-0 z-30 bg-slate-100 dark:bg-slate-800 w-[68px] min-w-[68px] max-w-[68px] sm:w-24 sm:min-w-[95px] sm:max-w-[95px] border-b border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs text-center sm:text-left">
+                        <span className="sm:hidden">U-No</span>
+                        <span className="hidden sm:inline">U-Number</span>
+                      </th>
+                      {/* Frozen Pane Column 2: Staff Name (narrower on mobile: 95px-115px, standard on desktop: 170px-210px) */}
+                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-3 font-semibold sticky left-[68px] sm:left-[95px] top-0 z-30 bg-slate-100 dark:bg-slate-800 min-w-[95px] max-w-[115px] sm:min-w-[170px] sm:max-w-[210px] border-b border-r border-slate-200 dark:border-slate-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.08)] text-[11px] sm:text-xs">
+                        Name
+                      </th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">EX-No (ALS)</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">CUTE</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">Altea LH</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">LOOK</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">EBASE</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">LMS</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">MesWeb</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">WorldTrac</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">SBH</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">DASGO</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">M365</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs" title="Turnaround companion App (Codes: Y, MOD, ALS)">
                         Turnaround App (TAC)
                       </th>
-                      <th className="py-2.5 px-3 font-semibold text-center">EMM</th>
-                      <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-center sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">EMM</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-semibold text-right sticky top-0 z-10 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 whitespace-nowrap text-[11px] sm:text-xs">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {masterStaffList.map(staff => {
                       const isAls = isUserAls(staff.credentials, staff.exNumber);
                       return (
-                        <tr key={staff.id || staff.uNumber} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
-                          <td className="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">
+                        <tr key={staff.id || staff.uNumber} className="group hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors">
+                          {/* Frozen Pane Column 1: U-Number */}
+                          <td className="py-2 px-1.5 sm:px-3 font-mono font-bold text-sky-600 dark:text-sky-400 sticky left-0 z-10 bg-white group-hover:bg-slate-50 dark:bg-slate-900 dark:group-hover:bg-slate-800 w-[68px] min-w-[68px] max-w-[68px] sm:w-24 sm:min-w-[95px] sm:max-w-[95px] border-b border-slate-100 dark:border-slate-800 text-[11px] sm:text-xs tracking-tight">
                             {staff.uNumber}
                           </td>
-                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
-                            {staff.name}
+                          {/* Frozen Pane Column 2: Staff Name */}
+                          <td className="py-2 px-1.5 sm:px-3 font-semibold text-slate-900 dark:text-white sticky left-[68px] sm:left-[95px] z-10 bg-white group-hover:bg-slate-50 dark:bg-slate-900 dark:group-hover:bg-slate-800 min-w-[95px] max-w-[115px] sm:min-w-[170px] sm:max-w-[210px] border-b border-r border-slate-200 dark:border-slate-700 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                            <span className="truncate block text-[11px] sm:text-xs" title={staff.name}>
+                              {staff.name}
+                            </span>
                           </td>
-                          <td className="py-2 px-3 font-mono text-slate-500 whitespace-nowrap">
+                          <td className="py-2 px-2 sm:px-3 font-mono text-slate-500 whitespace-nowrap text-center border-b border-slate-100 dark:border-slate-800 text-[11px] sm:text-xs">
                             {isAls ? (
                               <span className="font-semibold text-purple-700 dark:text-purple-300">{staff.exNumber || 'N/A'}</span>
                             ) : (
                               <span className="text-slate-400 text-[11px]">-</span>
                             )}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'cuteAccess', staff.credentials.cuteAccess || 'Y')}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'alteaLhc', staff.credentials.alteaLhc)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'look', staff.credentials.look)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'ebase', staff.credentials.ebase)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'lms', staff.credentials.lms)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'mesWeb', staff.credentials.mesWeb)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'worldTracer', staff.credentials.worldTracer)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'sbh', staff.credentials.sbh)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'dasgo', staff.credentials.dasgo)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'ms365', staff.credentials.ms365)}
                           </td>
-                          <td className="py-2 px-3 text-center whitespace-nowrap">
+                          <td className="py-2 px-2 sm:px-3 text-center whitespace-nowrap border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'tac', staff.credentials.tac)}
                           </td>
-                          <td className="py-2 px-3 text-center">
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-slate-100 dark:border-slate-800">
                             {renderRegistryCredentialBadge(staff.uNumber, 'emm', staff.credentials.emm)}
                           </td>
-                          <td className="py-2 px-3 text-right whitespace-nowrap">
+                          <td className="py-2 px-2 sm:px-3 text-right whitespace-nowrap border-b border-slate-100 dark:border-slate-800">
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 type="button"
