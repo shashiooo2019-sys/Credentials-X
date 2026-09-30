@@ -1,0 +1,6 @@
+{
+  "name": "Staff Credential Verification Portal",
+  "description": "Bi-weekly credential validation and change request portal for staff with administrative fortnight audit and master database management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
