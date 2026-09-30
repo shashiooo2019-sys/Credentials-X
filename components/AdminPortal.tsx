@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, useCallback } from 'react';
+import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import {
   SubmissionRecord,
   UserCredentialRecord,
@@ -116,6 +116,75 @@ export default function AdminPortal({
       (staff.exNumber && staff.exNumber.toLowerCase().includes(q))
     );
   });
+
+  // Submissions Map by U-Number for fast verification status lookup across Master Registry
+  const submissionsByUNumber = useMemo(() => {
+    const map = new Map<string, SubmissionRecord>();
+    submissions.forEach(sub => {
+      map.set(sub.uNumber.trim().toUpperCase(), sub);
+    });
+    return map;
+  }, [submissions]);
+
+  // Helper to render credential value with color-coded status badge:
+  // - Confirmed: GREEN background, WHITE font
+  // - Change Request: RED background, WHITE font
+  // - Not Confirmed / Pending: YELLOW background, BLACK font
+  const renderRegistryCredentialBadge = (
+    staffUNumber: string,
+    fieldKey: keyof CredentialFields,
+    rawValue: string | undefined
+  ) => {
+    const sub = submissionsByUNumber.get(staffUNumber.trim().toUpperCase());
+    const displayVal = fieldKey === 'tac' ? formatCredentialDisplay('tac', rawValue) : (rawValue || 'N');
+
+    let status: 'CONFIRMED' | 'CHANGE_REQUESTED' | 'NOT_CONFIRMED' = 'NOT_CONFIRMED';
+    let remark = '';
+
+    if (sub) {
+      const v = sub.verifications.find(item => item.fieldKey === fieldKey);
+      if (v) {
+        if (v.status === 'CONFIRMED') {
+          status = 'CONFIRMED';
+        } else if (v.status === 'CHANGE_REQUESTED') {
+          status = 'CHANGE_REQUESTED';
+          remark = v.remark || '';
+        }
+      }
+    }
+
+    if (status === 'CONFIRMED') {
+      return (
+        <span
+          title={`CONFIRMED for cycle ${fortnightLabel} by staff`}
+          className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded text-[11px] font-bold bg-green-600 text-white shadow-2xs tracking-wide cursor-default"
+        >
+          {displayVal}
+        </span>
+      );
+    }
+
+    if (status === 'CHANGE_REQUESTED') {
+      return (
+        <span
+          title={`CHANGE REQUESTED for cycle ${fortnightLabel}${remark ? `: "${remark}"` : ''}`}
+          className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded text-[11px] font-bold bg-red-600 text-white shadow-2xs tracking-wide cursor-default"
+        >
+          {displayVal}
+        </span>
+      );
+    }
+
+    // NOT_CONFIRMED: Yellow background and Black font
+    return (
+      <span
+        title={`NOT CONFIRMED (Awaiting staff verification for cycle ${fortnightLabel})`}
+        className="inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded text-[11px] font-semibold bg-yellow-400 text-black shadow-2xs tracking-wide cursor-default"
+      >
+        {displayVal}
+      </span>
+    );
+  };
 
   // Handle Admin Sign In
   const handleLogin = async (e: React.FormEvent) => {
@@ -371,6 +440,149 @@ export default function AdminPortal({
     const link = document.createElement('a');
     link.href = url;
     link.download = `Credential_Report_${type}_${filterYear}_M${filterMonth}_F${filterFortnight}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export all confirmations per log-in type per staff per reporting period
+  const exportConfirmationsPerLoginType = () => {
+    const headers = [
+      'Reporting Period',
+      'Cycle Identifier',
+      'Staff Name',
+      'U-Number',
+      'EX-Number',
+      'Login Type / System',
+      'System Category',
+      'Master Stored Value',
+      'Confirmation Status',
+      'Change Request Remarks',
+      'Verification Date',
+      'Submission ID',
+      'Overall Remarks'
+    ];
+
+    const rows: string[] = [headers.join(',')];
+
+    masterStaffList.forEach(staff => {
+      const sub = submissionsByUNumber.get(staff.uNumber.trim().toUpperCase());
+      const isSubmitted = !!sub;
+
+      CREDENTIAL_FIELD_CONFIG.forEach(cfg => {
+        const masterVal = staff.credentials[cfg.key];
+        const displayVal = cfg.key === 'tac' ? formatCredentialDisplay('tac', masterVal) : (masterVal || 'N');
+
+        let status = 'NOT_CONFIRMED';
+        let remark = '';
+        const verDate = isSubmitted ? sub.verificationDate : 'N/A';
+        const subId = isSubmitted ? sub.id : 'N/A';
+        const overallRem = isSubmitted ? (sub.overallRemarks || '') : '';
+
+        if (sub) {
+          const v = sub.verifications.find(item => item.fieldKey === cfg.key);
+          if (v) {
+            status = v.status === 'CONFIRMED' ? 'CONFIRMED' : v.status === 'CHANGE_REQUESTED' ? 'CHANGE_REQUESTED' : 'NOT_CONFIRMED';
+            remark = v.remark || '';
+          }
+        }
+
+        rows.push(
+          [
+            `"${fortnightLabel}"`,
+            `"${filterYear}-${String(filterMonth).padStart(2, '0')}-F${filterFortnight}"`,
+            `"${staff.name}"`,
+            `"${staff.uNumber}"`,
+            `"${staff.exNumber || 'N/A'}"`,
+            `"${cfg.label}"`,
+            `"${cfg.category}"`,
+            `"${displayVal.replace(/"/g, '""')}"`,
+            `"${status}"`,
+            `"${remark.replace(/"/g, '""')}"`,
+            `"${verDate}"`,
+            `"${subId}"`,
+            `"${overallRem.replace(/"/g, '""')}"`
+          ].join(',')
+        );
+      });
+    });
+
+    const csvContent = rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `LHG_Confirmations_Per_Login_Type_${filterYear}_M${String(filterMonth).padStart(2, '0')}_F${filterFortnight}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export latest master credentials file
+  const exportMasterCredentialsFileLatest = () => {
+    const headers = [
+      'UNUMBER',
+      'NAMES',
+      'EX Number',
+      'CUTE Access',
+      'ONE RES',
+      'Altea LH',
+      'LOOK',
+      'EBASE',
+      'LMS',
+      'MesWeb',
+      'MesWeb Internet',
+      'WorldTracer',
+      'SBH',
+      'DASGO',
+      'M365',
+      'LH Altea FM',
+      'LX Altea FM',
+      'FLOAT',
+      'FLOAT Backup',
+      'PKI',
+      'Turnaround companion App',
+      'EMM',
+      'Last Updated'
+    ];
+
+    const rows: string[] = [headers.join(',')];
+
+    masterStaffList.forEach(s => {
+      const c = s.credentials;
+      rows.push(
+        [
+          `"${s.uNumber}"`,
+          `"${s.name}"`,
+          `"${s.exNumber || 'N/A'}"`,
+          `"${c.cuteAccess || 'Y'}"`,
+          `"${c.oneRes || 'N'}"`,
+          `"${c.alteaLhc || 'N'}"`,
+          `"${c.look || 'N'}"`,
+          `"${c.ebase || 'N'}"`,
+          `"${c.lms || 'N'}"`,
+          `"${c.mesWeb || 'N'}"`,
+          `"${c.mesWebIn || 'N'}"`,
+          `"${c.worldTracer || 'N'}"`,
+          `"${c.sbh || 'N'}"`,
+          `"${c.dasgo || 'N'}"`,
+          `"${c.ms365 || 'N'}"`,
+          `"${c.lhalteaF || 'N'}"`,
+          `"${c.lxAlteaF || 'N'}"`,
+          `"${c.float || 'N'}"`,
+          `"${c.floatBac || 'N'}"`,
+          `"${c.pki || 'N'}"`,
+          `"${formatCredentialDisplay('tac', c.tac).replace(/"/g, '""')}"`,
+          `"${c.emm || 'N'}"`,
+          `"${s.updatedAt || new Date().toISOString()}"`
+        ].join(',')
+      );
+    });
+
+    const csvContent = rows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `LHG_Master_Credentials_Latest_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -647,6 +859,16 @@ export default function AdminPortal({
                     <span>Export CSV</span>
                   </button>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={exportConfirmationsPerLoginType}
+                  title="Export all confirmations per log-in type per staff for this reporting period"
+                  className="flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                  <span>Confirmations by Login Type (.CSV)</span>
+                </button>
 
                 <button
                   type="button"
@@ -1280,7 +1502,7 @@ export default function AdminPortal({
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2.5">
                 {/* Search Bar */}
                 <div className="relative">
                   <input
@@ -1294,19 +1516,72 @@ export default function AdminPortal({
                       });
                     }}
                     placeholder="Search name or U-Number..."
-                    className="w-48 sm:w-64 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-slate-900 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-44 sm:w-56 rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-slate-900 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                   <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
                 </div>
 
+                {/* Export Master File (Latest) Button */}
+                <button
+                  type="button"
+                  onClick={exportMasterCredentialsFileLatest}
+                  title="Export complete master credentials roster as latest CSV"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
+                >
+                  <Download className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                  <span>Export Master File (Latest)</span>
+                </button>
+
+                {/* Export Confirmations by Login Type */}
+                <button
+                  type="button"
+                  onClick={exportConfirmationsPerLoginType}
+                  title="Export all confirmations per log-in type per staff for this reporting period"
+                  className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 shadow-2xs"
+                >
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Export Confirmations by Login Type (.CSV)</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setIsNewStaffModalOpen(true)}
-                  className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors shadow-2xs"
                 >
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span>Add Staff Record</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Credential Status Color-Coding Legend */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700 text-xs">
+              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                <span className="font-semibold text-slate-900 dark:text-white">Live Verification Status:</span>
+                <span className="font-medium text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-950/60 px-2 py-0.5 rounded border border-sky-200 dark:border-sky-800">
+                  Cycle: {fortnightLabel}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-green-600 text-white shadow-2xs">
+                    GREEN
+                  </span>
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Confirmed</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white shadow-2xs">
+                    RED
+                  </span>
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Change Requested</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-yellow-400 text-black shadow-2xs">
+                    YELLOW
+                  </span>
+                  <span className="text-slate-700 dark:text-slate-200 font-medium">Not Confirmed</span>
+                </div>
               </div>
             </div>
 
@@ -1320,23 +1595,27 @@ export default function AdminPortal({
                 No staff records match your search criteria.
               </div>
             ) : (
-              <div className="overflow-x-auto max-h-[600px]">
+              <div className="overflow-x-auto max-h-[620px]">
                 <table className="w-full text-left text-xs border-collapse">
-                  <thead className="bg-slate-50 text-slate-600 sticky top-0 border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300">
+                  <thead className="bg-slate-50 text-slate-600 sticky top-0 border-b border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 z-10">
                     <tr>
                       <th className="py-2.5 px-3 font-semibold">U-Number</th>
                       <th className="py-2.5 px-3 font-semibold">Name</th>
                       <th className="py-2.5 px-3 font-semibold">EX-No (ALS)</th>
-                      <th className="py-2.5 px-3 font-semibold">Altea LH</th>
-                      <th className="py-2.5 px-3 font-semibold">LOOK</th>
-                      <th className="py-2.5 px-3 font-semibold">EBASE</th>
-                      <th className="py-2.5 px-3 font-semibold">LMS</th>
-                      <th className="py-2.5 px-3 font-semibold">WorldTrac</th>
-                      <th className="py-2.5 px-3 font-semibold">DASGO</th>
-                      <th className="py-2.5 px-3 font-semibold">M365</th>
-                      <th className="py-2.5 px-3 font-semibold" title="Turnaround companion App (Codes: Y, MOD, ALS)">
+                      <th className="py-2.5 px-3 font-semibold text-center">CUTE</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">Altea LH</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">LOOK</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">EBASE</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">LMS</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">MesWeb</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">WorldTrac</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">SBH</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">DASGO</th>
+                      <th className="py-2.5 px-3 font-semibold text-center">M365</th>
+                      <th className="py-2.5 px-3 font-semibold text-center" title="Turnaround companion App (Codes: Y, MOD, ALS)">
                         Turnaround App (TAC)
                       </th>
+                      <th className="py-2.5 px-3 font-semibold text-center">EMM</th>
                       <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
@@ -1344,37 +1623,57 @@ export default function AdminPortal({
                     {masterStaffList.map(staff => {
                       const isAls = isUserAls(staff.credentials, staff.exNumber);
                       return (
-                        <tr key={staff.id || staff.uNumber} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                        <tr key={staff.id || staff.uNumber} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/50">
                           <td className="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">
                             {staff.uNumber}
                           </td>
-                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white">
+                          <td className="py-2 px-3 font-semibold text-slate-900 dark:text-white whitespace-nowrap">
                             {staff.name}
                           </td>
-                          <td className="py-2 px-3 font-mono text-slate-500">
+                          <td className="py-2 px-3 font-mono text-slate-500 whitespace-nowrap">
                             {isAls ? (
                               <span className="font-semibold text-purple-700 dark:text-purple-300">{staff.exNumber || 'N/A'}</span>
                             ) : (
                               <span className="text-slate-400 text-[11px]">-</span>
                             )}
                           </td>
-                          <td className="py-2 px-3 font-mono">
-                            <span className={staff.credentials.alteaLhc === 'SUP' ? 'font-bold text-purple-600' : ''}>
-                              {staff.credentials.alteaLhc || 'N'}
-                            </span>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'cuteAccess', staff.credentials.cuteAccess || 'Y')}
                           </td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.look || 'N'}</td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.ebase || 'N'}</td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.lms || 'N'}</td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.worldTracer || 'N'}</td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.dasgo || 'N'}</td>
-                          <td className="py-2 px-3 font-mono">{staff.credentials.ms365 || 'N'}</td>
-                          <td className="py-2 px-3 font-mono text-[11px] truncate max-w-[140px]">
-                            <span className="font-semibold text-purple-700 dark:text-purple-300">
-                              {formatCredentialDisplay('tac', staff.credentials.tac)}
-                            </span>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'alteaLhc', staff.credentials.alteaLhc)}
                           </td>
-                          <td className="py-2 px-3 text-right">
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'look', staff.credentials.look)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'ebase', staff.credentials.ebase)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'lms', staff.credentials.lms)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'mesWeb', staff.credentials.mesWeb)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'worldTracer', staff.credentials.worldTracer)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'sbh', staff.credentials.sbh)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'dasgo', staff.credentials.dasgo)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'ms365', staff.credentials.ms365)}
+                          </td>
+                          <td className="py-2 px-3 text-center whitespace-nowrap">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'tac', staff.credentials.tac)}
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'emm', staff.credentials.emm)}
+                          </td>
+                          <td className="py-2 px-3 text-right whitespace-nowrap">
                             <div className="flex items-center justify-end gap-1.5">
                               <button
                                 type="button"
