@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "MasterCredential": {
+      "title": "Master Staff Credential Record",
+      "description": "Baseline master credentials record for an airline ground handler / staff member",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique record identifier (matches uNumber)"
+        },
+        "uNumber": {
+          "type": "string",
+          "description": "Unique staff U-Number (e.g. U194283)"
+        },
+        "exNumber": {
+          "type": "string",
+          "description": "External ALS ID (e.g. EX855733 or N/A)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full staff member name"
+        },
+        "credentials": {
+          "type": "object",
+          "description": "Mapping of system access keys to their assigned role codes or access flags"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of last update"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes or self-registration remarks"
+        }
+      },
+      "required": ["id", "uNumber", "name", "credentials"]
+    },
+    "SubmissionRecord": {
+      "title": "Staff Credential Fortnight Verification Submission",
+      "description": "Record submitted by a staff member verifying active credentials for a fortnight cycle",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique submission ID"
+        },
+        "uNumber": {
+          "type": "string",
+          "description": "Staff U-Number"
+        },
+        "exNumber": {
+          "type": "string",
+          "description": "Staff EX-Number"
+        },
+        "name": {
+          "type": "string",
+          "description": "Staff Name"
+        },
+        "verificationDate": {
+          "type": "string",
+          "description": "Date of verification (YYYY-MM-DD)"
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp when submitted"
+        },
+        "fortnightPeriod": {
+          "type": "string",
+          "description": "Fortnight period code (e.g. 2026-09-F2)"
+        },
+        "fortnightLabel": {
+          "type": "string",
+          "description": "Human readable fortnight period label"
+        },
+        "verifications": {
+          "type": "array",
+          "description": "List of system field verification items"
+        },
+        "hasChangeRequests": {
+          "type": "boolean",
+          "description": "Whether any change was requested"
+        },
+        "changeRequestCount": {
+          "type": "number",
+          "description": "Number of change requests flagged"
+        },
+        "confirmedCount": {
+          "type": "number",
+          "description": "Number of confirmed active credentials"
+        },
+        "totalActiveFields": {
+          "type": "number",
+          "description": "Total systems verified"
+        },
+        "overallRemarks": {
+          "type": "string",
+          "description": "Overall comments from staff"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["CONFIRMED", "CHANGE_REQUESTED"],
+          "description": "Overall status of submission"
+        }
+      },
+      "required": ["id", "uNumber", "name", "verificationDate", "submittedAt", "fortnightPeriod", "verifications", "status"]
+    }
+  },
+  "firestore": {
+    "/master_credentials/{staffId}": {
+      "schema": {
+        "$ref": "#/entities/MasterCredential"
+      },
+      "description": "Master registry of ground staff credentials"
+    },
+    "/submissions/{submissionId}": {
+      "schema": {
+        "$ref": "#/entities/SubmissionRecord"
+      },
+      "description": "Fortnightly verification audit submissions logged by staff"
+    }
+  }
+}

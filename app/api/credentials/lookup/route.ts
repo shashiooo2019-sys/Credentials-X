@@ -13,11 +13,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const staff = findStaffByUNumber(uNumber);
+    const staff = await findStaffByUNumber(uNumber);
 
     if (!staff) {
       // Suggest close matches or sample U-numbers to assist user
-      const all = getMasterCredentials();
+      const all = await getMasterCredentials();
       const suggestions = all
         .filter(s => s.uNumber.toLowerCase().includes(uNumber.toLowerCase()) || s.name.toLowerCase().includes(uNumber.toLowerCase()))
         .slice(0, 5)
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const staff = registerNewStaff(uNumber.trim().toUpperCase(), name.trim().toUpperCase(), exNumber);
+    const staff = await registerNewStaff(uNumber.trim().toUpperCase(), name.trim().toUpperCase(), exNumber);
 
     return NextResponse.json({
       success: true,

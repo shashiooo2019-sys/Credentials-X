@@ -634,12 +634,14 @@ export default function AdminPortal({
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-md py-16 px-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div className="rounded-3xl border-2 border-indigo-200 bg-white p-8 sm:p-10 shadow-xl shadow-indigo-500/10 dark:border-indigo-950 dark:bg-slate-900 relative overflow-hidden">
+          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-2xl" />
+
           <div className="text-center mb-6">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900">
-              <Lock className="h-6 w-6" />
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-950 via-indigo-900 to-purple-950 text-white shadow-md shadow-indigo-500/30 ring-4 ring-amber-400/30">
+              <Lock className="h-7 w-7 text-amber-300" />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Administrator Access
             </h2>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -649,7 +651,7 @@ export default function AdminPortal({
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Username
               </label>
               <input
@@ -658,12 +660,12 @@ export default function AdminPortal({
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Enter username"
                 required
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Password
               </label>
               <input
@@ -672,13 +674,13 @@ export default function AdminPortal({
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Enter password"
                 required
-                className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-2xs"
               />
             </div>
 
             {loginError && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2 font-semibold">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
                 <span>{loginError}</span>
               </div>
             )}
@@ -686,16 +688,16 @@ export default function AdminPortal({
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-950 via-indigo-900 to-purple-950 px-4 py-3 text-sm font-bold text-white hover:from-blue-900 hover:to-purple-900 transition-all shadow-md shadow-indigo-950/20"
             >
               {isLoggingIn ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-slate-900 dark:border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>Signing in...</span>
                 </>
               ) : (
                 <>
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-4 w-4 text-amber-300" />
                   <span>Sign In as Admin</span>
                 </>
               )}
@@ -710,50 +712,50 @@ export default function AdminPortal({
   return (
     <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Top Navigation for Admin */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 dark:border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/80 pb-4 dark:border-indigo-950/80">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
-            <span>Admin Operations & Audit Portal</span>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            <span>Admin Operations &amp; Audit Portal</span>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Monitor fortnight feedback (1-15 & 16-31), resolve change requests, and update master database.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+            Monitor fortnight feedback (1-15 &amp; 16-31), resolve change requests, and update master database with live Firestore persistence.
           </p>
         </div>
 
         {/* View Switcher: Audit vs Master Database */}
-        <div className="flex items-center rounded-lg bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+        <div className="flex items-center rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shadow-inner">
           <button
             onClick={() => setAdminView('audit')}
-            className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 font-medium transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 font-bold transition-all ${
               adminView === 'audit'
-                ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
-            <FileSpreadsheet className="h-4 w-4 text-sky-600 dark:text-sky-400" />
-            <span>Fortnight Audit & Submissions</span>
+            <FileSpreadsheet className="h-4 w-4" />
+            <span>Fortnight Audit &amp; Submissions</span>
           </button>
           <button
             onClick={() => setAdminView('master')}
-            className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 font-medium transition-all ${
+            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 font-bold transition-all ${
               adminView === 'master'
-                ? 'bg-white text-slate-900 shadow-xs dark:bg-slate-700 dark:text-white'
+                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
-            <Database className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+            <Database className="h-4 w-4" />
             <span>Master PDF Database ({masterStaffList.length})</span>
           </button>
         </div>
       </div>
 
       {masterNotice && (
-        <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-emerald-300">
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4" />
+        <div className="flex items-center justify-between rounded-xl border border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-3 text-xs text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs">
+          <div className="flex items-center gap-2 font-bold">
+            <Check className="h-4 w-4 text-emerald-600" />
             <span>{masterNotice}</span>
           </div>
-          <button onClick={() => setMasterNotice(null)} className="text-emerald-600 hover:text-emerald-900">
+          <button onClick={() => setMasterNotice(null)} className="text-emerald-700 hover:text-emerald-950">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -763,11 +765,11 @@ export default function AdminPortal({
       {adminView === 'audit' && (
         <div className="space-y-6">
           {/* Fortnight Selector Bar */}
-          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 shadow-2xs">
+          <div className="rounded-2xl border border-indigo-100 bg-white p-4 sm:p-5 dark:border-indigo-950 dark:bg-slate-900 shadow-xs">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  <Calendar className="h-4 w-4 text-sky-600" />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
+                  <Calendar className="h-4 w-4 text-indigo-600" />
                   <span>Fortnight Cycle:</span>
                 </div>
 
@@ -775,7 +777,7 @@ export default function AdminPortal({
                 <select
                   value={filterYear}
                   onChange={e => setFilterYear(parseInt(e.target.value, 10))}
-                  className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
                 >
                   <option value={2026}>2026</option>
                   <option value={2025}>2025</option>
@@ -786,7 +788,7 @@ export default function AdminPortal({
                 <select
                   value={filterMonth}
                   onChange={e => setFilterMonth(parseInt(e.target.value, 10))}
-                  className="rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
                 >
                   {monthNames.map((m, idx) => (
                     <option key={idx} value={idx + 1}>
@@ -796,13 +798,13 @@ export default function AdminPortal({
                 </select>
 
                 {/* Fortnight 1 (1-15) vs Fortnight 2 (16-31) */}
-                <div className="flex items-center rounded-lg bg-slate-100 p-0.5 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                <div className="flex items-center rounded-lg bg-slate-100 p-0.5 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shadow-inner">
                   <button
                     type="button"
                     onClick={() => setFilterFortnight(1)}
-                    className={`rounded-md px-2.5 py-1 font-medium transition-all ${
+                    className={`rounded-md px-3 py-1 font-bold transition-all ${
                       filterFortnight === 1
-                        ? 'bg-sky-600 text-white shadow-xs'
+                        ? 'bg-indigo-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
                     }`}
                   >
@@ -811,9 +813,9 @@ export default function AdminPortal({
                   <button
                     type="button"
                     onClick={() => setFilterFortnight(2)}
-                    className={`rounded-md px-2.5 py-1 font-medium transition-all ${
+                    className={`rounded-md px-3 py-1 font-bold transition-all ${
                       filterFortnight === 2
-                        ? 'bg-sky-600 text-white shadow-xs'
+                        ? 'bg-indigo-600 text-white shadow-xs'
                         : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
                     }`}
                   >
@@ -830,7 +832,7 @@ export default function AdminPortal({
                     setFilterMonth(today.getMonth() + 1);
                     setFilterFortnight(today.getDate() <= 15 ? 1 : 2);
                   }}
-                  className="text-xs text-sky-600 hover:text-sky-800 font-medium underline"
+                  className="text-xs text-indigo-600 hover:text-indigo-800 font-bold underline ml-1"
                 >
                   Today&apos;s Cycle
                 </button>
@@ -843,7 +845,7 @@ export default function AdminPortal({
                   onClick={fetchFortnightData}
                   disabled={loadingAudit}
                   title="Reload audit data"
-                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${loadingAudit ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
@@ -852,7 +854,7 @@ export default function AdminPortal({
                 <button
                   type="button"
                   onClick={() => exportToCsv('current-view')}
-                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 transition-colors shrink-0"
+                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors shrink-0"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Export CSV</span>
@@ -862,9 +864,9 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportConfirmationsPerLoginType}
                   title="Export all confirmations per log-in type per staff for this reporting period"
-                  className="flex items-center gap-1.5 rounded-lg border border-sky-300 bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200 shadow-2xs shrink-0"
+                  className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 shadow-xs shrink-0"
                 >
-                  <FileSpreadsheet className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                  <FileSpreadsheet className="h-3.5 w-3.5" />
                   <span>Confirmations by Login Type (.CSV)</span>
                 </button>
 
@@ -872,7 +874,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('change-requests')}
                   title="Export only flagged change requests"
-                  className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 shadow-2xs shrink-0"
+                  className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 shadow-2xs shrink-0"
                 >
                   <span>Change Requests CSV</span>
                 </button>
@@ -881,7 +883,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('missing-staff')}
                   title="Export list of staff who have not verified"
-                  className="flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
+                  className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-900 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200 shadow-2xs shrink-0"
                 >
                   <span>Missing Staff CSV</span>
                 </button>
@@ -898,34 +900,34 @@ export default function AdminPortal({
                 setSubmissionSearch('');
               }}
               title="Click to view all master staff"
-              className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition-all hover:scale-[1.02] ${
+              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-blue-600 ${
                 statusFilter === 'ALL' && !submissionSearch
-                  ? 'border-sky-500 bg-sky-50/30 dark:border-sky-500 dark:bg-sky-950/20 ring-1 ring-sky-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
+                  ? 'border-blue-500 bg-gradient-to-br from-blue-50/80 via-white to-white dark:border-blue-500 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-blue-400/40'
+                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-blue-300'
               }`}
             >
-              <span className="text-xs font-medium text-slate-500">Master Staff</span>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+              <span className="text-xs font-bold text-blue-700 dark:text-blue-300">Master Staff</span>
+              <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
                 {auditMetrics.totalStaffCount}
               </p>
-              <span className="text-[11px] text-slate-400">Total in baseline</span>
+              <span className="text-[11px] text-slate-500 font-medium">Total in baseline</span>
             </div>
 
             {/* Card 2: Submitted */}
             <div
               onClick={() => setStatusFilter('ALL')}
               title="Click to view all submissions"
-              className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition-all hover:scale-[1.02] ${
+              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-sky-500 ${
                 statusFilter === 'ALL'
-                  ? 'border-sky-500 bg-sky-50/30 dark:border-sky-500 dark:bg-sky-950/20 ring-1 ring-sky-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
+                  ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 via-white to-white dark:border-sky-500 dark:from-sky-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-sky-400/40'
+                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-sky-300'
               }`}
             >
-              <span className="text-xs font-medium text-slate-500">Submissions</span>
-              <p className="text-2xl font-bold text-sky-600 dark:text-sky-400 mt-1">
+              <span className="text-xs font-bold text-sky-700 dark:text-sky-300">Submissions</span>
+              <p className="text-2xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">
                 {auditMetrics.submittedCount}
               </p>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-sky-700 dark:text-sky-300 font-bold">
                 {auditMetrics.complianceRate}% compliance
               </span>
             </div>
@@ -934,60 +936,60 @@ export default function AdminPortal({
             <div
               onClick={() => setStatusFilter('PENDING')}
               title="Click to view pending submissions"
-              className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition-all hover:scale-[1.02] ${
+              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-rose-500 ${
                 statusFilter === 'PENDING'
-                  ? 'border-rose-500 bg-rose-50/40 dark:border-rose-500 dark:bg-rose-950/30 ring-1 ring-rose-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-rose-300 dark:hover:border-rose-900'
+                  ? 'border-rose-500 bg-gradient-to-br from-rose-50/80 via-white to-white dark:border-rose-500 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-rose-400/40'
+                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-rose-300'
               }`}
             >
-              <span className="text-xs font-medium text-slate-500">Pending Submissions</span>
-              <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">
+              <span className="text-xs font-bold text-rose-700 dark:text-rose-300">Pending Submissions</span>
+              <p className="text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">
                 {auditMetrics.missingCount}
               </p>
-              <span className="text-[11px] text-slate-400">Awaiting verification</span>
+              <span className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">Awaiting verification</span>
             </div>
 
             {/* Card 4: Change Requests */}
             <div
               onClick={() => setStatusFilter('CHANGE_REQUESTED')}
               title="Click to view change requests"
-              className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition-all hover:scale-[1.02] ${
+              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-amber-500 ${
                 statusFilter === 'CHANGE_REQUESTED'
-                  ? 'border-amber-500 bg-amber-50/40 dark:border-amber-500 dark:bg-amber-950/30 ring-1 ring-amber-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-amber-300 dark:hover:border-amber-900'
+                  ? 'border-amber-500 bg-gradient-to-br from-amber-50/80 via-white to-white dark:border-amber-500 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-amber-400/40'
+                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-amber-300'
               }`}
             >
-              <span className="text-xs font-medium text-slate-500">Change Requests</span>
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
+              <span className="text-xs font-bold text-amber-800 dark:text-amber-300">Change Requests</span>
+              <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
                 {auditMetrics.changeRequestCount}
               </p>
-              <span className="text-[11px] text-slate-400">Issue / ticket required</span>
+              <span className="text-[11px] text-amber-800 dark:text-amber-300 font-medium">Issue / ticket required</span>
             </div>
 
             {/* Card 5: Confirmed */}
             <div
               onClick={() => setStatusFilter('CONFIRMED')}
               title="Click to view confirmed submissions"
-              className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition-all hover:scale-[1.02] ${
+              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-emerald-500 ${
                 statusFilter === 'CONFIRMED'
-                  ? 'border-emerald-500 bg-emerald-50/40 dark:border-emerald-500 dark:bg-emerald-950/30 ring-1 ring-emerald-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-emerald-300 dark:hover:border-emerald-900'
+                  ? 'border-emerald-500 bg-gradient-to-br from-emerald-50/80 via-white to-white dark:border-emerald-500 dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-emerald-400/40'
+                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-emerald-300'
               }`}
             >
-              <span className="text-xs font-medium text-slate-500">100% Confirmed</span>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">100% Confirmed</span>
+              <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
                 {auditMetrics.confirmedCount}
               </p>
-              <span className="text-[11px] text-slate-400">All working as indicated</span>
+              <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">All working as indicated</span>
             </div>
 
             {/* Card 6: Audit Period */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 shadow-2xs">
-              <span className="text-xs font-medium text-slate-500">Active Audit Cycle</span>
-              <p className="text-sm font-bold text-slate-900 dark:text-white mt-2 truncate">
+            <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-purple-50/60 via-white to-white p-4 dark:border-slate-800 dark:bg-slate-900 shadow-xs border-l-4 border-l-purple-500">
+              <span className="text-xs font-bold text-purple-700 dark:text-purple-300">Active Audit Cycle</span>
+              <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-1.5 truncate">
                 {fortnightLabel || 'Loading...'}
               </p>
-              <span className="text-[11px] font-mono text-sky-600">
+              <span className="text-[11px] font-mono font-bold text-purple-700 dark:text-purple-300">
                 F{filterFortnight} ({filterFortnight === 1 ? 'Days 1-15' : 'Days 16-31'})
               </span>
             </div>

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMasterCredentials, saveMasterCredentials } from '@/lib/storage';
+import {
+  getMasterCredentials,
+  saveMasterCredentials,
+  saveSingleMasterRecord,
+  deleteStaffRecord
+} from '@/lib/storage';
 import { INITIAL_MASTER_CREDENTIALS } from '@/lib/initial-data';
 import { UserCredentialRecord } from '@/lib/types';
 
@@ -8,7 +13,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('q')?.toLowerCase() || '';
 
-    const list = getMasterCredentials();
+    const list = await getMasterCredentials();
 
     if (!search) {
       return NextResponse.json({
@@ -47,30 +52,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const list = getMasterCredentials();
-    const existingIndex = list.findIndex(
-      s => s.uNumber.toLowerCase().trim() === record.uNumber.toLowerCase().trim()
-    );
-
-    if (existingIndex >= 0) {
-      list[existingIndex] = {
-        ...record,
-        updatedAt: new Date().toISOString()
-      };
-    } else {
-      list.unshift({
-        ...record,
-        id: record.uNumber.trim(),
-        updatedAt: new Date().toISOString()
-      });
-    }
-
-    saveMasterCredentials(list);
+    await saveSingleMasterRecord(record);
+    const updatedList = await getMasterCredentials();
 
     return NextResponse.json({
       success: true,
-      message: existingIndex >= 0 ? 'Record updated successfully' : 'New record created successfully',
-      staff: list
+      message: 'Staff credential record saved successfully to Firebase Firestore',
+      staff: updatedList
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -87,14 +75,12 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'uNumber parameter is required' }, { status: 400 });
     }
 
-    const list = getMasterCredentials();
-    const updated = list.filter(s => s.uNumber.toLowerCase() !== uNumber.toLowerCase());
-
-    saveMasterCredentials(updated);
+    await deleteStaffRecord(uNumber);
+    const updated = await getMasterCredentials();
 
     return NextResponse.json({
       success: true,
-      message: `Staff record ${uNumber} deleted`,
+      message: `Staff record ${uNumber} deleted from Firebase Firestore`,
       count: updated.length
     });
   } catch (err: unknown) {
@@ -106,10 +92,10 @@ export async function DELETE(req: NextRequest) {
 // Reset to default seed
 export async function PUT() {
   try {
-    saveMasterCredentials([...INITIAL_MASTER_CREDENTIALS]);
+    await saveMasterCredentials([...INITIAL_MASTER_CREDENTIALS]);
     return NextResponse.json({
       success: true,
-      message: 'Master database successfully reset to original seed dataset.',
+      message: 'Master database successfully reset to original seed dataset in Firebase Firestore.',
       count: INITIAL_MASTER_CREDENTIALS.length
     });
   } catch (err: unknown) {

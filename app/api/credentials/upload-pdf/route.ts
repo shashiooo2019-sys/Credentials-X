@@ -18,15 +18,15 @@ export async function POST(req: NextRequest) {
         if (Array.isArray(parsed) && parsed.length > 0) {
           if (action === 'commit') {
             if (mode === 'replace') {
-              saveMasterCredentials(parsed);
+              await saveMasterCredentials(parsed);
               return NextResponse.json({
                 success: true,
                 records: parsed,
                 count: parsed.length,
-                message: `Master credentials database replaced with ${parsed.length} staff records.`
+                message: `Master credentials database replaced with ${parsed.length} staff records in Firebase Firestore.`
               });
             } else {
-              const res = upsertMasterCredentials(parsed);
+              const res = await upsertMasterCredentials(parsed);
               return NextResponse.json({
                 success: true,
                 records: parsed,
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
                 updatedCount: res.updatedCount,
                 addedCount: res.addedCount,
                 totalCount: res.totalCount,
-                message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff. Total database records: ${res.totalCount}.`
+                message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff to Firebase Firestore. Total database records: ${res.totalCount}.`
               });
             }
           }
@@ -70,15 +70,15 @@ export async function POST(req: NextRequest) {
       }
       if (action === 'commit') {
         if (mode === 'replace') {
-          saveMasterCredentials(records);
+          await saveMasterCredentials(records);
           return NextResponse.json({
             success: true,
             records,
             count: records.length,
-            message: `Successfully replaced master database with ${records.length} records.`
+            message: `Successfully replaced master database with ${records.length} records in Firebase Firestore.`
           });
         } else {
-          const res = upsertMasterCredentials(records);
+          const res = await upsertMasterCredentials(records);
           return NextResponse.json({
             success: true,
             records,
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
             updatedCount: res.updatedCount,
             addedCount: res.addedCount,
             totalCount: res.totalCount,
-            message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff. Total database records: ${res.totalCount}.`
+            message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff in Firebase Firestore. Total database records: ${res.totalCount}.`
           });
         }
       }
@@ -227,15 +227,15 @@ Important Instructions:
 
     if (action === 'commit') {
       if (mode === 'replace') {
-        saveMasterCredentials(sanitized);
+        await saveMasterCredentials(sanitized);
         return NextResponse.json({
           success: true,
           records: sanitized,
           count: sanitized.length,
-          message: `Successfully replaced master database with ${sanitized.length} staff records.`
+          message: `Successfully replaced master database with ${sanitized.length} staff records in Firebase Firestore.`
         });
       } else {
-        const res = upsertMasterCredentials(sanitized);
+        const res = await upsertMasterCredentials(sanitized);
         return NextResponse.json({
           success: true,
           records: sanitized,
@@ -243,7 +243,7 @@ Important Instructions:
           updatedCount: res.updatedCount,
           addedCount: res.addedCount,
           totalCount: res.totalCount,
-          message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff. Total records: ${res.totalCount}.`
+          message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff to Firebase Firestore. Total records: ${res.totalCount}.`
         });
       }
     }

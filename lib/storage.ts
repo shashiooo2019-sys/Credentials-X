@@ -1,17 +1,28 @@
 import fs from 'fs';
 import path from 'path';
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  writeBatch
+} from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from './firebase';
 import { INITIAL_MASTER_CREDENTIALS } from './initial-data';
-import { UserCredentialRecord, SubmissionRecord, FortnightFilter } from './types';
+import { UserCredentialRecord, SubmissionRecord } from './types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const MASTER_FILE = path.join(DATA_DIR, 'master_credentials.json');
 const SUBMISSIONS_FILE = path.join(DATA_DIR, 'submissions.json');
 
-// In-memory cache fallback
+// In-memory cache fallback for fast response & resilience
 let memoryMasterCredentials: UserCredentialRecord[] = [...INITIAL_MASTER_CREDENTIALS];
 let memorySubmissions: SubmissionRecord[] = [];
+let isFirebaseInitialized = false;
 
-// Seed sample past submissions so admin can immediately test the fortnight filters and audits!
+// Seed sample past submissions
 function createSeedSubmissions(): SubmissionRecord[] {
   return [
     {
@@ -102,7 +113,7 @@ function createSeedSubmissions(): SubmissionRecord[] {
 
 memorySubmissions = createSeedSubmissions();
 
-function ensureDataDir() {
+function ensureLocalCache() {
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -114,69 +125,213 @@ function ensureDataDir() {
       fs.writeFileSync(SUBMISSIONS_FILE, JSON.stringify(memorySubmissions, null, 2), 'utf-8');
     }
   } catch (err) {
-    console.warn("Storage notice: Directory or file system initialization used memory fallback:", err);
+    console.warn("Local cache notice:", err);
   }
 }
 
-ensureDataDir();
+ensureLocalCache();
 
-export function getMasterCredentials(): UserCredentialRecord[] {
+/**
+ * Sync initial master credentials and seed submissions to Firebase Firestore if not yet populated
+ */
+async function initializeFirebaseDataIfNeeded() {
+  if (isFirebaseInitialized) return;
+  try {
+    const masterCol = collection(db, 'master_credentials');
+    const masterSnap = await getDocs(masterCol);
+
+    if (masterSnap.empty) {
+      console.log("Bootstrapping INITIAL_MASTER_CREDENTIALS to Firebase Firestore...");
+      const batch = writeBatch(db);
+      // Chunk into batches of up to 450 items
+      for (const rec of INITIAL_MASTER_CREDENTIALS) {
+        const docRef = doc(db, 'master_credentials', rec.uNumber.trim().toUpperCase());
+        batch.set(docRef, {
+          ...rec,
+          id: rec.uNumber.trim().toUpperCase(),
+          credentials: {
+            ...rec.credentials,
+            cuteAccess: rec.credentials.cuteAccess || 'Y'
+          },
+          updatedAt: new Date().toISOString()
+        });
+      }
+      await batch.commit();
+      console.log(`Successfully bootstrapped ${INITIAL_MASTER_CREDENTIALS.length} records to Firebase!`);
+    }
+
+    const subCol = collection(db, 'submissions');
+    const subSnap = await getDocs(subCol);
+    if (subSnap.empty && memorySubmissions.length > 0) {
+      const batch = writeBatch(db);
+      for (const sub of memorySubmissions) {
+        const docRef = doc(db, 'submissions', sub.id);
+        batch.set(docRef, sub);
+      }
+      await batch.commit();
+      console.log("Successfully seeded initial submissions to Firebase!");
+    }
+
+    isFirebaseInitialized = true;
+  } catch (err) {
+    console.warn("Notice during Firebase initialization check:", err);
+  }
+}
+
+/**
+ * Retrieve master credentials directly from Firebase Firestore
+ */
+export async function getMasterCredentials(): Promise<UserCredentialRecord[]> {
+  try {
+    await initializeFirebaseDataIfNeeded();
+    const masterCol = collection(db, 'master_credentials');
+    const snap = await getDocs(masterCol);
+
+    if (!snap.empty) {
+      const list: UserCredentialRecord[] = [];
+      snap.forEach(d => {
+        const data = d.data() as UserCredentialRecord;
+        list.push({
+          ...data,
+          id: data.id || d.id,
+          uNumber: data.uNumber || d.id,
+          credentials: {
+            ...data.credentials,
+            cuteAccess: data.credentials?.cuteAccess || 'Y'
+          }
+        });
+      });
+
+      // Update memory cache
+      memoryMasterCredentials = list;
+      try {
+        fs.writeFileSync(MASTER_FILE, JSON.stringify(list, null, 2), 'utf-8');
+      } catch {}
+      return list;
+    }
+  } catch (err) {
+    try {
+      handleFirestoreError(err, OperationType.LIST, 'master_credentials');
+    } catch {
+      console.warn("Using local cache fallback for master credentials:", err);
+    }
+  }
+
+  // Fallback to local file / memory
   try {
     if (fs.existsSync(MASTER_FILE)) {
       const content = fs.readFileSync(MASTER_FILE, 'utf-8');
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        let modified = false;
-        // Ensure default CUTE Access is 'Y' for everyone
-        parsed.forEach(r => {
-          if (!r.credentials.cuteAccess) {
-            r.credentials.cuteAccess = 'Y';
-            modified = true;
-          }
-        });
-        if (modified) {
-          try {
-            fs.writeFileSync(MASTER_FILE, JSON.stringify(parsed, null, 2), 'utf-8');
-          } catch {}
-        }
         memoryMasterCredentials = parsed;
         return parsed;
       }
     }
-  } catch (err) {
-    console.warn("Failed reading master credentials file, using memory:", err);
-  }
-  memoryMasterCredentials.forEach(r => {
-    if (!r.credentials.cuteAccess) {
-      r.credentials.cuteAccess = 'Y';
-    }
-  });
+  } catch {}
+
   return memoryMasterCredentials;
 }
 
-export function saveMasterCredentials(data: UserCredentialRecord[]): boolean {
-  // Ensure default CUTE Access is 'Y' for everyone
-  data.forEach(r => {
-    if (!r.credentials.cuteAccess) {
-      r.credentials.cuteAccess = 'Y';
-    }
-  });
-  memoryMasterCredentials = data;
+/**
+ * Save master credentials dataset to Firebase Firestore
+ */
+export async function saveMasterCredentials(data: UserCredentialRecord[]): Promise<boolean> {
+  const safeData = data.map(r => ({
+    ...r,
+    id: r.uNumber.trim().toUpperCase(),
+    uNumber: r.uNumber.trim().toUpperCase(),
+    credentials: {
+      ...r.credentials,
+      cuteAccess: r.credentials?.cuteAccess || 'Y'
+    },
+    updatedAt: new Date().toISOString()
+  }));
+
+  memoryMasterCredentials = safeData;
   try {
-    ensureDataDir();
-    fs.writeFileSync(MASTER_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync(MASTER_FILE, JSON.stringify(safeData, null, 2), 'utf-8');
+  } catch {}
+
+  try {
+    // Write all records to Firestore
+    const batch = writeBatch(db);
+    safeData.forEach(rec => {
+      const docRef = doc(db, 'master_credentials', rec.uNumber);
+      batch.set(docRef, rec, { merge: true });
+    });
+    await batch.commit();
     return true;
   } catch (err) {
-    console.warn("Failed writing master credentials to disk, preserved in memory:", err);
-    return true;
+    handleFirestoreError(err, OperationType.WRITE, 'master_credentials');
+    return false;
   }
 }
 
-// Upsert records: overwrites existing credentials for matching U-number (no duplicates), and adds new U-numbers
-export function upsertMasterCredentials(incomingRecords: UserCredentialRecord[]): { updatedCount: number; addedCount: number; totalCount: number } {
-  const current = getMasterCredentials();
+/**
+ * Save single staff master record to Firebase Firestore
+ */
+export async function saveSingleMasterRecord(record: UserCredentialRecord): Promise<UserCredentialRecord> {
+  const normUNum = record.uNumber.trim().toUpperCase();
+  const safeRecord: UserCredentialRecord = {
+    ...record,
+    id: normUNum,
+    uNumber: normUNum,
+    name: record.name.trim().toUpperCase(),
+    exNumber: record.exNumber || 'N/A',
+    credentials: {
+      ...record.credentials,
+      cuteAccess: record.credentials?.cuteAccess || 'Y'
+    },
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    const docRef = doc(db, 'master_credentials', normUNum);
+    await setDoc(docRef, safeRecord, { merge: true });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `master_credentials/${normUNum}`);
+  }
+
+  // Update memory cache
+  const idx = memoryMasterCredentials.findIndex(s => s.uNumber.trim().toUpperCase() === normUNum);
+  if (idx >= 0) {
+    memoryMasterCredentials[idx] = safeRecord;
+  } else {
+    memoryMasterCredentials.unshift(safeRecord);
+  }
+
+  return safeRecord;
+}
+
+/**
+ * Delete a staff record from Firebase Firestore
+ */
+export async function deleteStaffRecord(uNumber: string): Promise<boolean> {
+  const normUNum = uNumber.trim().toUpperCase();
+  try {
+    const docRef = doc(db, 'master_credentials', normUNum);
+    await deleteDoc(docRef);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `master_credentials/${normUNum}`);
+  }
+
+  memoryMasterCredentials = memoryMasterCredentials.filter(s => s.uNumber.trim().toUpperCase() !== normUNum);
+  try {
+    fs.writeFileSync(MASTER_FILE, JSON.stringify(memoryMasterCredentials, null, 2), 'utf-8');
+  } catch {}
+
+  return true;
+}
+
+/**
+ * Upsert records: overwrites existing credentials for matching U-number, and adds new U-numbers to Firebase
+ */
+export async function upsertMasterCredentials(incomingRecords: UserCredentialRecord[]): Promise<{ updatedCount: number; addedCount: number; totalCount: number }> {
+  const current = await getMasterCredentials();
   let updatedCount = 0;
   let addedCount = 0;
+
+  const batch = writeBatch(db);
 
   incomingRecords.forEach(newRec => {
     if (!newRec.uNumber) return;
@@ -188,9 +343,10 @@ export function upsertMasterCredentials(incomingRecords: UserCredentialRecord[])
       cuteAccess: newRec.credentials?.cuteAccess || 'Y'
     };
 
+    let updatedRecord: UserCredentialRecord;
+
     if (existingIndex >= 0) {
-      // OVERWRITE existing credentials data for the same U number
-      current[existingIndex] = {
+      updatedRecord = {
         ...current[existingIndex],
         name: newRec.name || current[existingIndex].name,
         exNumber: newRec.exNumber && newRec.exNumber !== 'N/A' ? newRec.exNumber : current[existingIndex].exNumber,
@@ -200,35 +356,51 @@ export function upsertMasterCredentials(incomingRecords: UserCredentialRecord[])
         },
         updatedAt: new Date().toISOString()
       };
+      current[existingIndex] = updatedRecord;
       updatedCount++;
     } else {
-      // ADD new U number record
-      current.push({
+      updatedRecord = {
         id: normUNum,
         uNumber: normUNum,
         exNumber: newRec.exNumber || 'N/A',
         name: newRec.name || 'UNKNOWN',
         credentials: safeCreds,
         updatedAt: new Date().toISOString()
-      });
+      };
+      current.push(updatedRecord);
       addedCount++;
     }
+
+    const docRef = doc(db, 'master_credentials', normUNum);
+    batch.set(docRef, updatedRecord, { merge: true });
   });
 
-  saveMasterCredentials(current);
+  try {
+    await batch.commit();
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, 'master_credentials');
+  }
+
+  memoryMasterCredentials = current;
+  try {
+    fs.writeFileSync(MASTER_FILE, JSON.stringify(current, null, 2), 'utf-8');
+  } catch {}
+
   return { updatedCount, addedCount, totalCount: current.length };
 }
 
-// Register a new staff member dynamically if name does not appear in database
-export function registerNewStaff(uNumber: string, name: string, exNumber: string = 'N/A'): UserCredentialRecord {
-  const current = getMasterCredentials();
+/**
+ * Register a new staff member dynamically in Firebase Firestore
+ */
+export async function registerNewStaff(uNumber: string, name: string, exNumber: string = 'N/A'): Promise<UserCredentialRecord> {
   const normUNum = uNumber.trim().toUpperCase();
+  const current = await getMasterCredentials();
   const existing = current.find(s => s.uNumber.trim().toUpperCase() === normUNum);
 
   if (existing) {
     if (name.trim()) existing.name = name.trim().toUpperCase();
     if (exNumber && exNumber !== 'N/A') existing.exNumber = exNumber.trim();
-    saveMasterCredentials(current);
+    await saveSingleMasterRecord(existing);
     return existing;
   }
 
@@ -262,30 +434,62 @@ export function registerNewStaff(uNumber: string, name: string, exNumber: string
     notes: 'Self-registered by staff during verification'
   };
 
-  current.push(newStaff);
-  saveMasterCredentials(current);
+  await saveSingleMasterRecord(newStaff);
   return newStaff;
 }
 
-export function getSubmissions(): SubmissionRecord[] {
+/**
+ * Retrieve submissions from Firebase Firestore
+ */
+export async function getSubmissions(): Promise<SubmissionRecord[]> {
   try {
-    if (fs.existsSync(SUBMISSIONS_FILE)) {
-      const content = fs.readFileSync(SUBMISSIONS_FILE, 'utf-8');
-      const parsed = JSON.parse(content);
-      if (Array.isArray(parsed)) {
-        memorySubmissions = parsed;
-        return parsed;
-      }
+    await initializeFirebaseDataIfNeeded();
+    const subCol = collection(db, 'submissions');
+    const snap = await getDocs(subCol);
+
+    if (!snap.empty) {
+      const list: SubmissionRecord[] = [];
+      snap.forEach(d => {
+        const data = d.data() as SubmissionRecord;
+        list.push({
+          ...data,
+          id: data.id || d.id
+        });
+      });
+
+      // Sort by submittedAt descending
+      list.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+
+      memorySubmissions = list;
+      try {
+        fs.writeFileSync(SUBMISSIONS_FILE, JSON.stringify(list, null, 2), 'utf-8');
+      } catch {}
+      return list;
     }
   } catch (err) {
-    console.warn("Failed reading submissions file, using memory:", err);
+    try {
+      handleFirestoreError(err, OperationType.LIST, 'submissions');
+    } catch {
+      console.warn("Using local cache fallback for submissions:", err);
+    }
   }
+
   return memorySubmissions;
 }
 
-export function saveSubmission(submission: SubmissionRecord): SubmissionRecord {
-  const current = getSubmissions();
-  // If user already submitted for this fortnight, update existing or append
+/**
+ * Save a single submission to Firebase Firestore
+ */
+export async function saveSubmission(submission: SubmissionRecord): Promise<SubmissionRecord> {
+  const docRef = doc(db, 'submissions', submission.id);
+
+  try {
+    await setDoc(docRef, submission);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `submissions/${submission.id}`);
+  }
+
+  const current = memorySubmissions;
   const existingIdx = current.findIndex(
     s => s.uNumber.toLowerCase() === submission.uNumber.toLowerCase() && s.fortnightPeriod === submission.fortnightPeriod
   );
@@ -298,17 +502,13 @@ export function saveSubmission(submission: SubmissionRecord): SubmissionRecord {
 
   memorySubmissions = current;
   try {
-    ensureDataDir();
     fs.writeFileSync(SUBMISSIONS_FILE, JSON.stringify(current, null, 2), 'utf-8');
-  } catch (err) {
-    console.warn("Failed writing submissions to disk, preserved in memory:", err);
-  }
+  } catch {}
 
   return submission;
 }
 
 export function getFortnightPeriod(dateStr: string): { period: string; label: string; fortnightNum: 1 | 2; year: number; month: number } {
-  // dateStr is YYYY-MM-DD
   const date = new Date(dateStr);
   const year = isNaN(date.getFullYear()) ? new Date().getFullYear() : date.getFullYear();
   const month = isNaN(date.getMonth()) ? new Date().getMonth() + 1 : date.getMonth() + 1;
@@ -321,23 +521,21 @@ export function getFortnightPeriod(dateStr: string): { period: string; label: st
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthName = monthNames[month - 1] || "Month";
   
-  // Last day of month
   const lastDay = new Date(year, month, 0).getDate();
   const label = fortnightNum === 1 ? `1-15 ${monthName} ${year}` : `16-${lastDay} ${monthName} ${year}`;
 
   return { period, label, fortnightNum, year, month };
 }
 
-export function findStaffByUNumber(uNum: string): UserCredentialRecord | null {
-  const normalized = uNum.trim().toLowerCase();
-  const list = getMasterCredentials();
+export async function findStaffByUNumber(uNum: string): Promise<UserCredentialRecord | null> {
+  const normalized = uNum.trim().toUpperCase();
+  const list = await getMasterCredentials();
   
   return list.find(s => {
-    const sUNum = s.uNumber.trim().toLowerCase();
+    const sUNum = s.uNumber.trim().toUpperCase();
     if (sUNum === normalized) return true;
-    // Support entering "194283" matching "U194283"
-    if (sUNum === `u${normalized}`) return true;
-    if (normalized === `u${sUNum}`) return true;
+    if (sUNum === `U${normalized}`) return true;
+    if (normalized === `U${sUNum}`) return true;
     return false;
   }) || null;
 }

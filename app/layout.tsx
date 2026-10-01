@@ -2,17 +2,17 @@ import type {Metadata} from 'next';
 import './globals.css'; // Global styles
 
 export const metadata: Metadata = {
-  title: 'LHG Credentials Verification App',
-  description: 'Bi-weekly credential validation and change request portal for LHG staff.',
+  title: 'Staff Credential Verification Portal',
+  description: 'Bi-weekly credential validation and change request portal for staff with administrative fortnight audit and master database management.',
   openGraph: {
-    title: 'LHG Credentials Verification App',
-    description: 'Bi-weekly credential validation and change request portal for LHG staff.',
+    title: 'Staff Credential Verification Portal',
+    description: 'Bi-weekly credential validation and change request portal for staff with administrative fortnight audit and master database management.',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'LHG Credentials Verification App',
-    description: 'Bi-weekly credential validation and change request portal for LHG staff.',
+    title: 'Staff Credential Verification Portal',
+    description: 'Bi-weekly credential validation and change request portal for staff with administrative fortnight audit and master database management.',
   },
 };
 

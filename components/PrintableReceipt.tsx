@@ -16,8 +16,12 @@ import {
   X,
   RefreshCw,
   Sparkles,
-  Inbox
+  Inbox,
+  Lock,
+  Shield
 } from 'lucide-react';
+
+export const OFFICIAL_REVIEW_EMAIL = 'Log-in Reviews - DELSM Operations and Security <ea8add7c.lufthansagroup.onmicrosoft.com@emea.teams.ms>';
 
 interface PrintableReceiptProps {
   submission: SubmissionRecord;
@@ -55,7 +59,6 @@ export default function PrintableReceipt({
 
   // Dispatch simulated email
   const triggerSimulatedEmail = useCallback(async (targetEmail: string) => {
-    if (!targetEmail.trim()) return;
     setIsSendingEmail(true);
 
     try {
@@ -63,7 +66,8 @@ export default function PrintableReceipt({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: targetEmail.trim(),
+          officialRecipient: OFFICIAL_REVIEW_EMAIL,
+          email: targetEmail.trim() || undefined,
           submissionId: submission.id,
           uNumber: submission.uNumber,
           name: submission.name,
@@ -98,11 +102,15 @@ export default function PrintableReceipt({
 
   const handleCopyEmailBody = () => {
     let emailText = `FROM: no-reply.compliance@lhg.com\n`;
-    emailText += `TO: ${emailInput}\n`;
-    emailText += `SUBJECT: [CONFIRMATION] LHG Credentials Verification - ${submission.uNumber} (${submission.name})\n`;
+    emailText += `TO: ${OFFICIAL_REVIEW_EMAIL}\n`;
+    if (emailInput && emailInput.trim()) {
+      emailText += `CC: ${emailInput.trim()}\n`;
+    }
+    emailText += `SUBJECT: [CREDENTIALS VERIFICATION] - ${submission.uNumber} (${submission.name}) - ${submission.fortnightLabel}\n`;
     emailText += `DATE: ${new Date(submission.submittedAt).toUTCString()}\n\n`;
-    emailText += `Dear ${submission.name},\n\n`;
-    emailText += `Your bi-weekly staff credential verification has been successfully recorded in the LHG audit database.\n\n`;
+    emailText += `Official Review Destination: Log-in Reviews - DELSM Operations and Security\n`;
+    emailText += `Staff Submitter: ${submission.name} (${submission.uNumber})\n\n`;
+    emailText += `Staff credential verification has been successfully recorded in the audit database.\n\n`;
     emailText += `--- AUDIT SUMMARY ---\n`;
     emailText += `Submission ID   : ${submission.id}\n`;
     emailText += `Staff Name      : ${submission.name}\n`;
@@ -122,7 +130,7 @@ export default function PrintableReceipt({
     if (submission.overallRemarks) {
       emailText += `\nGeneral Remarks: ${submission.overallRemarks}\n`;
     }
-    emailText += `\nPlease retain this simulated summary for your compliance records.\nGround Operations Access Management · Deutsche Lufthansa AG`;
+    emailText += `\nDelivered to: Log-in Reviews - DELSM Operations and Security <ea8add7c.lufthansagroup.onmicrosoft.com@emea.teams.ms>\nGround Operations Access Management · Deutsche Lufthansa AG`;
 
     navigator.clipboard.writeText(emailText);
     setCopiedText(true);
@@ -178,22 +186,22 @@ export default function PrintableReceipt({
   return (
     <div className="mx-auto max-w-4xl py-6 px-4 sm:px-6">
       {/* Top action bar (hidden during print) */}
-      <div className="print:hidden mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+      <div className="print:hidden mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-indigo-200/80 bg-gradient-to-r from-white via-indigo-50/40 to-blue-50/50 p-4 shadow-md dark:border-indigo-900/50 dark:bg-slate-900">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
             <CheckCircle2 className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-emerald-900 dark:text-emerald-100">
-              Verification Successfully Submitted!
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              Verification Successfully Submitted &amp; Logged!
             </h2>
-            <p className="text-xs text-emerald-700 dark:text-emerald-300">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
               Your bi-weekly credentials review has been recorded in the audit database.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => {
               if (!emailSent) {
@@ -203,91 +211,96 @@ export default function PrintableReceipt({
               }
             }}
             disabled={isSendingEmail}
-            className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-700 focus:outline-hidden focus:ring-2 focus:ring-sky-500 transition-colors disabled:opacity-60"
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-700 px-3.5 py-2 text-xs font-bold text-white shadow-md hover:from-sky-500 hover:to-blue-600 focus:outline-hidden focus:ring-2 focus:ring-sky-400 transition-all active:scale-95 disabled:opacity-60 cursor-pointer"
           >
             {isSendingEmail ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <span>Dispatching Email...</span>
               </>
             ) : emailSent ? (
               <>
-                <Mail className="h-4 w-4" />
+                <Mail className="h-3.5 w-3.5 text-amber-300" />
                 <span>View Email Summary</span>
               </>
             ) : (
               <>
-                <Send className="h-4 w-4" />
+                <Send className="h-3.5 w-3.5" />
                 <span>Send Email Summary</span>
               </>
             )}
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
             <span>Print / Save PDF</span>
           </button>
           <button
             onClick={handleDownloadTxt}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
             <span>Download (.TXT)</span>
           </button>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-100 px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50/80 px-3.5 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-900 dark:bg-indigo-950/50 dark:text-indigo-300 transition-all cursor-pointer"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             <span>New Verification</span>
           </button>
         </div>
       </div>
 
-      {/* Simulated Email Confirmation Card (Hidden during print) */}
-      <div className="print:hidden mb-6 rounded-xl border border-sky-200 bg-gradient-to-r from-sky-50 via-white to-sky-50/50 p-4.5 dark:border-sky-900/60 dark:bg-gradient-to-r dark:from-sky-950/30 dark:via-slate-900 dark:to-sky-950/20 shadow-2xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Email Confirmation Card with Official Recipient & Staff Copy (Hidden during print) */}
+      <div className="print:hidden mb-6 rounded-2xl border border-sky-300 bg-gradient-to-r from-sky-50 via-white to-sky-50/70 p-5 dark:border-sky-900/60 dark:bg-gradient-to-r dark:from-sky-950/30 dark:via-slate-900 dark:to-sky-950/20 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-600 text-white shadow-xs shrink-0 mt-0.5">
               <Mail className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  Simulated Confirmation Email Summary
+                  Compliance Email Notification
                 </h3>
                 {emailSent && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
                     <Check className="h-3 w-3" />
-                    Sent
+                    Dispatched
                   </span>
                 )}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                {emailSent
-                  ? `Confirmation email summary was simulated and dispatched to ${emailInput} at ${sentTimestamp}.`
-                  : 'Receive a simulated executive confirmation email summary of this audit verification in your corporate inbox.'}
+                Automatically submitted to <strong className="text-slate-800 dark:text-slate-200">Log-in Reviews - DELSM Operations and Security</strong> and your email copy.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+              <Lock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+              <span className="font-mono text-[11px] truncate max-w-[200px] sm:max-w-[240px]" title={OFFICIAL_REVIEW_EMAIL}>
+                DELSM Operations and Security
+              </span>
+            </div>
+
             <div className="relative">
               <input
                 type="email"
                 value={emailInput}
                 onChange={e => setEmailInput(e.target.value)}
-                placeholder="staff.email@lhg.com"
-                className="w-56 sm:w-64 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                placeholder="Enter staff email copy..."
+                className="w-48 sm:w-56 rounded-lg border border-sky-300 bg-white px-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:border-sky-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-white"
               />
             </div>
 
             <button
               type="button"
               onClick={() => triggerSimulatedEmail(emailInput)}
-              disabled={isSendingEmail || !emailInput.trim()}
+              disabled={isSendingEmail}
               className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-sky-700 transition-colors disabled:opacity-50"
             >
               {isSendingEmail ? (
@@ -298,12 +311,12 @@ export default function PrintableReceipt({
               ) : emailSent ? (
                 <>
                   <RefreshCw className="h-3.5 w-3.5" />
-                  <span>Resend Email</span>
+                  <span>Resend</span>
                 </>
               ) : (
                 <>
                   <Send className="h-3.5 w-3.5" />
-                  <span>Send Email Summary</span>
+                  <span>Send</span>
                 </>
               )}
             </button>
@@ -502,25 +515,33 @@ export default function PrintableReceipt({
               <div className="flex items-baseline gap-2">
                 <span className="w-16 font-semibold text-slate-500 dark:text-slate-400">From:</span>
                 <span className="font-mono text-slate-800 dark:text-slate-200">
-                  no-reply.compliance@lhg.com <span className="text-slate-400 text-[11px]">&lt;LHG System Access & Compliance&gt;</span>
+                  no-reply.compliance@lhg.com <span className="text-slate-400 text-[11px]">&lt;LHG System Access &amp; Compliance&gt;</span>
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="w-16 font-semibold text-slate-500 dark:text-slate-400">To:</span>
-                <span className="font-mono font-bold text-sky-600 dark:text-sky-400">
-                  {emailInput}
+                <span className="font-mono font-bold text-sky-700 dark:text-sky-300">
+                  {OFFICIAL_REVIEW_EMAIL}
                 </span>
               </div>
+              {emailInput && emailInput.trim() && (
+                <div className="flex items-baseline gap-2">
+                  <span className="w-16 font-semibold text-slate-500 dark:text-slate-400">Cc:</span>
+                  <span className="font-mono text-slate-800 dark:text-slate-200">
+                    {emailInput.trim()} <span className="text-[10px] text-slate-400">(Staff Copy)</span>
+                  </span>
+                </div>
+              )}
               <div className="flex items-baseline gap-2">
                 <span className="w-16 font-semibold text-slate-500 dark:text-slate-400">Date:</span>
                 <span className="text-slate-700 dark:text-slate-300">
-                  {new Date().toLocaleString()} ({sentTimestamp ? `Simulated at ${sentTimestamp}` : 'Live'})
+                  {new Date().toLocaleString()} ({sentTimestamp ? `Dispatched at ${sentTimestamp}` : 'Live'})
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="w-16 font-semibold text-slate-500 dark:text-slate-400">Subject:</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  [AUDIT CONFIRMATION] LHG Credentials Verification - {submission.uNumber} ({submission.name})
+                  [CREDENTIALS VERIFICATION] - {submission.uNumber} ({submission.name}) - {submission.fortnightLabel}
                 </span>
               </div>
             </div>

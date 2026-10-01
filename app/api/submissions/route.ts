@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       status: changeRequests.length > 0 ? 'CHANGE_REQUESTED' : 'CONFIRMED'
     };
 
-    const saved = saveSubmission(newRecord);
+    const saved = await saveSubmission(newRecord);
 
     return NextResponse.json({
       success: true,
@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
     const fortnightParam = searchParams.get('fortnight'); // 1 or 2
     const filterStatus = searchParams.get('status'); // 'ALL' | 'MISSING' | 'CHANGE_REQUESTED' | 'CONFIRMED'
 
-    const allSubmissions = getSubmissions();
-    const masterStaff = getMasterCredentials();
+    const allSubmissions = await getSubmissions();
+    const masterStaff = await getMasterCredentials();
 
     // Default to current date fortnight if not provided
     const now = new Date();
