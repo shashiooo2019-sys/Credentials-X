@@ -634,14 +634,15 @@ export default function AdminPortal({
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-md py-16 px-4">
-        <div className="rounded-3xl border-2 border-indigo-200 bg-white p-8 sm:p-10 shadow-xl shadow-indigo-500/10 dark:border-indigo-950 dark:bg-slate-900 relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-2xl" />
+        <div className="silver-card-3d rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-slate-300/30 blur-2xl" />
 
           <div className="text-center mb-6">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-950 via-indigo-900 to-purple-950 text-white shadow-md shadow-indigo-500/30 ring-4 ring-amber-400/30">
-              <Lock className="h-7 w-7 text-amber-300" />
+            <div className="mx-auto mb-3.5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white shadow-[0_8px_16px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] border border-slate-600 ring-4 ring-slate-200 dark:ring-slate-800 hover:-translate-y-1 transition-transform duration-200">
+              <Lock className="h-7 w-7 text-slate-200 drop-shadow-sm" />
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white drop-shadow-xs">
               Administrator Access
             </h2>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -651,7 +652,7 @@ export default function AdminPortal({
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
                 Username
               </label>
               <input
@@ -660,12 +661,12 @@ export default function AdminPortal({
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Enter username"
                 required
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-2xs"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-800 focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-extrabold text-slate-700 dark:text-slate-300 mb-1">
                 Password
               </label>
               <input
@@ -674,12 +675,12 @@ export default function AdminPortal({
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Enter password"
                 required
-                className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-2xs"
+                className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:border-slate-800 focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
               />
             </div>
 
             {loginError && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2 font-semibold">
+              <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-3.5 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2 font-bold shadow-sm">
                 <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
                 <span>{loginError}</span>
               </div>
@@ -688,7 +689,7 @@ export default function AdminPortal({
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-950 via-indigo-900 to-purple-950 px-4 py-3 text-sm font-bold text-white hover:from-blue-900 hover:to-purple-900 transition-all shadow-md shadow-indigo-950/20"
+              className="w-full titanium-btn-3d flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 text-sm font-black cursor-pointer"
             >
               {isLoggingIn ? (
                 <>
@@ -697,7 +698,7 @@ export default function AdminPortal({
                 </>
               ) : (
                 <>
-                  <Lock className="h-4 w-4 text-amber-300" />
+                  <Lock className="h-4 w-4 text-slate-300" />
                   <span>Sign In as Admin</span>
                 </>
               )}
@@ -712,9 +713,9 @@ export default function AdminPortal({
   return (
     <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Top Navigation for Admin */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-indigo-100/80 pb-4 dark:border-indigo-950/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-300/80 pb-4 dark:border-slate-800">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             <span>Admin Operations &amp; Audit Portal</span>
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
@@ -722,14 +723,14 @@ export default function AdminPortal({
           </p>
         </div>
 
-        {/* View Switcher: Audit vs Master Database */}
-        <div className="flex items-center rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shadow-inner">
+        {/* 3D View Switcher: Audit vs Master Database */}
+        <div className="flex items-center rounded-2xl bg-slate-300/80 p-1 dark:bg-slate-950 border border-slate-400/80 dark:border-slate-700 text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]">
           <button
             onClick={() => setAdminView('audit')}
-            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 font-bold transition-all ${
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 font-black transition-all cursor-pointer ${
               adminView === 'audit'
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                ? 'titanium-btn-3d text-white'
+                : 'text-slate-700 hover:text-slate-950 hover:-translate-y-0.5 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <FileSpreadsheet className="h-4 w-4" />
@@ -737,10 +738,10 @@ export default function AdminPortal({
           </button>
           <button
             onClick={() => setAdminView('master')}
-            className={`flex items-center gap-1.5 rounded-lg px-4 py-2 font-bold transition-all ${
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 font-black transition-all cursor-pointer ${
               adminView === 'master'
-                ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                ? 'titanium-btn-3d text-white'
+                : 'text-slate-700 hover:text-slate-950 hover:-translate-y-0.5 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
             <Database className="h-4 w-4" />
@@ -750,12 +751,12 @@ export default function AdminPortal({
       </div>
 
       {masterNotice && (
-        <div className="flex items-center justify-between rounded-xl border border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-3 text-xs text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs">
-          <div className="flex items-center gap-2 font-bold">
+        <div className="flex items-center justify-between rounded-2xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-3 text-xs text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-sm">
+          <div className="flex items-center gap-2 font-black">
             <Check className="h-4 w-4 text-emerald-600" />
             <span>{masterNotice}</span>
           </div>
-          <button onClick={() => setMasterNotice(null)} className="text-emerald-700 hover:text-emerald-950">
+          <button onClick={() => setMasterNotice(null)} className="text-emerald-700 hover:text-emerald-950 cursor-pointer">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -764,12 +765,12 @@ export default function AdminPortal({
       {/* VIEW 1: FORTNIGHT AUDIT & SUBMISSIONS */}
       {adminView === 'audit' && (
         <div className="space-y-6">
-          {/* Fortnight Selector Bar */}
-          <div className="rounded-2xl border border-indigo-100 bg-white p-4 sm:p-5 dark:border-indigo-950 dark:bg-slate-900 shadow-xs">
+          {/* Fortnight Selector 3D Bar */}
+          <div className="silver-card-3d rounded-3xl p-4 sm:p-5 shadow-md">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200">
-                  <Calendar className="h-4 w-4 text-indigo-600" />
+                <div className="flex items-center gap-1.5 text-xs font-black text-slate-900 dark:text-slate-200">
+                  <Calendar className="h-4 w-4 text-slate-700 dark:text-slate-300" />
                   <span>Fortnight Cycle:</span>
                 </div>
 
@@ -777,7 +778,7 @@ export default function AdminPortal({
                 <select
                   value={filterYear}
                   onChange={e => setFilterYear(parseInt(e.target.value, 10))}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
+                  className="rounded-xl border-2 border-slate-300 bg-white px-3 py-1.5 text-xs font-black text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-inner"
                 >
                   <option value={2026}>2026</option>
                   <option value={2025}>2025</option>
@@ -788,7 +789,7 @@ export default function AdminPortal({
                 <select
                   value={filterMonth}
                   onChange={e => setFilterMonth(parseInt(e.target.value, 10))}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs"
+                  className="rounded-xl border-2 border-slate-300 bg-white px-3 py-1.5 text-xs font-black text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-inner"
                 >
                   {monthNames.map((m, idx) => (
                     <option key={idx} value={idx + 1}>
@@ -798,14 +799,14 @@ export default function AdminPortal({
                 </select>
 
                 {/* Fortnight 1 (1-15) vs Fortnight 2 (16-31) */}
-                <div className="flex items-center rounded-lg bg-slate-100 p-0.5 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shadow-inner">
+                <div className="flex items-center rounded-xl bg-slate-200 p-0.5 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs shadow-inner">
                   <button
                     type="button"
                     onClick={() => setFilterFortnight(1)}
-                    className={`rounded-md px-3 py-1 font-bold transition-all ${
+                    className={`rounded-lg px-3 py-1 font-black transition-all cursor-pointer ${
                       filterFortnight === 1
-                        ? 'bg-indigo-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                        ? 'titanium-btn-3d text-white'
+                        : 'text-slate-700 hover:text-slate-950 dark:text-slate-400'
                     }`}
                   >
                     1-15 (F1)
@@ -813,10 +814,10 @@ export default function AdminPortal({
                   <button
                     type="button"
                     onClick={() => setFilterFortnight(2)}
-                    className={`rounded-md px-3 py-1 font-bold transition-all ${
+                    className={`rounded-lg px-3 py-1 font-black transition-all cursor-pointer ${
                       filterFortnight === 2
-                        ? 'bg-indigo-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400'
+                        ? 'titanium-btn-3d text-white'
+                        : 'text-slate-700 hover:text-slate-950 dark:text-slate-400'
                     }`}
                   >
                     16-31 (F2)
@@ -832,7 +833,7 @@ export default function AdminPortal({
                     setFilterMonth(today.getMonth() + 1);
                     setFilterFortnight(today.getDate() <= 15 ? 1 : 2);
                   }}
-                  className="text-xs text-indigo-600 hover:text-indigo-800 font-bold underline ml-1"
+                  className="text-xs text-slate-800 dark:text-slate-200 hover:text-black font-extrabold underline ml-1 cursor-pointer"
                 >
                   Today&apos;s Cycle
                 </button>
@@ -845,7 +846,7 @@ export default function AdminPortal({
                   onClick={fetchFortnightData}
                   disabled={loadingAudit}
                   title="Reload audit data"
-                  className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
+                  className="silver-btn-3d flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer shrink-0"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${loadingAudit ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
@@ -854,7 +855,7 @@ export default function AdminPortal({
                 <button
                   type="button"
                   onClick={() => exportToCsv('current-view')}
-                  className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-colors shrink-0"
+                  className="emerald-btn-3d flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-black cursor-pointer shrink-0"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Export CSV</span>
@@ -864,9 +865,9 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportConfirmationsPerLoginType}
                   title="Export all confirmations per log-in type per staff for this reporting period"
-                  className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 shadow-xs shrink-0"
+                  className="titanium-btn-3d flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-black cursor-pointer shrink-0"
                 >
-                  <FileSpreadsheet className="h-3.5 w-3.5" />
+                  <FileSpreadsheet className="h-3.5 w-3.5 text-slate-300" />
                   <span>Confirmations by Login Type (.CSV)</span>
                 </button>
 
@@ -874,7 +875,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('change-requests')}
                   title="Export only flagged change requests"
-                  className="flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200 shadow-2xs shrink-0"
+                  className="amber-btn-3d flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer shrink-0"
                 >
                   <span>Change Requests CSV</span>
                 </button>
@@ -883,7 +884,7 @@ export default function AdminPortal({
                   type="button"
                   onClick={() => exportToCsv('missing-staff')}
                   title="Export list of staff who have not verified"
-                  className="flex items-center gap-1 rounded-lg border border-rose-300 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-900 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-200 shadow-2xs shrink-0"
+                  className="silver-btn-3d flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold text-rose-800 border-rose-300 cursor-pointer shrink-0"
                 >
                   <span>Missing Staff CSV</span>
                 </button>
@@ -891,8 +892,8 @@ export default function AdminPortal({
             </div>
           </div>
 
-          {/* Metric KPI Cards (Click to filter) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {/* Metric KPI 3D Cards (Click to filter) - with Silver 3D Depth and Hover Lift */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
             {/* Card 1: Total Staff */}
             <div
               onClick={() => {
@@ -900,34 +901,34 @@ export default function AdminPortal({
                 setSubmissionSearch('');
               }}
               title="Click to view all master staff"
-              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-blue-600 ${
+              className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 hover:-translate-y-1.5 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] ${
                 statusFilter === 'ALL' && !submissionSearch
-                  ? 'border-blue-500 bg-gradient-to-br from-blue-50/80 via-white to-white dark:border-blue-500 dark:from-blue-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-blue-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-blue-300'
+                  ? 'border-slate-800 bg-gradient-to-b from-white via-slate-100 to-slate-200 dark:border-slate-300 ring-2 ring-slate-400'
+                  : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-700 dark:bg-slate-900 hover:border-slate-500'
               }`}
             >
-              <span className="text-xs font-bold text-blue-700 dark:text-blue-300">Master Staff</span>
-              <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
+              <span className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Master Staff</span>
+              <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">
                 {auditMetrics.totalStaffCount}
               </p>
-              <span className="text-[11px] text-slate-500 font-medium">Total in baseline</span>
+              <span className="text-[11px] text-slate-500 font-bold">Total in baseline</span>
             </div>
 
             {/* Card 2: Submitted */}
             <div
               onClick={() => setStatusFilter('ALL')}
               title="Click to view all submissions"
-              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-sky-500 ${
+              className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 hover:-translate-y-1.5 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] ${
                 statusFilter === 'ALL'
-                  ? 'border-sky-500 bg-gradient-to-br from-sky-50/80 via-white to-white dark:border-sky-500 dark:from-sky-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-sky-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-sky-300'
+                  ? 'border-slate-800 bg-gradient-to-b from-white via-slate-100 to-slate-200 dark:border-slate-300 ring-2 ring-slate-400'
+                  : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-700 dark:bg-slate-900 hover:border-slate-500'
               }`}
             >
-              <span className="text-xs font-bold text-sky-700 dark:text-sky-300">Submissions</span>
-              <p className="text-2xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">
+              <span className="text-xs font-black text-slate-800 dark:text-slate-300 uppercase tracking-wider">Submissions</span>
+              <p className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">
                 {auditMetrics.submittedCount}
               </p>
-              <span className="text-[11px] text-sky-700 dark:text-sky-300 font-bold">
+              <span className="text-[11px] text-slate-700 dark:text-slate-300 font-black">
                 {auditMetrics.complianceRate}% compliance
               </span>
             </div>
@@ -936,60 +937,60 @@ export default function AdminPortal({
             <div
               onClick={() => setStatusFilter('PENDING')}
               title="Click to view pending submissions"
-              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-rose-500 ${
+              className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 hover:-translate-y-1.5 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] ${
                 statusFilter === 'PENDING'
-                  ? 'border-rose-500 bg-gradient-to-br from-rose-50/80 via-white to-white dark:border-rose-500 dark:from-rose-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-rose-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-rose-300'
+                  ? 'border-rose-500 bg-gradient-to-b from-rose-50 to-rose-100 dark:border-rose-500 ring-2 ring-rose-400'
+                  : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-700 dark:bg-slate-900 hover:border-rose-400'
               }`}
             >
-              <span className="text-xs font-bold text-rose-700 dark:text-rose-300">Pending Submissions</span>
-              <p className="text-2xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">
+              <span className="text-xs font-black text-rose-800 dark:text-rose-300 uppercase tracking-wider">Pending</span>
+              <p className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
                 {auditMetrics.missingCount}
               </p>
-              <span className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">Awaiting verification</span>
+              <span className="text-[11px] text-rose-800 dark:text-rose-300 font-bold">Awaiting review</span>
             </div>
 
             {/* Card 4: Change Requests */}
             <div
               onClick={() => setStatusFilter('CHANGE_REQUESTED')}
               title="Click to view change requests"
-              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-amber-500 ${
+              className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 hover:-translate-y-1.5 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] ${
                 statusFilter === 'CHANGE_REQUESTED'
-                  ? 'border-amber-500 bg-gradient-to-br from-amber-50/80 via-white to-white dark:border-amber-500 dark:from-amber-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-amber-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-amber-300'
+                  ? 'border-amber-500 bg-gradient-to-b from-amber-50 to-amber-100 dark:border-amber-500 ring-2 ring-amber-400'
+                  : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-700 dark:bg-slate-900 hover:border-amber-400'
               }`}
             >
-              <span className="text-xs font-bold text-amber-800 dark:text-amber-300">Change Requests</span>
-              <p className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">
+              <span className="text-xs font-black text-amber-900 dark:text-amber-300 uppercase tracking-wider">Changes</span>
+              <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
                 {auditMetrics.changeRequestCount}
               </p>
-              <span className="text-[11px] text-amber-800 dark:text-amber-300 font-medium">Issue / ticket required</span>
+              <span className="text-[11px] text-amber-900 dark:text-amber-300 font-bold">Ticket required</span>
             </div>
 
             {/* Card 5: Confirmed */}
             <div
               onClick={() => setStatusFilter('CONFIRMED')}
               title="Click to view confirmed submissions"
-              className={`cursor-pointer rounded-2xl border p-4 shadow-xs transition-all hover:scale-[1.02] border-l-4 border-l-emerald-500 ${
+              className={`cursor-pointer rounded-2xl border-2 p-4 transition-all duration-200 hover:-translate-y-1.5 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] ${
                 statusFilter === 'CONFIRMED'
-                  ? 'border-emerald-500 bg-gradient-to-br from-emerald-50/80 via-white to-white dark:border-emerald-500 dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900 ring-2 ring-emerald-400/40'
-                  : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 hover:border-emerald-300'
+                  ? 'border-emerald-500 bg-gradient-to-b from-emerald-50 to-emerald-100 dark:border-emerald-500 ring-2 ring-emerald-400'
+                  : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-700 dark:bg-slate-900 hover:border-emerald-400'
               }`}
             >
-              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">100% Confirmed</span>
-              <p className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+              <span className="text-xs font-black text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">100% Confirmed</span>
+              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                 {auditMetrics.confirmedCount}
               </p>
-              <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">All working as indicated</span>
+              <span className="text-[11px] text-emerald-900 dark:text-emerald-300 font-bold">Compliant records</span>
             </div>
 
             {/* Card 6: Audit Period */}
-            <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-purple-50/60 via-white to-white p-4 dark:border-slate-800 dark:bg-slate-900 shadow-xs border-l-4 border-l-purple-500">
-              <span className="text-xs font-bold text-purple-700 dark:text-purple-300">Active Audit Cycle</span>
-              <p className="text-sm font-extrabold text-slate-900 dark:text-white mt-1.5 truncate">
+            <div className="rounded-2xl border-2 border-slate-300 bg-gradient-to-b from-white via-slate-50 to-slate-100 p-4 dark:border-slate-700 dark:bg-slate-900 shadow-[0_4px_8px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-200">
+              <span className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">Audit Cycle</span>
+              <p className="text-sm font-black text-slate-900 dark:text-white mt-1.5 truncate">
                 {fortnightLabel || 'Loading...'}
               </p>
-              <span className="text-[11px] font-mono font-bold text-purple-700 dark:text-purple-300">
+              <span className="text-[11px] font-mono font-extrabold text-slate-800 dark:text-slate-200">
                 F{filterFortnight} ({filterFortnight === 1 ? 'Days 1-15' : 'Days 16-31'})
               </span>
             </div>
@@ -1330,12 +1331,12 @@ export default function AdminPortal({
       {/* VIEW 2: MASTER CREDENTIALS & PDF DATABASE REPLACEMENT */}
       {adminView === 'master' && (
         <div className="space-y-6">
-          {/* PDF & CSV Upload Box */}
-          <div className="rounded-xl border border-sky-200 bg-sky-50/40 p-5 dark:border-sky-900/60 dark:bg-sky-950/20 shadow-2xs">
+          {/* PDF & CSV Upload 3D Box */}
+          <div className="silver-card-3d rounded-3xl p-5 sm:p-6 shadow-md">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Upload className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <Upload className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                   <span>Upload Master Credentials (PDF or CSV)</span>
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
@@ -1347,7 +1348,7 @@ export default function AdminPortal({
                 <button
                   type="button"
                   onClick={downloadCsvTemplate}
-                  className="rounded-lg border border-sky-300 bg-white px-3 py-2 text-xs font-semibold text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:bg-slate-800 dark:text-sky-300 flex items-center gap-1.5"
+                  className="silver-btn-3d flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-bold cursor-pointer"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Download CSV Template</span>
@@ -1355,7 +1356,7 @@ export default function AdminPortal({
                 <button
                   type="button"
                   onClick={handleResetToBaseline}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  className="silver-btn-3d rounded-xl px-3.5 py-2 text-xs font-bold cursor-pointer"
                 >
                   Reset to Original Baseline
                 </button>
@@ -1363,7 +1364,7 @@ export default function AdminPortal({
             </div>
 
             {/* Upload form */}
-            <div className="mt-4 pt-4 border-t border-sky-200/50 dark:border-sky-900/40">
+            <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-800">
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   type="file"
@@ -1375,7 +1376,7 @@ export default function AdminPortal({
                       setUploadError(null);
                     }
                   }}
-                  className="text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700"
+                  className="text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-slate-800 file:text-white hover:file:bg-black cursor-pointer"
                 />
 
                 {pdfFile && (
@@ -1384,7 +1385,7 @@ export default function AdminPortal({
                       type="button"
                       disabled={isUploadingPdf}
                       onClick={() => handlePdfUpload('preview')}
-                      className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-sky-700 disabled:opacity-50"
+                      className="titanium-btn-3d flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-black cursor-pointer disabled:opacity-50"
                     >
                       {isUploadingPdf ? (
                         <>
@@ -1394,7 +1395,7 @@ export default function AdminPortal({
                       ) : (
                         <>
                           <Search className="h-3.5 w-3.5" />
-                          <span>Extract & Preview File</span>
+                          <span>Extract &amp; Preview File</span>
                         </>
                       )}
                     </button>
@@ -1403,17 +1404,17 @@ export default function AdminPortal({
               </div>
 
               {uploadError && (
-                <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2.5 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0" />
-                  <span>{uploadError}</span>
+                <div className="mt-3 rounded-2xl border-2 border-red-300 bg-red-50 p-3 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2 shadow-sm">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
+                  <span className="font-bold">{uploadError}</span>
                 </div>
               )}
 
               {/* Parsed Preview Table */}
               {parsedPreview && (
-                <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-4 dark:border-emerald-800 dark:bg-slate-900">
+                <div className="mt-4 rounded-2xl border-2 border-emerald-400 bg-white p-4 dark:border-emerald-800 dark:bg-slate-900 shadow-md">
                   <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                    <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-300 text-xs font-black">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                       <span>
                         Extracted {parsedPreview.count} Staff Records from File
@@ -1423,7 +1424,7 @@ export default function AdminPortal({
                       <button
                         type="button"
                         onClick={() => setParsedPreview(null)}
-                        className="rounded-md border border-slate-200 px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-50"
+                        className="silver-btn-3d rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -1431,17 +1432,17 @@ export default function AdminPortal({
                         type="button"
                         disabled={isUploadingPdf}
                         onClick={() => handlePdfUpload('commit')}
-                        className="flex items-center gap-1.5 rounded-md bg-emerald-600 px-3.5 py-1 text-xs font-bold text-white hover:bg-emerald-700"
+                        className="emerald-btn-3d flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-xs font-black cursor-pointer"
                       >
                         <Check className="h-3.5 w-3.5" />
-                        <span>Confirm & Upsert Master Database</span>
+                        <span>Confirm &amp; Upsert Master Database</span>
                       </button>
                     </div>
                   </div>
 
-                  <div className="overflow-x-auto max-h-56">
+                  <div className="overflow-x-auto max-h-56 rounded-xl border border-slate-200">
                     <table className="w-full text-left text-[11px] border-collapse">
-                      <thead className="bg-slate-50 text-slate-600 sticky top-0 dark:bg-slate-800 dark:text-slate-300">
+                      <thead className="bg-slate-100 text-slate-700 sticky top-0 dark:bg-slate-800 dark:text-slate-300 font-bold">
                         <tr>
                           <th className="p-2">U-Number</th>
                           <th className="p-2">Name</th>
@@ -1458,15 +1459,15 @@ export default function AdminPortal({
                           );
                           return (
                             <tr key={i}>
-                              <td className="p-2 font-mono font-bold text-sky-600 dark:text-sky-400">{r.uNumber}</td>
-                              <td className="p-2 font-semibold text-slate-800 dark:text-slate-200">{r.name}</td>
+                              <td className="p-2 font-mono font-extrabold text-slate-900 dark:text-slate-100">{r.uNumber}</td>
+                              <td className="p-2 font-bold text-slate-800 dark:text-slate-200">{r.name}</td>
                               <td className="p-2">
                                 {isExisting ? (
-                                  <span className="rounded-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 text-[10px] font-bold dark:bg-amber-950 dark:text-amber-300">
+                                  <span className="rounded-md bg-amber-100 text-amber-900 px-1.5 py-0.5 text-[10px] font-black border border-amber-300">
                                     OVERWRITE
                                   </span>
                                 ) : (
-                                  <span className="rounded-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 text-[10px] font-bold dark:bg-emerald-950 dark:text-emerald-300">
+                                  <span className="rounded-md bg-emerald-100 text-emerald-900 px-1.5 py-0.5 text-[10px] font-black border border-emerald-300">
                                     NEW U-NUM
                                   </span>
                                 )}
@@ -1481,7 +1482,7 @@ export default function AdminPortal({
                     </table>
                   </div>
                   {parsedPreview.count > 15 && (
-                    <p className="mt-2 text-center text-[11px] text-slate-400">
+                    <p className="mt-2 text-center text-[11px] text-slate-500 font-medium">
                       Showing 15 of {parsedPreview.count} extracted staff rows.
                     </p>
                   )}
@@ -1491,13 +1492,13 @@ export default function AdminPortal({
           </div>
 
           {/* Master Staff Database Table */}
-          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-2xs dark:border-slate-800 dark:bg-slate-900 w-full">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="silver-card-3d rounded-3xl overflow-hidden shadow-md w-full">
+            <div className="p-4 border-b border-slate-300 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-black text-slate-900 dark:text-white">
                   Active Master Credentials Registry ({masterStaffList.length} Staff Profiles)
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 font-medium">
                   Data source used for live bi-weekly staff validation
                 </p>
               </div>
@@ -1516,7 +1517,7 @@ export default function AdminPortal({
                       });
                     }}
                     placeholder="Search name or U-Number..."
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-slate-900 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-1.5 pl-8 text-xs font-bold text-slate-900 focus:border-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
                   />
                   <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
                 </div>
@@ -1526,9 +1527,9 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportMasterCredentialsFileLatest}
                   title="Export complete master credentials roster as latest CSV"
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-2xs shrink-0"
+                  className="silver-btn-3d flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer shrink-0"
                 >
-                  <Download className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                  <Download className="h-3.5 w-3.5" />
                   <span>Export Master File (Latest)</span>
                 </button>
 
@@ -1537,16 +1538,16 @@ export default function AdminPortal({
                   type="button"
                   onClick={exportConfirmationsPerLoginType}
                   title="Export all confirmations per log-in type per staff for this reporting period"
-                  className="flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200 shadow-2xs shrink-0"
+                  className="emerald-btn-3d flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black cursor-pointer shrink-0"
                 >
-                  <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <FileSpreadsheet className="h-3.5 w-3.5" />
                   <span>Export Confirmations (.CSV)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setIsNewStaffModalOpen(true)}
-                  className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700 transition-colors shadow-2xs shrink-0"
+                  className="titanium-btn-3d flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-black cursor-pointer shrink-0"
                 >
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span>Add Staff Record</span>

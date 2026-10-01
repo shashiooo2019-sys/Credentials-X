@@ -416,15 +416,15 @@ export default function UserVerificationFlow() {
 
   return (
     <div className="mx-auto max-w-4xl py-8 px-4 sm:px-6">
-      {/* Wizard Progress Stepper with Rich Color Milestones */}
+      {/* Wizard Progress Stepper with 3D Silver Medallion Milestones */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100/80 pb-4 dark:border-indigo-950/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-300/80 pb-4 dark:border-slate-800">
           <div>
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+            <span className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-slate-500" />
               <span>Verification Wizard · Step {currentStep} of 3</span>
             </span>
-            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white mt-0.5 tracking-tight drop-shadow-xs">
               {currentStep === 1 && 'Step 1: Enter U-Number Identification'}
               {currentStep === 2 && 'Step 2: Confirm Employee Identity & Audit Date'}
               {currentStep === 3 && `Step 3: Review Credentials (${reviewedCount}/${totalActive} Confirmed)`}
@@ -433,94 +433,95 @@ export default function UserVerificationFlow() {
 
           {currentStep === 3 && (
             <div className="flex items-center gap-2 text-xs">
-              <span className={`px-3 py-1 rounded-full font-bold border shadow-2xs ${
+              <span className={`px-3 py-1 rounded-xl font-extrabold border shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-0.5 transition-transform duration-200 ${
                 remainingCount === 0
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300'
-                  : 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-300'
+                  ? 'bg-gradient-to-b from-emerald-50 to-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300'
+                  : 'bg-gradient-to-b from-amber-50 to-amber-100 text-amber-950 border-amber-300 dark:bg-amber-950/60 dark:border-amber-800 dark:text-amber-300'
               }`}>
                 {remainingCount === 0 ? '✔ All Fields Verified' : `⏳ ${remainingCount} Remaining to Confirm`}
               </span>
-              <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+              <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 bg-gradient-to-b from-white via-slate-100 to-slate-200 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-700 shadow-[0_2px_4px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)]">
                 {progressPercent}%
               </span>
             </div>
           )}
         </div>
 
-        {/* Dynamic Multi-Color Step Milestones */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        {/* 3D Silver Step Milestones */}
+        <div className="mt-5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold shadow-xs transition-all ${
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-0.5 ${
                 currentStep >= 1
-                  ? 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white ring-2 ring-blue-400/40 shadow-blue-500/20'
-                  : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  ? 'bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white border border-slate-600 ring-2 ring-slate-400/40'
+                  : 'bg-gradient-to-b from-slate-100 to-slate-300 text-slate-600 border border-slate-300'
               }`}
             >
               1
             </span>
-            <span className={`text-xs font-bold ${currentStep === 1 ? 'text-blue-700 dark:text-blue-400' : 'text-slate-500'}`}>
+            <span className={`text-xs font-bold ${currentStep === 1 ? 'text-slate-900 dark:text-white font-extrabold' : 'text-slate-500'}`}>
               Enter U-Number
             </span>
           </div>
 
-          <div className="h-1 flex-1 mx-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+          <div className="h-2 flex-1 mx-3 rounded-full bg-slate-300/80 dark:bg-slate-800 overflow-hidden shadow-inner border border-slate-300">
             <div
-              className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-slate-600 via-slate-800 to-slate-950 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
               style={{ width: currentStep >= 2 ? '100%' : '0%' }}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold shadow-xs transition-all ${
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-0.5 ${
                 currentStep >= 2
-                  ? 'bg-gradient-to-tr from-indigo-600 to-purple-600 text-white ring-2 ring-indigo-400/40 shadow-indigo-500/20'
-                  : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  ? 'bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white border border-slate-600 ring-2 ring-slate-400/40'
+                  : 'bg-gradient-to-b from-slate-100 to-slate-300 text-slate-600 border border-slate-300'
               }`}
             >
               2
             </span>
-            <span className={`text-xs font-bold ${currentStep === 2 ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-500'}`}>
-              Identity & Date
+            <span className={`text-xs font-bold ${currentStep === 2 ? 'text-slate-900 dark:text-white font-extrabold' : 'text-slate-500'}`}>
+              Identity &amp; Date
             </span>
           </div>
 
-          <div className="h-1 flex-1 mx-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+          <div className="h-2 flex-1 mx-3 rounded-full bg-slate-300/80 dark:bg-slate-800 overflow-hidden shadow-inner border border-slate-300">
             <div
-              className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-slate-600 via-slate-800 to-slate-950 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
               style={{ width: currentStep >= 3 ? '100%' : '0%' }}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold shadow-xs transition-all ${
+              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-0.5 ${
                 currentStep >= 3
-                  ? 'bg-gradient-to-tr from-purple-600 via-pink-600 to-indigo-600 text-white ring-2 ring-purple-400/40 shadow-purple-500/20'
-                  : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                  ? 'bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white border border-slate-600 ring-2 ring-slate-400/40'
+                  : 'bg-gradient-to-b from-slate-100 to-slate-300 text-slate-600 border border-slate-300'
               }`}
             >
               3
             </span>
-            <span className={`text-xs font-bold ${currentStep === 3 ? 'text-purple-700 dark:text-purple-400' : 'text-slate-500'}`}>
+            <span className={`text-xs font-bold ${currentStep === 3 ? 'text-slate-900 dark:text-white font-extrabold' : 'text-slate-500'}`}>
               Verify Credentials {currentStep === 3 && `(${reviewedCount}/${totalActive})`}
             </span>
           </div>
         </div>
       </div>
 
-      {/* STEP 1: Enter U Number */}
+      {/* STEP 1: Enter U Number - 3D Silver Card */}
       {currentStep === 1 && (
-        <div className="rounded-2xl border border-indigo-100 bg-white p-6 sm:p-10 shadow-lg shadow-indigo-500/5 dark:border-indigo-950/80 dark:bg-slate-900 relative overflow-hidden">
-          {/* Subtle colorful glow in corner */}
-          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 blur-2xl" />
+        <div className="silver-card-3d rounded-3xl p-6 sm:p-10 relative overflow-hidden">
+          {/* Metallic streak highlight */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+          <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-slate-300/30 blur-2xl" />
 
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/30 ring-4 ring-indigo-50 dark:ring-indigo-950/50">
-              <Search className="h-7 w-7" />
+            <div className="mx-auto mb-3.5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white shadow-[0_8px_16px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.4)] border border-slate-600 ring-4 ring-slate-200 dark:ring-slate-800 hover:-translate-y-1 transition-transform duration-200">
+              <Search className="h-8 w-8" />
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white drop-shadow-xs">
               Initiate Credential Verification
             </h2>
             <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-lg mx-auto">
@@ -541,19 +542,19 @@ export default function UserVerificationFlow() {
                 value={uNumberInput}
                 onChange={e => setUNumberInput(e.target.value.toUpperCase())}
                 placeholder="Enter U-Number (e.g. U194283)"
-                className="w-full rounded-xl border border-slate-300 bg-slate-50/70 px-4 py-3.5 pl-11 text-base font-mono font-bold uppercase tracking-wider text-slate-900 placeholder:normal-case placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/25 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-indigo-400 shadow-inner"
+                className="w-full rounded-2xl border-2 border-slate-300 bg-white px-4 py-3.5 pl-12 text-base font-mono font-bold uppercase tracking-wider text-slate-900 placeholder:normal-case placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:bg-white focus:outline-hidden focus:ring-4 focus:ring-slate-300/50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-slate-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] transition-all"
                 autoFocus
               />
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-indigo-500">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
                 <Search className="h-5 w-5" />
               </div>
             </div>
 
             {lookupError && (
-              <div className="mt-3 rounded-xl border border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-3.5 text-xs text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300 flex items-start gap-2.5 shadow-2xs">
+              <div className="mt-3.5 rounded-2xl border-2 border-red-300 bg-gradient-to-r from-red-50 via-rose-50 to-red-50 p-4 text-xs text-red-900 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300 flex items-start gap-2.5 shadow-[0_4px_8px_rgba(239,68,68,0.15)]">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
                 <div>
-                  <p className="font-semibold">{lookupError}</p>
+                  <p className="font-bold">{lookupError}</p>
                   {suggestions.length > 0 && (
                     <div className="mt-2">
                       <p className="font-bold text-slate-800 dark:text-slate-200">Did you mean?</p>
@@ -566,7 +567,7 @@ export default function UserVerificationFlow() {
                               setUNumberInput(s.uNumber);
                               handleLookup(s.uNumber);
                             }}
-                            className="rounded-md bg-white dark:bg-slate-800 px-2.5 py-1 text-xs font-mono font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 shadow-2xs transition-colors"
+                            className="silver-btn-3d rounded-lg px-2.5 py-1 text-xs font-mono font-bold cursor-pointer"
                           >
                             {s.uNumber} ({s.name})
                           </button>
@@ -582,7 +583,7 @@ export default function UserVerificationFlow() {
               <button
                 type="submit"
                 disabled={isLoadingLookup || !uNumberInput.trim()}
-                className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-4 py-3.5 text-sm font-bold text-white shadow-md shadow-indigo-500/25 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="mt-4.5 w-full titanium-btn-3d flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-extrabold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingLookup ? (
                   <>
@@ -592,23 +593,23 @@ export default function UserVerificationFlow() {
                 ) : (
                   <>
                     <UserCheck className="h-5 w-5" />
-                    <span>Verify Identity & Proceed</span>
+                    <span>Verify Identity &amp; Proceed</span>
                   </>
                 )}
               </button>
             )}
 
             {!showNamePrompt && (
-              <div className="mt-3.5 text-center">
+              <div className="mt-4 text-center">
                 <button
                   type="button"
                   onClick={() => {
                     setShowNamePrompt(true);
                     setLookupError(null);
                   }}
-                  className="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 font-semibold underline inline-flex items-center gap-1.5"
+                  className="text-xs text-slate-700 hover:text-slate-950 dark:text-slate-300 font-bold underline inline-flex items-center gap-1.5 hover:-translate-y-0.5 transition-transform duration-200 cursor-pointer"
                 >
-                  <UserPlus className="h-3.5 w-3.5" />
+                  <UserPlus className="h-3.5 w-3.5 text-slate-600" />
                   <span>Name not in database? Click here to input your name and report credential status</span>
                 </button>
               </div>
@@ -617,19 +618,19 @@ export default function UserVerificationFlow() {
 
           {/* Form to prompt user to input their name against U number if not found */}
           {showNamePrompt && (
-            <div className="mt-6 max-w-md mx-auto rounded-2xl border-2 border-amber-400 bg-gradient-to-br from-amber-50/90 via-yellow-50/50 to-amber-50/80 p-5 text-left dark:border-amber-700 dark:bg-amber-950/30 shadow-md">
-              <div className="flex items-center gap-2 text-amber-950 dark:text-amber-200 font-extrabold text-sm sm:text-base mb-1">
+            <div className="mt-6 max-w-md mx-auto silver-card-3d rounded-2xl p-5 text-left border-2 border-amber-400 bg-gradient-to-b from-amber-50/90 via-amber-50/40 to-slate-50">
+              <div className="flex items-center gap-2 text-amber-950 dark:text-amber-200 font-black text-sm sm:text-base mb-1">
                 <UserPlus className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>Input Name for U-Number: {uNumberInput || 'New Profile'}</span>
               </div>
-              <p className="text-xs text-amber-900 dark:text-amber-300 mb-4">
+              <p className="text-xs text-slate-700 dark:text-amber-300 mb-4">
                 Your name was not found in the master database. Please input your name against U-Number{' '}
-                <strong className="font-mono bg-white/80 px-1.5 py-0.5 rounded border border-amber-300">{uNumberInput || 'provided'}</strong>. You can then inform your credentials status through &ldquo;Request Change / Request Access&rdquo;.
+                <strong className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-300">{uNumberInput || 'provided'}</strong>. You can then inform your credentials status through &ldquo;Request Change / Request Access&rdquo;.
               </p>
 
               <form onSubmit={handleRegisterUnlistedUser} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-900 dark:text-slate-100 mb-1">
+                  <label className="block text-xs font-extrabold text-slate-900 dark:text-slate-100 mb-1">
                     Your Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -639,17 +640,17 @@ export default function UserVerificationFlow() {
                     placeholder="Enter your official full name"
                     required
                     autoFocus
-                    className="w-full rounded-xl border border-amber-300 bg-white px-3.5 py-2.5 text-sm font-bold uppercase text-slate-900 placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-xs"
+                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold uppercase text-slate-900 placeholder:normal-case placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
                   />
                 </div>
 
-                <div className="rounded-xl border border-amber-300/80 bg-white/90 p-3.5 dark:border-amber-900/60 dark:bg-slate-800/80 shadow-2xs">
+                <div className="rounded-xl border border-slate-300 bg-white/90 p-3.5 dark:border-slate-700 dark:bg-slate-800/80 shadow-[0_2px_4px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,0.9)]">
                   <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-900 dark:text-slate-100">
                     <input
                       type="checkbox"
                       checked={isAlsRole}
                       onChange={e => setIsAlsRole(e.target.checked)}
-                      className="h-4 w-4 rounded-sm border-slate-300 text-amber-600 focus:ring-amber-500"
+                      className="h-4 w-4 rounded-sm border-slate-300 text-slate-900 focus:ring-slate-500"
                     />
                     <span>I am an ALS (Turnaround Coordinator / Airside Lead)</span>
                   </label>
@@ -663,7 +664,7 @@ export default function UserVerificationFlow() {
                         value={inputtedExNumber}
                         onChange={e => setInputtedExNumber(e.target.value.toUpperCase())}
                         placeholder="e.g. EX855733"
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-mono font-bold uppercase text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-lg border-2 border-slate-300 bg-white px-3 py-1.5 text-xs font-mono font-bold uppercase text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       />
                       <p className="mt-1 text-[10px] text-slate-500">
                         Shows ALS-specific systems (FLOAT, FLOAT Backup, LH Altea FM, LX Altea FM).
@@ -679,14 +680,14 @@ export default function UserVerificationFlow() {
                       setShowNamePrompt(false);
                       setLookupError(null);
                     }}
-                    className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                    className="silver-btn-3d rounded-xl px-4 py-2 text-xs font-bold cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isRegistering || !inputtedName.trim()}
-                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 transition-colors"
+                    className="amber-btn-3d flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold cursor-pointer disabled:opacity-50"
                   >
                     {isRegistering ? (
                       <>
@@ -696,7 +697,7 @@ export default function UserVerificationFlow() {
                     ) : (
                       <>
                         <UserCheck className="h-4 w-4" />
-                        <span>Continue & Inform Credentials Status</span>
+                        <span>Continue &amp; Inform Credentials Status</span>
                       </>
                     )}
                   </button>
@@ -707,74 +708,74 @@ export default function UserVerificationFlow() {
         </div>
       )}
 
-      {/* STEP 2: Identity Confirmation & Date Picker */}
+      {/* STEP 2: Identity Confirmation & Date Picker - 3D Silver Card */}
       {currentStep === 2 && staffData && (
-        <div className="rounded-2xl border border-indigo-100 bg-white p-6 sm:p-10 shadow-lg shadow-indigo-500/5 dark:border-indigo-950/80 dark:bg-slate-900">
+        <div className="silver-card-3d rounded-3xl p-6 sm:p-10">
           <div className="mb-6">
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Step 2 of 3</span>
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-1">
-              Confirm Identity & Verification Date
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Step 2 of 3</span>
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-1 drop-shadow-xs">
+              Confirm Identity &amp; Verification Date
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Please verify that this credential record matches your official employee profile.
             </p>
           </div>
 
-          {/* Identity Card: Boarding-Pass styling with airline accents */}
-          <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/60 p-5 sm:p-6 dark:border-blue-900/60 dark:bg-slate-900 mb-6 shadow-sm">
+          {/* 3D Boarding Pass / Identity Card */}
+          <div className="rounded-2xl border-2 border-slate-300/90 bg-gradient-to-b from-white via-slate-50 to-slate-100 p-5 sm:p-6 dark:border-slate-700 dark:bg-slate-900 mb-6 shadow-[0_8px_16px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-200">
             <div className={`grid grid-cols-1 ${isUserAls(staffData.credentials, staffData.exNumber) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4`}>
               <div>
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Employee Name</span>
-                <p className="text-lg font-extrabold text-slate-900 dark:text-white">{staffData.name}</p>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Employee Name</span>
+                <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{staffData.name}</p>
               </div>
               <div>
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">U-Number</span>
-                <p className="text-lg font-mono font-bold text-blue-700 dark:text-blue-300 bg-blue-100/70 dark:bg-blue-950/50 px-2 py-0.5 rounded-md inline-block border border-blue-200 dark:border-blue-800">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">U-Number</span>
+                <p className="text-lg font-mono font-extrabold text-slate-950 dark:text-slate-100 bg-gradient-to-b from-slate-100 to-slate-200 dark:bg-slate-800 px-3 py-1 rounded-xl inline-block border border-slate-300 dark:border-slate-700 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] mt-0.5">
                   {staffData.uNumber}
                 </p>
               </div>
               {isUserAls(staffData.credentials, staffData.exNumber) && (
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">EX-Number (ALS Lead)</span>
-                  <p className="text-lg font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-100/70 dark:bg-purple-950/50 px-2 py-0.5 rounded-md inline-block border border-purple-200 dark:border-purple-800">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">EX-Number (ALS Lead)</span>
+                  <p className="text-lg font-mono font-extrabold text-slate-950 dark:text-slate-100 bg-gradient-to-b from-slate-100 to-slate-200 dark:bg-slate-800 px-3 py-1 rounded-xl inline-block border border-slate-300 dark:border-slate-700 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] mt-0.5">
                     {staffData.exNumber || 'N/A'}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="mt-4 border-t border-blue-200/80 pt-4 dark:border-blue-900/50 flex flex-wrap items-center justify-between gap-2 text-xs text-blue-950 dark:text-blue-200">
-              <span className="flex items-center gap-1.5 font-semibold">
+            <div className="mt-5 border-t border-slate-300 pt-4 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-800 dark:text-slate-200">
+              <span className="flex items-center gap-1.5 font-bold">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Found in current Master Credentials database (Firestore synchronized)</span>
               </span>
-              <span className="font-mono text-xs font-bold bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded border border-blue-200">
+              <span className="font-mono text-xs font-extrabold bg-white dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-300 shadow-2xs">
                 {activeFields.length} active system credentials registered
               </span>
             </div>
           </div>
 
-          {/* Confirmation Checkbox */}
-          <label className="flex items-start gap-3 p-4 rounded-xl border border-indigo-200 hover:bg-indigo-50/40 dark:border-indigo-900/60 dark:hover:bg-slate-800/50 cursor-pointer transition-colors mb-6 shadow-2xs">
+          {/* Confirmation Checkbox - 3D Box */}
+          <label className="flex items-start gap-3 p-4 rounded-2xl border-2 border-slate-300/90 bg-gradient-to-b from-white to-slate-50 hover:to-slate-100 dark:border-slate-700 dark:bg-slate-800/50 cursor-pointer shadow-[0_4px_8px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-200 mb-6">
             <input
               type="checkbox"
               checked={identityConfirmed}
               onChange={e => setIdentityConfirmed(e.target.checked)}
-              className="h-5 w-5 mt-0.5 rounded-sm border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-700"
+              className="h-5 w-5 mt-0.5 rounded-md border-slate-400 text-slate-900 focus:ring-slate-500 dark:border-slate-700 cursor-pointer"
             />
             <div className="text-sm">
-              <span className="font-bold text-slate-900 dark:text-white">
+              <span className="font-extrabold text-slate-900 dark:text-white">
                 I confirm that I am {staffData.name} ({staffData.uNumber})
               </span>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                 By ticking this box, you certify that you are the legitimate credential holder submitting this bi-weekly verification.
               </p>
             </div>
           </label>
 
-          {/* Verification Date Input */}
-          <div className="rounded-xl border border-slate-200 p-5 dark:border-slate-800 mb-8 bg-slate-50/50 dark:bg-slate-900/50">
-            <label className="block text-sm font-bold text-slate-900 dark:text-white mb-1.5">
+          {/* Verification Date Input - 3D Box */}
+          <div className="rounded-2xl border-2 border-slate-300/90 p-5 dark:border-slate-800 mb-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:bg-slate-900/50 shadow-[0_4px_8px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-200">
+            <label className="block text-sm font-extrabold text-slate-900 dark:text-white mb-1.5">
               Verification Date
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
@@ -783,14 +784,14 @@ export default function UserVerificationFlow() {
                   type="date"
                   value={verificationDate}
                   onChange={e => setVerificationDate(e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-2xs"
+                  className="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:border-slate-800 focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
                 />
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900 shadow-2xs">
-                <Calendar className="h-4 w-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-slate-800 dark:text-slate-300 bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
+                <Calendar className="h-4 w-4 text-slate-700 dark:text-slate-300 shrink-0" />
                 <div>
-                  <span className="font-bold text-slate-900 dark:text-slate-100">Fortnight Cycle:</span>{' '}
-                  <span className="font-bold text-indigo-700 dark:text-indigo-300 font-mono">{getFortnightDescription(verificationDate)}</span>
+                  <span className="font-extrabold text-slate-900 dark:text-slate-100">Fortnight Cycle:</span>{' '}
+                  <span className="font-extrabold text-slate-900 dark:text-white font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-300">{getFortnightDescription(verificationDate)}</span>
                 </div>
               </div>
             </div>
@@ -799,12 +800,12 @@ export default function UserVerificationFlow() {
             </p>
           </div>
 
-          {/* Buttons */}
+          {/* 3D Action Buttons */}
           <div className="flex items-center justify-between gap-4">
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 transition-colors"
+              className="silver-btn-3d rounded-xl px-5 py-2.5 text-sm font-bold cursor-pointer"
             >
               Back
             </button>
@@ -812,7 +813,7 @@ export default function UserVerificationFlow() {
               type="button"
               disabled={!identityConfirmed}
               onClick={() => setCurrentStep(3)}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-500/20 hover:from-blue-700 hover:to-purple-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="titanium-btn-3d flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-extrabold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span>Continue to Credentials Review</span>
               <UserCheck className="h-4 w-4" />
@@ -824,48 +825,49 @@ export default function UserVerificationFlow() {
       {/* STEP 3: Verify Credentials Fields */}
       {currentStep === 3 && staffData && (
         <div className="space-y-6">
-          {/* Header Card with Rich Airline Gradient Header */}
-          <div className="rounded-2xl border border-indigo-100 bg-white p-6 shadow-lg shadow-indigo-500/5 dark:border-indigo-950/80 dark:bg-slate-900">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-slate-800">
+          {/* Header Card with 3D Silver Surface */}
+          <div className="silver-card-3d rounded-3xl p-6 relative overflow-hidden">
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-300 pb-4 dark:border-slate-800">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-slate-500" />
                   <span>Step 3 of 3 · Final Verification</span>
                 </span>
-                <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white mt-0.5">
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white mt-0.5 drop-shadow-xs">
                   Verify Credentials &amp; Request Changes
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-600 dark:text-slate-400">
-                  <span className="font-semibold text-slate-900 dark:text-white">Staff:</span>
-                  <strong className="text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-bold">
+                  <span className="font-bold text-slate-900 dark:text-white">Staff:</span>
+                  <strong className="text-slate-900 dark:text-slate-100 bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg font-extrabold border border-slate-300 dark:border-slate-700 shadow-2xs">
                     {staffData.name}
                   </strong>
                   <span>·</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">U-Number:</span>
-                  <span className="font-mono font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
+                  <span className="font-bold text-slate-900 dark:text-white">U-Number:</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs">
                     {staffData.uNumber}
                   </span>
                   {isUserAls(staffData.credentials, staffData.exNumber) && (
                     <>
                       <span>·</span>
-                      <span className="font-semibold text-purple-700 dark:text-purple-300">EX-Number:</span>
-                      <span className="font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 px-2 py-0.5 rounded border border-purple-200 dark:border-purple-800">
+                      <span className="font-bold text-slate-800 dark:text-slate-200">EX-Number:</span>
+                      <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs">
                         {staffData.exNumber}
                       </span>
                     </>
                   )}
                   <span>·</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">Date:</span>
-                  <span className="font-mono font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                  <span className="font-bold text-slate-900 dark:text-white">Date:</span>
+                  <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs">
                     {verificationDate}
                   </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 p-3 text-white shadow-sm text-right">
-                  <span className="text-[11px] font-medium text-blue-100 block">Active Systems</span>
-                  <p className="text-xl font-extrabold leading-tight">
+                <div className="rounded-2xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 p-3.5 text-white shadow-[0_4px_8px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3)] border border-slate-600 text-right hover:-translate-y-0.5 transition-transform duration-200">
+                  <span className="text-[11px] font-bold text-slate-300 block uppercase tracking-wider">Active Systems</span>
+                  <p className="text-2xl font-black leading-tight">
                     {activeFields.length}
                   </p>
                 </div>
@@ -873,24 +875,24 @@ export default function UserVerificationFlow() {
             </div>
 
             {registrationNotice && (
-              <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 shadow-2xs">
+              <div className="mt-4 flex items-start gap-3 rounded-2xl border-2 border-amber-400 bg-gradient-to-b from-amber-50 to-amber-100/60 p-4 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 shadow-sm hover:-translate-y-0.5 transition-transform duration-200">
                 <Sparkles className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
                 <div>
-                  <p className="font-bold">Newly Registered Staff Profile:</p>
+                  <p className="font-extrabold">Newly Registered Staff Profile:</p>
                   <p className="mt-0.5">{registrationNotice}</p>
-                  <p className="mt-1 font-semibold text-amber-900 dark:text-amber-300">
+                  <p className="mt-1 font-bold text-amber-900 dark:text-amber-300">
                     Scroll down to &ldquo;Unassigned Systems&rdquo; to click &ldquo;Request Access&rdquo; and report which operational systems you need active credentials for.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Instruction banner */}
-            <div className="mt-4 flex items-start gap-3 rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50/80 via-sky-50/60 to-indigo-50/80 p-3.5 text-xs text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-200 shadow-2xs">
-              <Info className="h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
+            {/* Instruction 3D banner */}
+            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-slate-300 bg-gradient-to-b from-white to-slate-100 p-4 text-xs text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-[0_2px_4px_rgba(0,0,0,0.05),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-0.5 transition-transform duration-200">
+              <Info className="h-5 w-5 shrink-0 text-slate-700 dark:text-slate-300 mt-0.5" />
               <div>
-                <p className="font-bold">Operational Verification Instructions:</p>
-                <p className="mt-0.5 text-slate-700 dark:text-slate-300">
+                <p className="font-extrabold">Operational Verification Instructions:</p>
+                <p className="mt-0.5 text-slate-700 dark:text-slate-300 font-medium">
                   For all field values except <strong>N</strong> or blank, please confirm if your credentials are
                   working as indicated. Otherwise, select <strong>Request Change</strong> and add a remark describing
                   the issue (e.g., password expired, station access code needed).
@@ -899,29 +901,29 @@ export default function UserVerificationFlow() {
             </div>
           </div>
 
-          {/* Visual Progress Indicator Card */}
-          <div className="rounded-2xl border border-indigo-200/80 bg-white p-5 sm:p-6 shadow-md shadow-indigo-500/5 dark:border-indigo-900/60 dark:bg-slate-900">
+          {/* Visual Progress Indicator 3D Card */}
+          <div className="silver-card-3d rounded-3xl p-5 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white text-xs font-black shadow-[0_2px_4px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.4)] border border-slate-600">
                     3
                   </span>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <ListChecks className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <ListChecks className="h-5 w-5 text-slate-700 dark:text-slate-300" />
                     <span>Confirmation Progress: {reviewedCount} of {totalActive} Credentials Reviewed</span>
                   </h3>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                  <span className="font-semibold text-indigo-600 dark:text-indigo-400">Station Compliance Audit</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Station Compliance Audit</span>
                   <span>·</span>
                   {remainingCount === 0 ? (
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                       All credentials confirmed (Ready to submit)
                     </span>
                   ) : (
-                    <span className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
                       <Clock className="h-4 w-4 text-amber-600" />
                       {remainingCount} field{remainingCount === 1 ? '' : 's'} remaining to confirm
                     </span>
@@ -929,19 +931,19 @@ export default function UserVerificationFlow() {
                 </div>
               </div>
 
-              {/* Quick Actions */}
+              {/* Quick Actions 3D Buttons */}
               <div className="flex items-center gap-2">
                 {remainingCount > 0 ? (
                   <button
                     type="button"
                     onClick={handleConfirmAllRemaining}
-                    className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:from-emerald-700 hover:to-teal-700 transition-all"
+                    className="emerald-btn-3d flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer"
                   >
                     <Check className="h-4 w-4" />
-                    <span>Confirm All Remaining ({remainingCount}) as Working</span>
+                    <span>Confirm All Remaining ({remainingCount})</span>
                   </button>
                 ) : (
-                  <div className="flex items-center gap-1.5 rounded-xl bg-emerald-100/90 px-3.5 py-2 text-xs font-bold text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300 shadow-2xs">
+                  <div className="flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-emerald-50 to-emerald-100 px-3.5 py-2 text-xs font-extrabold text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:border-emerald-800 dark:text-emerald-300 shadow-[0_2px_4px_rgba(5,150,105,0.1),inset_0_1px_0_rgba(255,255,255,0.9)]">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                     <span>100% Verified</span>
                   </div>
@@ -950,65 +952,65 @@ export default function UserVerificationFlow() {
             </div>
 
             {/* Visual Multi-Segment Progress Bar */}
-            <div className="mt-4">
+            <div className="mt-5">
               <div className="flex items-center justify-between text-xs font-bold mb-1.5">
-                <span className="text-slate-600 dark:text-slate-400">Live Confirmation Status</span>
-                <span className="font-mono text-indigo-700 dark:text-indigo-300 font-extrabold bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800">
+                <span className="text-slate-600 dark:text-slate-400 uppercase tracking-wider font-extrabold text-[11px]">Audit Confirmation Status</span>
+                <span className="font-mono text-slate-900 dark:text-slate-100 font-black bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs">
                   {progressPercent}% Completed
                 </span>
               </div>
-              <div className="h-3.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-inner">
+              <div className="h-4 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]">
                 <div className="flex h-full transition-all duration-300">
                   <div
                     style={{ width: `${totalActive > 0 ? (confirmedCount / totalActive) * 100 : 0}%` }}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 shadow-xs"
+                    className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 transition-all duration-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
                     title={`${confirmedCount} Confirmed Working`}
                   />
                   <div
                     style={{ width: `${totalActive > 0 ? (changeRequestedCount / totalActive) * 100 : 0}%` }}
-                    className="bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 shadow-xs"
+                    className="bg-gradient-to-r from-amber-500 via-amber-600 to-orange-600 transition-all duration-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
                     title={`${changeRequestedCount} Change Requests`}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Stat Counters & Legend */}
-            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 shadow-2xs">
-                <span className="text-slate-500 block text-[11px] font-semibold">Total Active</span>
-                <span className="font-extrabold text-slate-900 dark:text-slate-100 text-base">{totalActive} Fields</span>
+            {/* Stat Counters & Legend - 3D Mini Cards */}
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-300 dark:border-slate-800 text-xs">
+              <div className="rounded-2xl bg-gradient-to-b from-white via-slate-50 to-slate-100 p-3.5 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-200">
+                <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider">Total Active</span>
+                <span className="font-black text-slate-900 dark:text-slate-100 text-base mt-0.5 block">{totalActive} Fields</span>
               </div>
-              <div className="rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50/60 p-3 dark:from-emerald-950/40 dark:to-teal-950/20 border border-emerald-200 dark:border-emerald-900/60 shadow-2xs">
-                <span className="text-emerald-800 dark:text-emerald-300 block text-[11px] font-bold">Confirmed</span>
-                <span className="font-extrabold text-emerald-900 dark:text-emerald-100 text-base flex items-center gap-1">
+              <div className="rounded-2xl bg-gradient-to-b from-emerald-50 to-emerald-100/80 p-3.5 dark:from-emerald-950/40 dark:to-teal-950/20 border border-emerald-300 dark:border-emerald-900/60 shadow-[0_2px_4px_rgba(5,150,105,0.1),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-1 transition-all duration-200">
+                <span className="text-emerald-900 dark:text-emerald-300 block text-[11px] font-extrabold uppercase tracking-wider">Confirmed</span>
+                <span className="font-black text-emerald-950 dark:text-emerald-100 text-base flex items-center gap-1 mt-0.5">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                   {confirmedCount} Working
                 </span>
               </div>
-              <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50/60 p-3 dark:from-amber-950/40 dark:to-orange-950/20 border border-amber-200 dark:border-amber-900/60 shadow-2xs">
-                <span className="text-amber-800 dark:text-amber-300 block text-[11px] font-bold">Change Requests</span>
-                <span className="font-extrabold text-amber-900 dark:text-amber-100 text-base flex items-center gap-1">
+              <div className="rounded-2xl bg-gradient-to-b from-amber-50 to-amber-100/80 p-3.5 dark:from-amber-950/40 dark:to-orange-950/20 border border-amber-300 dark:border-amber-900/60 shadow-[0_2px_4px_rgba(217,119,6,0.1),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-1 transition-all duration-200">
+                <span className="text-amber-900 dark:text-amber-300 block text-[11px] font-extrabold uppercase tracking-wider">Changes</span>
+                <span className="font-black text-amber-950 dark:text-amber-100 text-base flex items-center gap-1 mt-0.5">
                   <AlertTriangle className="h-4 w-4 text-amber-600" />
                   {changeRequestedCount} Flagged
                 </span>
               </div>
-              <div className={`rounded-xl p-3 border shadow-2xs transition-colors ${
+              <div className={`rounded-2xl p-3.5 border shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] hover:-translate-y-1 transition-all duration-200 ${
                 remainingCount > 0
-                  ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 text-blue-950 dark:from-blue-950/40 dark:to-indigo-950/30 dark:border-blue-800 dark:text-blue-100'
+                  ? 'bg-gradient-to-b from-slate-100 to-slate-200 border-slate-300 text-slate-900 dark:from-slate-800 dark:to-slate-900 dark:border-slate-700 dark:text-slate-100'
                   : 'bg-slate-50 border-slate-200 text-slate-500 dark:bg-slate-800/40 dark:border-slate-700'
               }`}>
-                <span className="block text-[11px] font-bold">Remaining to Confirm</span>
-                <span className="font-extrabold text-base flex items-center gap-1">
+                <span className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Remaining</span>
+                <span className="font-black text-base flex items-center gap-1 mt-0.5">
                   {remainingCount > 0 ? (
                     <>
-                      <Clock className="h-4 w-4 text-blue-600" />
+                      <Clock className="h-4 w-4 text-slate-700" />
                       <span>{remainingCount} Pending</span>
                     </>
                   ) : (
                     <>
                       <Check className="h-4 w-4 text-emerald-600" />
-                      <span>0 Remaining</span>
+                      <span>0 Left</span>
                     </>
                   )}
                 </span>
@@ -1016,20 +1018,20 @@ export default function UserVerificationFlow() {
             </div>
           </div>
 
-          {/* Active Credentials Section */}
+          {/* Active Credentials Section - 3D Cards */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-indigo-600" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <Layers className="h-4 w-4 text-slate-700" />
                 <span>Assigned Credentials ({activeFields.length})</span>
               </h3>
-              <span className="text-xs text-slate-500 font-semibold">
+              <span className="text-xs font-bold">
                 {remainingCount > 0 ? (
-                  <span className="text-amber-600 dark:text-amber-400">
+                  <span className="text-amber-700 dark:text-amber-400">
                     {remainingCount} field{remainingCount === 1 ? '' : 's'} remaining
                   </span>
                 ) : (
-                  <span className="text-emerald-600 dark:text-emerald-400">
+                  <span className="text-emerald-700 dark:text-emerald-400">
                     All {totalActive} fields confirmed
                   </span>
                 )}
@@ -1037,11 +1039,11 @@ export default function UserVerificationFlow() {
             </div>
 
             {activeFields.length === 0 ? (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900">
+              <div className="silver-card-3d rounded-2xl p-8 text-center text-sm text-slate-500">
                 No active credentials currently assigned to this profile in the master database.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 {activeFields.map(cfg => {
                   const currentValue = staffData.credentials[cfg.key] || 'Y';
                   const verification = fieldVerifications[cfg.key] || { status: 'PENDING', remark: '' };
@@ -1052,44 +1054,44 @@ export default function UserVerificationFlow() {
                   return (
                     <div
                       key={cfg.key}
-                      className={`rounded-2xl border p-4 sm:p-5 transition-all ${
+                      className={`silver-card-3d rounded-2xl p-4 sm:p-5 transition-all ${
                         isConfirmed
-                          ? 'border-emerald-300 border-l-4 border-l-emerald-500 bg-gradient-to-r from-emerald-50/40 via-white to-white dark:border-emerald-800 dark:from-emerald-950/20 dark:via-slate-900 dark:to-slate-900 shadow-xs'
+                          ? 'border-emerald-400 border-l-4 border-l-emerald-600 bg-gradient-to-r from-emerald-50/30 via-white to-slate-50'
                           : isChangeRequested
-                          ? 'border-amber-300 border-l-4 border-l-amber-500 bg-gradient-to-r from-amber-50/50 via-white to-white dark:border-amber-800 dark:from-amber-950/20 dark:via-slate-900 dark:to-slate-900 shadow-xs'
-                          : 'border-blue-200 border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50/30 via-white to-white dark:border-blue-900/60 dark:from-blue-950/20 dark:via-slate-900 dark:to-slate-900 shadow-2xs'
+                          ? 'border-amber-400 border-l-4 border-l-amber-600 bg-gradient-to-r from-amber-50/40 via-white to-slate-50'
+                          : 'border-slate-300 border-l-4 border-l-slate-700 bg-gradient-to-r from-slate-100/50 via-white to-slate-50'
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-extrabold text-slate-900 text-sm sm:text-base dark:text-white">
+                            <span className="font-black text-slate-900 text-sm sm:text-base dark:text-white">
                               {cfg.label}
                             </span>
-                            <span className="rounded-md bg-blue-100/80 px-2 py-0.5 font-mono text-xs font-bold text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                            <span className="rounded-lg bg-gradient-to-b from-white to-slate-200 px-2.5 py-0.5 font-mono text-xs font-black text-slate-900 border border-slate-300 shadow-2xs">
                               {cfg.key === 'tac' ? `Access Code(s): ${formatCredentialDisplay('tac', currentValue)}` : `Value: ${currentValue}`}
                             </span>
                             {cfg.key === 'tac' && (
-                              <span className="rounded-md bg-purple-100 px-2 py-0.5 text-[11px] font-bold text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-300 dark:border-purple-800">
+                              <span className="rounded-lg bg-gradient-to-b from-slate-100 to-slate-200 px-2 py-0.5 text-[11px] font-extrabold text-slate-800 border border-slate-300 shadow-2xs">
                                 Access Codes: Y · MOD · ALS
                               </span>
                             )}
                             {/* Live field confirmation state tag */}
                             {isConfirmed && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300">
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-b from-emerald-50 to-emerald-100 px-2.5 py-0.5 text-[11px] font-black text-emerald-900 border border-emerald-300 shadow-2xs">
                                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
                                 <span>Confirmed Working</span>
                               </span>
                             )}
                             {isChangeRequested && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2.5 py-0.5 text-[11px] font-bold text-amber-900 dark:bg-amber-950 dark:text-amber-300 border border-amber-300">
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-b from-amber-50 to-amber-100 px-2.5 py-0.5 text-[11px] font-black text-amber-950 border border-amber-300 shadow-2xs">
                                 <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
                                 <span>Change Requested</span>
                               </span>
                             )}
                             {isPending && (
-                              <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2.5 py-0.5 text-[11px] font-bold text-blue-800 dark:bg-blue-950 dark:text-blue-300 border border-blue-200">
-                                <Clock className="h-3.5 w-3.5 text-blue-600" />
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-b from-slate-100 to-slate-200 px-2.5 py-0.5 text-[11px] font-extrabold text-slate-700 border border-slate-300 shadow-2xs">
+                                <Clock className="h-3.5 w-3.5 text-slate-600" />
                                 <span>Pending Confirmation</span>
                               </span>
                             )}
@@ -1099,15 +1101,15 @@ export default function UserVerificationFlow() {
                           </p>
                         </div>
 
-                        {/* Confirmation Toggle Buttons */}
-                        <div className="flex items-center rounded-xl bg-slate-100 p-1 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs shrink-0 shadow-inner">
+                        {/* Confirmation 3D Toggle Buttons */}
+                        <div className="flex items-center rounded-xl bg-slate-200/80 p-1 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs shrink-0 shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]">
                           <button
                             type="button"
                             onClick={() => handleStatusChange(cfg.key, 'CONFIRMED')}
-                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-bold transition-all ${
+                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all ${
                               isConfirmed
-                                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                                ? 'emerald-btn-3d text-white'
+                                : 'text-slate-700 hover:text-slate-950 hover:-translate-y-0.5 dark:text-slate-400 dark:hover:text-white'
                             }`}
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" />
@@ -1116,10 +1118,10 @@ export default function UserVerificationFlow() {
                           <button
                             type="button"
                             onClick={() => handleStatusChange(cfg.key, 'CHANGE_REQUESTED')}
-                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-bold transition-all ${
+                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all ${
                               isChangeRequested
-                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs'
-                                : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                                ? 'amber-btn-3d text-white'
+                                : 'text-slate-700 hover:text-slate-950 hover:-translate-y-0.5 dark:text-slate-400 dark:hover:text-white'
                             }`}
                           >
                             <AlertTriangle className="h-3.5 w-3.5" />
@@ -1129,11 +1131,11 @@ export default function UserVerificationFlow() {
                       </div>
 
                       {/* Remark input field */}
-                      <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+                      <div className="mt-3.5 pt-3.5 border-t border-slate-200 dark:border-slate-800/80">
                         <div className="flex items-center justify-between text-xs text-slate-600 mb-1">
-                          <label className="font-bold">
+                          <label className="font-extrabold">
                             {isChangeRequested ? (
-                              <span className="text-amber-800 dark:text-amber-400 font-bold flex items-center gap-1">
+                              <span className="text-amber-900 dark:text-amber-400 font-black flex items-center gap-1">
                                 <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
                                 Specify change or issue details:
                               </span>
@@ -1142,8 +1144,8 @@ export default function UserVerificationFlow() {
                             )}
                           </label>
                           <span
-                            className={`font-mono text-[11px] font-semibold ${
-                              (verification.remark?.length || 0) >= 240 ? 'text-red-600 font-bold' : 'text-slate-400'
+                            className={`font-mono text-[11px] font-bold ${
+                              (verification.remark?.length || 0) >= 240 ? 'text-red-600 font-black' : 'text-slate-400'
                             }`}
                           >
                             {verification.remark?.length || 0}/255
@@ -1151,13 +1153,13 @@ export default function UserVerificationFlow() {
                         </div>
                         {cfg.key === 'tac' && isChangeRequested && (
                           <div className="mb-2 flex flex-wrap items-center gap-1.5 text-[11px]">
-                            <span className="font-bold text-purple-900 dark:text-purple-300">Quick Access Code Request:</span>
+                            <span className="font-extrabold text-slate-900 dark:text-white">Quick Access Code Request:</span>
                             {['Request code: Y (Standard)', 'Request code: MOD (Lead)', 'Request code: ALS (Supervisor)', 'Request codes: Y, MOD', 'Request codes: Y, MOD, ALS'].map((chip, chipIdx) => (
                               <button
                                 key={chipIdx}
                                 type="button"
                                 onClick={() => handleRemarkChange(cfg.key, chip)}
-                                className="rounded-md border border-purple-300 bg-purple-100/70 px-2.5 py-0.5 font-bold text-purple-800 hover:bg-purple-200 dark:border-purple-700 dark:bg-purple-950/60 dark:text-purple-300 transition-colors shadow-2xs"
+                                className="silver-btn-3d rounded-lg px-2.5 py-0.5 font-bold cursor-pointer"
                               >
                                 {chip}
                               </button>
@@ -1176,10 +1178,10 @@ export default function UserVerificationFlow() {
                                 : 'e.g. Password expired, supervisor role missing, cannot login to station terminal...'
                               : 'Optional remark for this credential...'
                           }
-                          className={`w-full rounded-xl border px-3.5 py-2 text-xs transition-colors focus:outline-hidden focus:ring-2 ${
+                          className={`w-full rounded-xl border-2 px-3.5 py-2 text-xs transition-colors focus:outline-hidden focus:ring-2 ${
                             isChangeRequested
-                              ? 'border-amber-400 bg-white text-amber-950 focus:border-amber-500 focus:ring-amber-500/30 dark:border-amber-700 dark:bg-slate-800 dark:text-amber-100 shadow-2xs'
-                              : 'border-slate-200 bg-slate-50/70 text-slate-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                              ? 'border-amber-400 bg-white text-amber-950 focus:border-amber-600 focus:ring-amber-200 dark:border-amber-700 dark:bg-slate-800 dark:text-amber-100 shadow-inner'
+                              : 'border-slate-300 bg-white text-slate-800 focus:border-slate-800 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-inner'
                           }`}
                         />
                       </div>
@@ -1190,30 +1192,30 @@ export default function UserVerificationFlow() {
             )}
           </div>
 
-          {/* Unassigned Systems Accordion */}
+          {/* Unassigned Systems Accordion - 3D Box */}
           {unassignedFields.length > 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
+            <div className="silver-card-3d rounded-2xl p-5 shadow-sm">
               <button
                 type="button"
                 onClick={() => setShowUnassigned(!showUnassigned)}
-                className="flex w-full items-center justify-between text-left"
+                className="flex w-full items-center justify-between text-left cursor-pointer"
               >
                 <div>
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                  <h4 className="text-sm font-black text-slate-900 dark:text-slate-200">
                     Unassigned Systems ({unassignedFields.length})
                   </h4>
                   <p className="text-xs text-slate-500">
                     These systems are marked as &ldquo;N&rdquo; or unassigned in your master profile. No confirmation required unless you need new access.
                   </p>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-indigo-600 font-bold bg-indigo-50 dark:bg-indigo-950 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                <div className="silver-btn-3d flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl">
                   <span>{showUnassigned ? 'Hide' : 'View or Request Access'}</span>
                   {showUnassigned ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
               </button>
 
               {showUnassigned && (
-                <div className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800 space-y-3">
+                <div className="mt-4 border-t border-slate-300 pt-4 dark:border-slate-800 space-y-3">
                   {unassignedFields.map(cfg => {
                     const isRequestingAccess = fieldVerifications[cfg.key]?.status === 'CHANGE_REQUESTED';
                     const remarkVal = fieldVerifications[cfg.key]?.remark || '';
@@ -1221,15 +1223,15 @@ export default function UserVerificationFlow() {
                     return (
                       <div
                         key={cfg.key}
-                        className={`rounded-xl border p-3.5 text-xs transition-colors ${
+                        className={`rounded-2xl border-2 p-4 text-xs transition-all shadow-xs ${
                           isRequestingAccess
-                            ? 'border-amber-400 bg-amber-50/60 dark:border-amber-800 dark:bg-amber-950/20'
-                            : 'border-slate-200 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/40'
+                            ? 'border-amber-400 bg-amber-50/80 dark:border-amber-800 dark:bg-amber-950/20'
+                            : 'border-slate-300 bg-gradient-to-b from-white to-slate-50 dark:border-slate-800 dark:bg-slate-800/40'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-slate-900 dark:text-slate-100">{cfg.label}</span>
+                            <span className="font-extrabold text-slate-900 dark:text-slate-100">{cfg.label}</span>
                             <span className="ml-2 font-mono text-slate-400">(Current: N)</span>
                             <p className="text-[11px] text-slate-500">{cfg.description}</p>
                           </div>
@@ -1238,7 +1240,7 @@ export default function UserVerificationFlow() {
                               <button
                                 type="button"
                                 onClick={() => handleStatusChange(cfg.key, 'CONFIRMED')}
-                                className="text-xs text-slate-500 hover:text-slate-700 underline font-semibold"
+                                className="text-xs text-slate-600 hover:text-slate-900 underline font-bold cursor-pointer"
                               >
                                 Cancel Request
                               </button>
@@ -1246,9 +1248,9 @@ export default function UserVerificationFlow() {
                               <button
                                 type="button"
                                 onClick={() => handleStatusChange(cfg.key, 'CHANGE_REQUESTED')}
-                                className="flex items-center gap-1 rounded-lg border border-indigo-200 bg-white px-3 py-1.5 text-xs font-bold text-indigo-700 hover:bg-indigo-50 dark:border-indigo-800 dark:bg-slate-800 dark:text-indigo-300 shadow-2xs"
+                                className="silver-btn-3d flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer"
                               >
-                                <PlusCircle className="h-3.5 w-3.5 text-indigo-600" />
+                                <PlusCircle className="h-3.5 w-3.5 text-slate-700" />
                                 <span>Request Access</span>
                               </button>
                             )}
@@ -1263,7 +1265,7 @@ export default function UserVerificationFlow() {
                               value={remarkVal}
                               onChange={e => handleRemarkChange(cfg.key, e.target.value)}
                               placeholder="Reason for requesting new access to this system (max 255 chars)..."
-                              className="w-full rounded-lg border border-amber-400 bg-white px-3 py-1.5 text-xs text-slate-900 focus:outline-hidden dark:border-amber-700 dark:bg-slate-800 dark:text-white"
+                              className="w-full rounded-xl border-2 border-amber-400 bg-white px-3 py-2 text-xs text-slate-900 focus:outline-hidden dark:border-amber-700 dark:bg-slate-800 dark:text-white shadow-inner"
                             />
                           </div>
                         )}
@@ -1275,11 +1277,11 @@ export default function UserVerificationFlow() {
             </div>
           )}
 
-          {/* Overall remarks */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 shadow-xs">
+          {/* Overall remarks - 3D Card */}
+          <div className="silver-card-3d rounded-2xl p-5 shadow-sm">
             <div className="flex items-center justify-between text-xs text-slate-700 dark:text-slate-300 mb-1.5">
-              <label className="font-bold">General Remarks / Operational Feedback (Optional)</label>
-              <span className="font-mono text-slate-400 text-[11px] font-semibold">{overallRemarks.length}/255</span>
+              <label className="font-extrabold">General Remarks / Operational Feedback (Optional)</label>
+              <span className="font-mono text-slate-400 text-[11px] font-bold">{overallRemarks.length}/255</span>
             </div>
             <textarea
               maxLength={255}
@@ -1287,23 +1289,23 @@ export default function UserVerificationFlow() {
               value={overallRemarks}
               onChange={e => setOverallRemarks(e.target.value)}
               placeholder="Any additional feedback regarding your shift stations, hardware, or access credentials..."
-              className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-xs text-slate-800 focus:border-indigo-500 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              className="w-full rounded-xl border-2 border-slate-300 bg-white p-3 text-xs text-slate-800 focus:border-slate-800 focus:outline-hidden focus:ring-2 focus:ring-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 shadow-inner"
             />
           </div>
 
-          {/* Official Email Notification & Staff Email Prompt */}
-          <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/80 via-white to-blue-50/50 p-5 dark:border-indigo-900 dark:bg-slate-900 shadow-md space-y-4">
+          {/* Official Email Notification & Staff Email Prompt - 3D Box */}
+          <div className="silver-card-3d rounded-3xl p-5 sm:p-6 shadow-md space-y-4">
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 text-white shadow-md shrink-0 mt-0.5">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white shadow-[0_4px_8px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.3)] border border-slate-600 shrink-0 mt-0.5 hover:-translate-y-0.5 transition-transform duration-200">
                 <Mail className="h-5 w-5" />
               </div>
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                  <h4 className="text-sm font-black text-slate-900 dark:text-white">
                     Email Submission &amp; Compliance Notification
                   </h4>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-950 px-2.5 py-0.5 text-[10px] font-extrabold text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800">
-                    <Shield className="h-3 w-3 text-indigo-600" />
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-b from-white to-slate-200 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-extrabold text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 shadow-2xs">
+                    <Shield className="h-3 w-3 text-slate-700" />
                     Automated Audit Dispatch
                   </span>
                 </div>
@@ -1315,13 +1317,13 @@ export default function UserVerificationFlow() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
               {/* Official Non-Editable Email Recipient */}
-              <div className="rounded-xl border border-slate-200 bg-slate-100/95 p-3.5 dark:border-slate-800 dark:bg-slate-800/80 shadow-2xs">
+              <div className="rounded-2xl border-2 border-slate-300 bg-gradient-to-b from-slate-100 to-slate-200/90 p-4 dark:border-slate-800 dark:bg-slate-800/80 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-0.5 transition-all duration-200">
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+                  <label className="text-xs font-extrabold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
                     <Lock className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                     <span>Official Submission Recipient</span>
                   </label>
-                  <span className="rounded-md bg-slate-200 dark:bg-slate-700 px-2 py-0.5 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                  <span className="rounded-md bg-slate-300 dark:bg-slate-700 px-2 py-0.5 text-[10px] font-extrabold text-slate-800 dark:text-slate-300">
                     Non-Editable
                   </span>
                 </div>
@@ -1331,23 +1333,23 @@ export default function UserVerificationFlow() {
                     readOnly
                     disabled
                     value={OFFICIAL_REVIEW_EMAIL}
-                    className="w-full rounded-lg border border-slate-300 bg-slate-200/80 dark:border-slate-700 dark:bg-slate-900/90 px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-200 cursor-not-allowed select-all truncate"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-200/90 dark:border-slate-700 dark:bg-slate-900/90 px-3 py-2 text-xs font-mono font-bold text-slate-900 dark:text-slate-200 cursor-not-allowed select-all truncate shadow-inner"
                     title={OFFICIAL_REVIEW_EMAIL}
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="mt-1.5 text-[11px] text-slate-600 dark:text-slate-400">
                   Fixed compliance mailbox for Operations and Security review.
                 </p>
               </div>
 
               {/* Prompt to add user email address */}
-              <div className="rounded-xl border border-blue-200 bg-white p-3.5 dark:border-blue-900/60 dark:bg-slate-800/90 shadow-2xs">
+              <div className="rounded-2xl border-2 border-slate-300 bg-gradient-to-b from-white to-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/90 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] hover:-translate-y-0.5 transition-all duration-200">
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                    <Mail className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  <label className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300" />
                     <span>Your Email Address (Add for Confirmation Copy)</span>
                   </label>
-                  <span className="rounded-md bg-blue-100 dark:bg-blue-950 px-2 py-0.5 text-[10px] font-extrabold text-blue-800 dark:text-blue-300">
+                  <span className="rounded-md bg-gradient-to-b from-slate-100 to-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-extrabold text-slate-800 dark:text-slate-200 border border-slate-300">
                     Staff Copy
                   </span>
                 </div>
@@ -1357,10 +1359,10 @@ export default function UserVerificationFlow() {
                     value={confirmationEmail}
                     onChange={e => setConfirmationEmail(e.target.value)}
                     placeholder="Enter your email (e.g. name@lhg.com or personal email)"
-                    className="w-full rounded-lg border border-blue-300 bg-white px-3 py-2 text-xs font-semibold text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-hidden focus:ring-2 focus:ring-blue-500/25 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
+                    className="w-full rounded-xl border-2 border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-900 placeholder-slate-400 focus:border-slate-800 focus:outline-hidden focus:ring-2 focus:ring-slate-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white shadow-inner"
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-blue-700 dark:text-blue-300 font-bold">
+                <p className="mt-1.5 text-[11px] text-slate-700 dark:text-slate-300 font-extrabold">
                   Add your email address to receive an official copy of this verification receipt.
                 </p>
               </div>
@@ -1369,14 +1371,14 @@ export default function UserVerificationFlow() {
 
           {/* Readiness and Remaining Status Alert */}
           {remainingCount > 0 ? (
-            <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="rounded-2xl border-2 border-amber-400 bg-gradient-to-b from-amber-50 via-amber-100/60 to-slate-50 p-4 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center gap-2.5">
                 <Clock className="h-6 w-6 text-amber-600 dark:text-amber-400 shrink-0" />
                 <div>
-                  <p className="font-extrabold text-sm text-amber-950 dark:text-amber-100">
+                  <p className="font-black text-sm text-amber-950 dark:text-amber-100">
                     {remainingCount} Field{remainingCount === 1 ? '' : 's'} Remaining to Confirm
                   </p>
-                  <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
+                  <p className="text-xs text-amber-900 dark:text-amber-300 mt-0.5">
                     Please review and confirm each assigned credential, or click the quick action to confirm all remaining as working.
                   </p>
                 </div>
@@ -1384,44 +1386,44 @@ export default function UserVerificationFlow() {
               <button
                 type="button"
                 onClick={handleConfirmAllRemaining}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm hover:from-amber-600 hover:to-amber-700 transition-colors shrink-0"
+                className="amber-btn-3d flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer shrink-0"
               >
                 <Check className="h-4 w-4" />
                 <span>Confirm All Remaining ({remainingCount})</span>
               </button>
             </div>
           ) : (
-            <div className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-4 text-xs text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-200 flex items-center justify-between gap-3 shadow-xs">
+            <div className="rounded-2xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 via-emerald-100/60 to-slate-50 p-4 text-xs text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-200 flex items-center justify-between gap-3 shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <div>
-                  <p className="font-extrabold text-sm text-emerald-950 dark:text-emerald-100">
+                  <p className="font-black text-sm text-emerald-950 dark:text-emerald-100">
                     All {totalActive} Active Credentials Verified (100%)
                   </p>
-                  <p className="text-xs text-emerald-800 dark:text-emerald-300 mt-0.5">
+                  <p className="text-xs text-emerald-900 dark:text-emerald-300 mt-0.5">
                     {confirmedCount} confirmed working · {changeRequestedCount} change request{changeRequestedCount === 1 ? '' : 's'} flagged. Ready to submit bi-weekly audit.
                   </p>
                 </div>
               </div>
-              <span className="font-mono font-extrabold text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-xl shadow-xs">
+              <span className="font-mono font-black text-xs bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl shadow-[0_2px_4px_rgba(5,150,105,0.3)]">
                 Ready to Submit
               </span>
             </div>
           )}
 
           {submitError && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2">
+            <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-3.5 text-xs text-red-900 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300 flex items-center gap-2 shadow-sm">
               <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
-              <span className="font-semibold">{submitError}</span>
+              <span className="font-bold">{submitError}</span>
             </div>
           )}
 
-          {/* Submit Actions */}
+          {/* 3D Submit Actions */}
           <div className="flex items-center justify-between gap-4 pt-2">
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 transition-colors shadow-2xs"
+              className="silver-btn-3d rounded-xl px-5 py-3 text-sm font-bold cursor-pointer"
             >
               Back
             </button>
@@ -1429,10 +1431,10 @@ export default function UserVerificationFlow() {
               type="button"
               disabled={submitting || remainingCount > 0}
               onClick={handleSubmitVerification}
-              className={`flex items-center gap-2.5 rounded-xl px-7 py-3.5 text-sm font-extrabold text-white shadow-md transition-all ${
+              className={`flex items-center gap-2.5 rounded-2xl px-7 py-3.5 text-sm font-black text-white shadow-md transition-all cursor-pointer ${
                 remainingCount > 0
                   ? 'bg-slate-400 cursor-not-allowed opacity-60'
-                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-indigo-500/30 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  : 'titanium-btn-3d'
               }`}
             >
               {submitting ? (
