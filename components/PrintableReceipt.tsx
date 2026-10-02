@@ -185,17 +185,17 @@ export default function PrintableReceipt({
 
   return (
     <div className="mx-auto max-w-4xl py-6 px-4 sm:px-6">
-      {/* Top action bar (hidden during print) with 3D Silver Surface */}
-      <div className="print:hidden mb-6 flex flex-wrap items-center justify-between gap-4 silver-card-3d rounded-2xl p-5 shadow-lg">
+      {/* Top action bar (hidden during print) with Dark Blue Card Surface */}
+      <div className="print:hidden mb-6 flex flex-wrap items-center justify-between gap-4 darkblue-card rounded-2xl p-5 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-md border border-emerald-300/40">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500 to-emerald-700 text-white shadow-md border border-emerald-400/40">
             <CheckCircle2 className="h-6 w-6 drop-shadow-xs" />
           </div>
           <div>
-            <h2 className="text-base font-black text-slate-900 dark:text-white tracking-tight">
+            <h2 className="text-base font-black text-white tracking-tight">
               Verification Successfully Submitted &amp; Logged!
             </h2>
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+            <p className="text-xs font-medium text-slate-300">
               Your bi-weekly credentials review has been recorded in the audit database.
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function PrintableReceipt({
               }
             }}
             disabled={isSendingEmail}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-sky-500 via-blue-600 to-indigo-700 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:from-sky-400 hover:via-blue-500 hover:to-indigo-600 hover:-translate-y-0.5 active:translate-y-0.5 border border-sky-400/40 transition-all cursor-pointer disabled:opacity-60"
+            className="flex items-center gap-1.5 darkblue-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md cursor-pointer disabled:opacity-60"
           >
             {isSendingEmail ? (
               <>
@@ -232,21 +232,21 @@ export default function PrintableReceipt({
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 silver-btn-3d px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
+            className="flex items-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-600 dark:text-slate-400" />
+            <Printer className="h-3.5 w-3.5 text-sky-400" />
             <span>Print / PDF</span>
           </button>
           <button
             onClick={handleDownloadTxt}
-            className="flex items-center gap-1.5 silver-btn-3d px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
+            className="flex items-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer"
           >
-            <Download className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+            <Download className="h-3.5 w-3.5 text-teal-400" />
             <span>Download (.TXT)</span>
           </button>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-xl border border-slate-300/80 bg-white/90 dark:bg-slate-800 dark:border-slate-700 px-3.5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:-translate-y-0.5 transition-all shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-sky-800/60 bg-slate-900/80 px-3.5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:-translate-y-0.5 transition-all shadow-xs cursor-pointer"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>New Review</span>
@@ -255,7 +255,7 @@ export default function PrintableReceipt({
       </div>
 
       {/* Email Confirmation Card with Official Recipient & Staff Copy */}
-      <div className="print:hidden mb-6 silver-card-3d rounded-2xl p-5 shadow-lg">
+      <div className="print:hidden mb-6 darkblue-card rounded-2xl p-5 shadow-lg">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b from-sky-500 to-blue-700 text-white shadow-md border border-sky-400/40 shrink-0 mt-0.5">
@@ -263,25 +263,25 @@ export default function PrintableReceipt({
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-bold text-white">
                   Compliance Email Notification
                 </h3>
                 {emailSent && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">
                     <Check className="h-3 w-3" />
                     Dispatched
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-                Automatically submitted to <strong className="text-slate-800 dark:text-slate-200">Log-in Reviews - DELSM Operations and Security</strong> and your email copy.
+              <p className="text-xs text-slate-300 mt-0.5">
+                Automatically submitted to <strong className="text-white">Log-in Reviews - DELSM Operations and Security</strong> and your email copy.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-300/80 bg-slate-100/90 dark:border-slate-700 dark:bg-slate-800 px-3 py-2 text-xs text-slate-700 dark:text-slate-200 shadow-inner">
-              <Lock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            <div className="flex items-center gap-1.5 rounded-xl border border-sky-900/60 bg-[#0a152e] px-3 py-2 text-xs text-slate-200 shadow-inner">
+              <Lock className="h-3.5 w-3.5 text-sky-400 shrink-0" />
               <span className="font-mono text-[11px] truncate max-w-[200px] sm:max-w-[240px]" title={OFFICIAL_REVIEW_EMAIL}>
                 DELSM Operations and Security
               </span>
@@ -293,7 +293,7 @@ export default function PrintableReceipt({
                 value={emailInput}
                 onChange={e => setEmailInput(e.target.value)}
                 placeholder="Enter staff email copy..."
-                className="w-48 sm:w-56 rounded-xl border border-slate-300/90 bg-white px-3 py-2 text-xs font-medium text-slate-900 placeholder-slate-400 focus:border-slate-500 focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-white shadow-inner"
+                className="w-48 sm:w-56 rounded-xl border border-sky-800/60 bg-[#070e20] px-3 py-2 text-xs font-medium text-white placeholder-slate-500 focus:border-sky-400 focus:outline-hidden shadow-inner"
               />
             </div>
 
@@ -301,21 +301,21 @@ export default function PrintableReceipt({
               type="button"
               onClick={() => triggerSimulatedEmail(emailInput)}
               disabled={isSendingEmail}
-              className="silver-btn-3d px-3.5 py-2 text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer disabled:opacity-50"
+              className="darkblue-btn-secondary px-3.5 py-2 text-xs font-bold text-slate-100 cursor-pointer disabled:opacity-50"
             >
               {isSendingEmail ? (
                 <>
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-800 dark:border-white border-t-transparent" />
+                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>Dispatching...</span>
                 </>
               ) : emailSent ? (
                 <>
-                  <RefreshCw className="h-3.5 w-3.5" />
+                  <RefreshCw className="h-3.5 w-3.5 text-sky-400" />
                   <span>Resend</span>
                 </>
               ) : (
                 <>
-                  <Send className="h-3.5 w-3.5" />
+                  <Send className="h-3.5 w-3.5 text-sky-400" />
                   <span>Send</span>
                 </>
               )}
@@ -325,9 +325,9 @@ export default function PrintableReceipt({
               <button
                 type="button"
                 onClick={() => setShowEmailModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-sky-300 bg-sky-50 px-3.5 py-2 text-xs font-bold text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300 transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-sky-500/40 bg-sky-950/60 px-3.5 py-2 text-xs font-bold text-sky-300 hover:bg-sky-900/60 transition-all hover:-translate-y-0.5 cursor-pointer shadow-xs"
               >
-                <Inbox className="h-3.5 w-3.5" />
+                <Inbox className="h-3.5 w-3.5 text-sky-400" />
                 <span>View Email Preview</span>
               </button>
             )}
@@ -336,28 +336,28 @@ export default function PrintableReceipt({
       </div>
 
       {/* Official Printable Document Container */}
-      <div className="silver-card-3d rounded-3xl p-6 sm:p-8 shadow-xl dark:bg-slate-900 print:border-none print:shadow-none print:p-0 print:bg-white">
+      <div className="darkblue-card rounded-3xl p-6 sm:p-8 shadow-xl print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
         {/* Header */}
-        <div className="border-b border-slate-200/80 pb-5 dark:border-slate-800">
+        <div className="border-b border-sky-900/60 pb-5 print:border-slate-300">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-b from-slate-700 via-slate-800 to-slate-950 text-white shadow-md border border-slate-600/50">
-                <ShieldCheck className="h-7 w-7 text-sky-300" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-b from-sky-600 to-blue-900 text-white shadow-md border border-sky-400/40 print:bg-none print:text-black">
+                <ShieldCheck className="h-7 w-7 text-sky-200" />
               </div>
               <div>
-                <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                <h1 className="text-xl font-black tracking-tight text-white print:text-black">
                   LHG Credentials Verification Receipt
                 </h1>
-                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <p className="text-xs font-semibold text-slate-300 print:text-slate-600">
                   Lufthansa Group · DELSM Ground Operations &amp; Security Audit
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <span className="inline-block rounded-lg silver-tag-3d px-3 py-1 text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
+              <span className="inline-block rounded-lg bg-[#070f24] border border-sky-700/60 px-3 py-1 text-xs font-mono font-bold text-sky-300 print:text-black print:border-slate-400">
                 {submission.id}
               </span>
-              <p className="mt-1 text-xs font-semibold text-slate-500">
+              <p className="mt-1 text-xs font-semibold text-slate-400 print:text-slate-600">
                 Cycle: {submission.fortnightLabel}
               </p>
             </div>
@@ -365,24 +365,24 @@ export default function PrintableReceipt({
         </div>
 
         {/* User Identity Details Grid */}
-        <div className={`my-6 grid grid-cols-2 ${isAls ? 'sm:grid-cols-4' : 'sm:grid-cols-3'} gap-4 rounded-2xl bg-slate-100/70 p-4 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 shadow-inner`}>
+        <div className={`my-6 grid grid-cols-2 ${isAls ? 'sm:grid-cols-4' : 'sm:grid-cols-3'} gap-4 rounded-2xl bg-[#091530]/80 p-4 border border-sky-900/60 shadow-inner print:bg-slate-50 print:border-slate-300`}>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Staff Name</span>
-            <p className="text-sm font-black text-slate-900 dark:text-white">{submission.name}</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 print:text-slate-600">Staff Name</span>
+            <p className="text-sm font-black text-white print:text-black">{submission.name}</p>
           </div>
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">U-Number</span>
-            <p className="text-sm font-mono font-bold text-sky-600 dark:text-sky-400">{submission.uNumber}</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 print:text-slate-600">U-Number</span>
+            <p className="text-sm font-mono font-bold text-sky-400 print:text-black">{submission.uNumber}</p>
           </div>
           {isAls && (
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">EX-Number (ALS)</span>
-              <p className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{submission.exNumber || 'N/A'}</p>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 print:text-slate-600">EX-Number (ALS)</span>
+              <p className="text-sm font-mono font-bold text-slate-200 print:text-black">{submission.exNumber || 'N/A'}</p>
             </div>
           )}
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Verification Date</span>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">{submission.verificationDate}</p>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 print:text-slate-600">Verification Date</span>
+            <p className="text-sm font-bold text-white print:text-black">{submission.verificationDate}</p>
           </div>
         </div>
 
@@ -390,15 +390,15 @@ export default function PrintableReceipt({
         <div
           className={`mb-6 rounded-2xl p-4 text-xs flex items-center justify-between border shadow-sm ${
             submission.hasChangeRequests
-              ? 'border-amber-300/80 bg-gradient-to-r from-amber-100 via-amber-50 to-amber-100 text-amber-950 dark:border-amber-700/60 dark:bg-gradient-to-r dark:from-amber-950/40 dark:to-slate-900 dark:text-amber-200'
-              : 'border-emerald-300/80 bg-gradient-to-r from-emerald-100 via-emerald-50 to-emerald-100 text-emerald-950 dark:border-emerald-700/60 dark:bg-gradient-to-r dark:from-emerald-950/40 dark:to-slate-900 dark:text-emerald-200'
+              ? 'border-amber-500/60 bg-amber-950/40 text-amber-200 print:border-amber-400 print:bg-amber-50 print:text-amber-900'
+              : 'border-emerald-500/60 bg-emerald-950/40 text-emerald-200 print:border-emerald-400 print:bg-emerald-50 print:text-emerald-900'
           }`}
         >
           <div className="flex items-center gap-2.5">
             {submission.hasChangeRequests ? (
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
             )}
             <span className="font-bold text-sm">
               {submission.hasChangeRequests
@@ -413,12 +413,12 @@ export default function PrintableReceipt({
 
         {/* Credentials Breakdown Table */}
         <div className="mb-6">
-          <h3 className="mb-3 text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <h3 className="mb-3 text-xs font-black uppercase tracking-wider text-slate-300 print:text-slate-700">
             System Credentials Audit Breakdown
           </h3>
-          <div className="overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-sm">
+          <div className="overflow-hidden rounded-2xl border border-sky-900/60 shadow-sm print:border-slate-300">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="bg-gradient-to-b from-slate-100 to-slate-200 text-slate-800 dark:from-slate-800 dark:to-slate-900 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 font-bold">
+              <thead className="bg-[#0b1b3d] text-slate-200 border-b border-sky-900/80 font-bold print:bg-slate-100 print:text-slate-800">
                 <tr>
                   <th className="py-3 px-3.5 font-bold uppercase tracking-wider text-[11px]">System / Credential</th>
                   <th className="py-3 px-3.5 font-bold uppercase tracking-wider text-[11px]">Master Value</th>
@@ -426,35 +426,35 @@ export default function PrintableReceipt({
                   <th className="py-3 px-3.5 font-bold uppercase tracking-wider text-[11px]">Staff Remark</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800 bg-white/70 dark:bg-slate-900/70">
+              <tbody className="divide-y divide-sky-950/80 bg-[#070e20]/80 print:bg-white print:divide-slate-200">
                 {submission.verifications.map((item, i) => (
-                  <tr key={i} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50 transition-colors">
-                    <td className="py-3 px-3.5 font-bold text-slate-900 dark:text-white">
+                  <tr key={i} className="hover:bg-sky-950/40 transition-colors print:hover:bg-transparent">
+                    <td className="py-3 px-3.5 font-bold text-white print:text-black">
                       {item.fieldLabel}
                     </td>
-                    <td className="py-3 px-3.5 font-mono font-medium text-slate-700 dark:text-slate-300">
-                      <span className="inline-block rounded-md silver-tag-3d px-2 py-0.5 text-xs font-bold">
+                    <td className="py-3 px-3.5 font-mono font-medium text-slate-200 print:text-black">
+                      <span className="inline-block rounded-md bg-[#0a1633] border border-sky-800/60 px-2 py-0.5 text-xs font-bold text-sky-300 print:border-slate-300 print:text-black print:bg-slate-50">
                         {formatCredentialDisplay(item.fieldKey, item.currentValue)}
                       </span>
                     </td>
                     <td className="py-3 px-3.5">
                       {item.status === 'CONFIRMED' ? (
-                        <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
+                        <span className="inline-flex items-center gap-1.5 text-emerald-400 font-bold print:text-emerald-700">
                           <CheckCircle2 className="h-4 w-4" />
                           <span>Confirmed</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-bold">
+                        <span className="inline-flex items-center gap-1.5 text-amber-400 font-bold print:text-amber-700">
                           <AlertTriangle className="h-4 w-4" />
                           <span>Change Requested</span>
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-3.5 text-slate-600 dark:text-slate-300">
+                    <td className="py-3 px-3.5 text-slate-300 print:text-slate-700">
                       {item.remark ? (
                         <span className="italic font-medium">{item.remark}</span>
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-600">—</span>
+                        <span className="text-slate-500">—</span>
                       )}
                     </td>
                   </tr>
@@ -466,21 +466,21 @@ export default function PrintableReceipt({
 
         {/* Overall remarks if provided */}
         {submission.overallRemarks && (
-          <div className="mb-6 rounded-2xl bg-slate-50 p-4 border border-slate-200 dark:bg-slate-800/40 dark:border-slate-700 shadow-inner">
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Additional Remarks:</span>
-            <p className="mt-1.5 text-xs text-slate-700 dark:text-slate-300 italic font-medium">{submission.overallRemarks}</p>
+          <div className="mb-6 rounded-2xl bg-[#091530]/80 p-4 border border-sky-900/60 shadow-inner print:bg-slate-50 print:border-slate-300">
+            <span className="text-xs font-bold text-slate-300 print:text-slate-700 uppercase tracking-wider">Additional Remarks:</span>
+            <p className="mt-1.5 text-xs text-slate-200 print:text-slate-800 italic font-medium">{submission.overallRemarks}</p>
           </div>
         )}
 
         {/* Footer Audit Signature Block */}
-        <div className="border-t border-slate-200/80 pt-5 text-xs text-slate-500 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div className="border-t border-sky-900/60 pt-5 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-4 print:border-slate-300 print:text-slate-600">
           <div>
-            <p className="font-medium">Certified by Staff: <strong className="text-slate-900 dark:text-slate-100">{submission.name}</strong></p>
+            <p className="font-medium">Certified by Staff: <strong className="text-white print:text-black">{submission.name}</strong></p>
             <p className="text-[11px] text-slate-400">Timestamp: {new Date(submission.submittedAt).toUTCString()}</p>
           </div>
           <div className="text-right">
-            <div className="inline-block border-b-2 border-dashed border-slate-400 pb-1 text-center min-w-[170px]">
-              <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">System Verified &amp; Logged</span>
+            <div className="inline-block border-b-2 border-dashed border-sky-700 pb-1 text-center min-w-[170px] print:border-slate-400">
+              <span className="font-mono text-xs font-bold text-sky-300 print:text-black">System Verified &amp; Logged</span>
             </div>
             <p className="mt-1 text-[11px] text-slate-400 font-medium">Ground Operations Access Management</p>
           </div>
@@ -489,17 +489,17 @@ export default function PrintableReceipt({
 
       {/* Simulated Email Summary Modal Preview */}
       {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-          <div className="relative w-full max-w-2xl rounded-3xl silver-card-3d shadow-2xl overflow-hidden my-auto max-h-[90vh] flex flex-col border border-slate-300 dark:border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-3xl darkblue-card shadow-2xl overflow-hidden my-auto max-h-[90vh] flex flex-col border border-sky-600/40">
             {/* Email Client Window Chrome */}
-            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-950 px-5 py-3.5 text-white flex items-center justify-between border-b border-slate-700">
+            <div className="bg-gradient-to-r from-[#070e20] via-[#0b1b3d] to-[#070e20] px-5 py-3.5 text-white flex items-center justify-between border-b border-sky-900/80">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5 mr-2">
                   <div className="h-3 w-3 rounded-full bg-rose-500 shadow-xs" />
                   <div className="h-3 w-3 rounded-full bg-amber-500 shadow-xs" />
                   <div className="h-3 w-3 rounded-full bg-emerald-500 shadow-xs" />
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-200 font-mono font-bold">
+                <div className="flex items-center gap-1.5 text-xs text-sky-200 font-mono font-bold">
                   <Mail className="h-3.5 w-3.5 text-sky-400" />
                   <span>Simulated Corporate Email Preview</span>
                 </div>
@@ -507,52 +507,52 @@ export default function PrintableReceipt({
               <button
                 type="button"
                 onClick={() => setShowEmailModal(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors cursor-pointer"
+                className="rounded-lg p-1 text-slate-400 hover:bg-sky-900/50 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Email Envelope Metadata */}
-            <div className="border-b border-slate-200 bg-slate-100/80 px-5 py-3.5 text-xs dark:border-slate-800 dark:bg-slate-800/50 space-y-1.5 shadow-inner">
+            <div className="border-b border-sky-900/60 bg-[#091530] px-5 py-3.5 text-xs space-y-1.5 shadow-inner">
               <div className="flex items-baseline gap-2">
-                <span className="w-16 font-bold text-slate-500 dark:text-slate-400">From:</span>
-                <span className="font-mono text-slate-800 dark:text-slate-200 font-semibold">
+                <span className="w-16 font-bold text-slate-400">From:</span>
+                <span className="font-mono text-slate-200 font-semibold">
                   no-reply.compliance@lhg.com <span className="text-slate-400 text-[11px]">&lt;LHG System Access &amp; Compliance&gt;</span>
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="w-16 font-bold text-slate-500 dark:text-slate-400">To:</span>
-                <span className="font-mono font-bold text-sky-700 dark:text-sky-300">
+                <span className="w-16 font-bold text-slate-400">To:</span>
+                <span className="font-mono font-bold text-sky-300">
                   {OFFICIAL_REVIEW_EMAIL}
                 </span>
               </div>
               {emailInput && emailInput.trim() && (
                 <div className="flex items-baseline gap-2">
-                  <span className="w-16 font-bold text-slate-500 dark:text-slate-400">Cc:</span>
-                  <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">
+                  <span className="w-16 font-bold text-slate-400">Cc:</span>
+                  <span className="font-mono font-semibold text-slate-200">
                     {emailInput.trim()} <span className="text-[10px] text-slate-400 font-normal">(Staff Copy)</span>
                   </span>
                 </div>
               )}
               <div className="flex items-baseline gap-2">
-                <span className="w-16 font-bold text-slate-500 dark:text-slate-400">Date:</span>
-                <span className="text-slate-700 dark:text-slate-300 font-medium">
+                <span className="w-16 font-bold text-slate-400">Date:</span>
+                <span className="text-slate-300 font-medium">
                   {new Date().toLocaleString()} ({sentTimestamp ? `Dispatched at ${sentTimestamp}` : 'Live'})
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="w-16 font-bold text-slate-500 dark:text-slate-400">Subject:</span>
-                <span className="font-bold text-slate-900 dark:text-white">
+                <span className="w-16 font-bold text-slate-400">Subject:</span>
+                <span className="font-bold text-white">
                   [CREDENTIALS VERIFICATION] - {submission.uNumber} ({submission.name}) - {submission.fortnightLabel}
                 </span>
               </div>
             </div>
 
             {/* Email Message Content Body */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900">
+            <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs text-slate-200 bg-[#060c1c]">
               {/* LHG Corporate Email Banner */}
-              <div className="rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white p-4.5 flex items-center justify-between shadow-md border border-slate-700/60">
+              <div className="rounded-2xl bg-gradient-to-r from-[#0a1633] via-[#0f2452] to-[#0a1633] text-white p-4.5 flex items-center justify-between shadow-md border border-sky-700/50">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b from-sky-500 to-blue-700 text-white shadow-sm border border-sky-400/40">
                     <ShieldCheck className="h-5 w-5" />
@@ -573,10 +573,10 @@ export default function PrintableReceipt({
 
               {/* Greeting */}
               <div>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                <p className="text-sm font-bold text-white">
                   Dear {submission.name},
                 </p>
-                <p className="mt-1 text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+                <p className="mt-1 text-slate-300 leading-relaxed font-medium">
                   This confirmation email summarizes your submitted bi-weekly credential verification audit. Your responses have been safely registered with Ground Operations IT and Compliance.
                 </p>
               </div>
@@ -585,15 +585,15 @@ export default function PrintableReceipt({
               <div
                 className={`rounded-xl p-3.5 border flex items-center justify-between shadow-xs ${
                   submission.hasChangeRequests
-                    ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200'
-                    : 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200'
+                    ? 'border-amber-500/50 bg-amber-950/30 text-amber-200'
+                    : 'border-emerald-500/50 bg-emerald-950/30 text-emerald-200'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {submission.hasChangeRequests ? (
-                    <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                    <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
                   ) : (
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                   )}
                   <span className="font-black">
                     {submission.hasChangeRequests
@@ -607,35 +607,35 @@ export default function PrintableReceipt({
               </div>
 
               {/* Reference Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-100/80 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-[#091530] p-3.5 rounded-xl border border-sky-900/60 font-mono text-[11px]">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 block text-[10px] font-bold">U-NUMBER</span>
-                  <span className="font-bold text-sky-600">{submission.uNumber}</span>
+                  <span className="text-slate-400 block text-[10px] font-bold">U-NUMBER</span>
+                  <span className="font-bold text-sky-400">{submission.uNumber}</span>
                 </div>
                 {isAls && (
                   <div>
-                    <span className="text-slate-500 dark:text-slate-400 block text-[10px] font-bold">EX-NUMBER (ALS)</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{submission.exNumber || 'N/A'}</span>
+                    <span className="text-slate-400 block text-[10px] font-bold">EX-NUMBER (ALS)</span>
+                    <span className="font-medium text-slate-200">{submission.exNumber || 'N/A'}</span>
                   </div>
                 )}
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 block text-[10px] font-bold">VERIFIED DATE</span>
-                  <span className="font-medium text-slate-700 dark:text-slate-200">{submission.verificationDate}</span>
+                  <span className="text-slate-400 block text-[10px] font-bold">VERIFIED DATE</span>
+                  <span className="font-medium text-slate-200">{submission.verificationDate}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400 block text-[10px] font-bold">SUBMISSION ID</span>
-                  <span className="truncate block font-medium text-slate-700 dark:text-slate-200">{submission.id}</span>
+                  <span className="text-slate-400 block text-[10px] font-bold">SUBMISSION ID</span>
+                  <span className="truncate block font-medium text-slate-200">{submission.id}</span>
                 </div>
               </div>
 
               {/* Systems Breakdown */}
               <div>
-                <h5 className="font-black text-slate-900 dark:text-white uppercase tracking-wider text-[11px] mb-2">
+                <h5 className="font-black text-white uppercase tracking-wider text-[11px] mb-2">
                   Verified System Access Credentials
                 </h5>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-xs">
+                <div className="rounded-xl border border-sky-900/60 overflow-hidden shadow-xs">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                    <thead className="bg-[#0b1b3d] text-slate-200 border-b border-sky-900/80">
                       <tr>
                         <th className="py-2.5 px-3 font-bold uppercase tracking-wider text-[10px]">System</th>
                         <th className="py-2.5 px-3 font-bold uppercase tracking-wider text-[10px]">Assigned Access</th>
@@ -643,27 +643,27 @@ export default function PrintableReceipt({
                         <th className="py-2.5 px-3 font-bold uppercase tracking-wider text-[10px]">Remark</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-[11px]">
+                    <tbody className="divide-y divide-sky-950/80 text-[11px] bg-[#070e20]">
                       {filteredVerifications.map((item, i) => (
                         <tr key={i}>
-                          <td className="py-2 px-3 font-bold text-slate-900 dark:text-white">
+                          <td className="py-2 px-3 font-bold text-white">
                             {item.fieldLabel}
                           </td>
-                          <td className="py-2 px-3 font-mono font-medium">
+                          <td className="py-2 px-3 font-mono font-medium text-slate-200">
                             {formatCredentialDisplay(item.fieldKey, item.currentValue)}
                           </td>
                           <td className="py-2 px-3">
                             {item.status === 'CONFIRMED' ? (
-                              <span className="text-emerald-700 dark:text-emerald-400 font-bold">
+                              <span className="text-emerald-400 font-bold">
                                 Confirmed
                               </span>
                             ) : (
-                              <span className="text-amber-700 dark:text-amber-400 font-bold">
+                              <span className="text-amber-400 font-bold">
                                 Change Requested
                               </span>
                             )}
                           </td>
-                          <td className="py-2 px-3 text-slate-600 dark:text-slate-300 italic">
+                          <td className="py-2 px-3 text-slate-300 italic">
                             {item.remark || '—'}
                           </td>
                         </tr>
@@ -674,15 +674,15 @@ export default function PrintableReceipt({
               </div>
 
               {submission.overallRemarks && (
-                <div className="rounded-xl bg-slate-50 dark:bg-slate-800/40 p-3.5 border border-slate-200 dark:border-slate-700">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Staff General Remarks:</span>
-                  <p className="mt-1 text-slate-600 dark:text-slate-300 italic font-medium">{submission.overallRemarks}</p>
+                <div className="rounded-xl bg-[#091530] p-3.5 border border-sky-900/60">
+                  <span className="font-bold text-slate-300">Staff General Remarks:</span>
+                  <p className="mt-1 text-slate-200 italic font-medium">{submission.overallRemarks}</p>
                 </div>
               )}
 
               {/* Next Steps Notice */}
-              <div className="rounded-xl bg-sky-50/80 dark:bg-sky-950/20 p-3.5 border border-sky-100 dark:border-sky-900/50 text-slate-600 dark:text-slate-300 leading-relaxed text-[11px]">
-                <p className="font-bold text-sky-900 dark:text-sky-200 mb-0.5">
+              <div className="rounded-xl bg-sky-950/40 p-3.5 border border-sky-800/50 text-slate-300 leading-relaxed text-[11px]">
+                <p className="font-bold text-sky-300 mb-0.5">
                   Notice:
                 </p>
                 <p>
@@ -690,28 +690,28 @@ export default function PrintableReceipt({
                 </p>
               </div>
 
-              <div className="border-t border-slate-200 dark:border-slate-800 pt-3 text-[11px] text-slate-400">
+              <div className="border-t border-sky-900/60 pt-3 text-[11px] text-slate-400">
                 <p className="font-medium">Ground Operations Systems Administration · Deutsche Lufthansa AG</p>
                 <p className="mt-0.5 text-[10px]">Confidential corporate transmission. Retain for compliance audit purposes.</p>
               </div>
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="bg-slate-100/90 dark:bg-slate-800/90 px-5 py-3.5 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 shadow-inner">
+            <div className="bg-[#091530] px-5 py-3.5 border-t border-sky-900/60 flex flex-wrap items-center justify-between gap-3 shadow-inner">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleCopyEmailBody}
-                  className="silver-btn-3d px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
+                  className="darkblue-btn-secondary px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
                 >
                   {copiedText ? (
                     <>
-                      <Check className="h-3.5 w-3.5 text-emerald-600" />
-                      <span className="text-emerald-600">Copied!</span>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span className="text-emerald-400">Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className="h-3.5 w-3.5 text-sky-400" />
                       <span>Copy Text</span>
                     </>
                   )}
@@ -720,9 +720,9 @@ export default function PrintableReceipt({
                   type="button"
                   onClick={() => triggerSimulatedEmail(emailInput)}
                   disabled={isSendingEmail}
-                  className="silver-btn-3d px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer"
+                  className="darkblue-btn-secondary px-3 py-1.5 text-xs font-bold text-slate-200 cursor-pointer"
                 >
-                  <RefreshCw className={`h-3.5 w-3.5 ${isSendingEmail ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-3.5 w-3.5 text-sky-400 ${isSendingEmail ? 'animate-spin' : ''}`} />
                   <span>Resend Email</span>
                 </button>
               </div>
@@ -730,7 +730,7 @@ export default function PrintableReceipt({
               <button
                 type="button"
                 onClick={() => setShowEmailModal(false)}
-                className="titanium-btn-3d px-4 py-1.5 text-xs font-bold cursor-pointer"
+                className="darkblue-btn-primary px-4 py-1.5 text-xs font-bold cursor-pointer"
               >
                 Close Preview
               </button>
