@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
-import { saveMasterCredentials, upsertMasterCredentials, getMasterCredentials } from '@/lib/storage';
+import { saveMasterCredentials, upsertMasterCredentials, sanitizeDocId } from '@/lib/storage';
 import { UserCredentialRecord } from '@/lib/types';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch (formErr: unknown) {
+      const msg = formErr instanceof Error ? formErr.message : 'Invalid form data';
+      return NextResponse.json(
+        { success: false, error: `Upload payload error: ${msg}. If your file is very large, try CSV or copy-pasting the table.` },
+        { status: 400 }
+      );
+    }
     const file = formData.get('file') as File | null;
     const directJson = formData.get('json') as string | null;
     const action = formData.get('action') as string | null; // 'preview' | 'commit'
@@ -13,41 +26,43 @@ export async function POST(req: NextRequest) {
 
     // If direct JSON provided
     if (directJson) {
+      let parsed: UserCredentialRecord[];
       try {
-        const parsed: UserCredentialRecord[] = JSON.parse(directJson);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          if (action === 'commit') {
-            if (mode === 'replace') {
-              await saveMasterCredentials(parsed);
-              return NextResponse.json({
-                success: true,
-                records: parsed,
-                count: parsed.length,
-                message: `Master credentials database replaced with ${parsed.length} staff records in Firebase Firestore.`
-              });
-            } else {
-              const res = await upsertMasterCredentials(parsed);
-              return NextResponse.json({
-                success: true,
-                records: parsed,
-                count: parsed.length,
-                updatedCount: res.updatedCount,
-                addedCount: res.addedCount,
-                totalCount: res.totalCount,
-                message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff to Firebase Firestore. Total database records: ${res.totalCount}.`
-              });
-            }
-          }
-          return NextResponse.json({
-            success: true,
-            records: parsed,
-            count: parsed.length,
-            message: 'Preview ready.'
-          });
-        }
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Invalid JSON';
+        parsed = JSON.parse(directJson);
+      } catch (jsonErr: unknown) {
+        const msg = jsonErr instanceof Error ? jsonErr.message : 'Invalid JSON format';
         return NextResponse.json({ success: false, error: 'JSON parse error: ' + msg }, { status: 400 });
+      }
+
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if (action === 'commit') {
+          if (mode === 'replace') {
+            await saveMasterCredentials(parsed);
+            return NextResponse.json({
+              success: true,
+              records: parsed,
+              count: parsed.length,
+              message: `Master credentials database replaced with ${parsed.length} staff records in Firebase Firestore.`
+            });
+          } else {
+            const res = await upsertMasterCredentials(parsed);
+            return NextResponse.json({
+              success: true,
+              records: parsed,
+              count: parsed.length,
+              updatedCount: res.updatedCount,
+              addedCount: res.addedCount,
+              totalCount: res.totalCount,
+              message: `Successfully updated ${res.updatedCount} existing records and added ${res.addedCount} new staff to Firebase Firestore. Total database records: ${res.totalCount}.`
+            });
+          }
+        }
+        return NextResponse.json({
+          success: true,
+          records: parsed,
+          count: parsed.length,
+          message: 'Preview ready.'
+        });
       }
     }
 
@@ -153,27 +168,36 @@ Important Instructions:
 - Return ONLY a raw JSON array. Do not wrap with markdown code blocks or explanations.
 `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              inlineData: {
-                data: base64Pdf,
-                mimeType: 'application/pdf'
+    let responseText = '';
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                inlineData: {
+                  data: base64Pdf,
+                  mimeType: 'application/pdf'
+                }
+              },
+              {
+                text: prompt
               }
-            },
-            {
-              text: prompt
-            }
-          ]
-        }
-      ]
-    });
+            ]
+          }
+        ]
+      });
+      responseText = response.text || '';
+    } catch (aiErr: unknown) {
+      const msg = aiErr instanceof Error ? aiErr.message : 'AI model processing error';
+      return NextResponse.json(
+        { success: false, error: `PDF Extraction failed: ${msg}. You can also download the CSV template or paste table rows directly.` },
+        { status: 500 }
+      );
+    }
 
-    const responseText = response.text || '';
     const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
 
     let extractedRecords: UserCredentialRecord[] = [];
@@ -196,34 +220,38 @@ Important Instructions:
     }
 
     // Sanitize records & ensure cuteAccess defaults to Y
-    const sanitized = extractedRecords.map(r => ({
-      id: r.uNumber || `STAFF-${Math.random().toString(36).substring(2, 7)}`,
-      uNumber: r.uNumber || 'N/A',
-      exNumber: r.exNumber || 'N/A',
-      name: r.name || 'UNKNOWN',
-      credentials: {
-        cuteAccess: r.credentials?.cuteAccess ?? 'Y',
-        oneRes: r.credentials?.oneRes ?? 'N',
-        alteaLhc: r.credentials?.alteaLhc ?? 'N',
-        look: r.credentials?.look ?? 'N',
-        ebase: r.credentials?.ebase ?? 'N',
-        lms: r.credentials?.lms ?? 'N',
-        mesWeb: r.credentials?.mesWeb ?? 'N',
-        mesWebIn: r.credentials?.mesWebIn ?? 'N',
-        worldTracer: r.credentials?.worldTracer ?? 'N',
-        sbh: r.credentials?.sbh ?? 'N',
-        dasgo: r.credentials?.dasgo ?? 'N',
-        ms365: r.credentials?.ms365 ?? 'N',
-        lhalteaF: r.credentials?.lhalteaF ?? 'N',
-        lxAlteaF: r.credentials?.lxAlteaF ?? 'N',
-        float: r.credentials?.float ?? 'N',
-        floatBac: r.credentials?.floatBac ?? 'N',
-        pki: r.credentials?.pki ?? 'N',
-        tac: r.credentials?.tac ?? '',
-        emm: r.credentials?.emm ?? 'N'
-      },
-      updatedAt: new Date().toISOString()
-    }));
+    const sanitized = extractedRecords.map((r, idx) => {
+      const rawUNum = (r.uNumber || r.id || `STAFF_${idx + 1}`).trim().toUpperCase();
+      const safeId = sanitizeDocId(r.id || rawUNum);
+      return {
+        id: safeId,
+        uNumber: rawUNum,
+        exNumber: r.exNumber || 'N/A',
+        name: (r.name || 'UNKNOWN').trim().toUpperCase(),
+        credentials: {
+          cuteAccess: r.credentials?.cuteAccess ?? 'Y',
+          oneRes: r.credentials?.oneRes ?? 'N',
+          alteaLhc: r.credentials?.alteaLhc ?? 'N',
+          look: r.credentials?.look ?? 'N',
+          ebase: r.credentials?.ebase ?? 'N',
+          lms: r.credentials?.lms ?? 'N',
+          mesWeb: r.credentials?.mesWeb ?? 'N',
+          mesWebIn: r.credentials?.mesWebIn ?? 'N',
+          worldTracer: r.credentials?.worldTracer ?? 'N',
+          sbh: r.credentials?.sbh ?? 'N',
+          dasgo: r.credentials?.dasgo ?? 'N',
+          ms365: r.credentials?.ms365 ?? 'N',
+          lhalteaF: r.credentials?.lhalteaF ?? 'N',
+          lxAlteaF: r.credentials?.lxAlteaF ?? 'N',
+          float: r.credentials?.float ?? 'N',
+          floatBac: r.credentials?.floatBac ?? 'N',
+          pki: r.credentials?.pki ?? 'N',
+          tac: r.credentials?.tac ?? '',
+          emm: r.credentials?.emm ?? 'N'
+        },
+        updatedAt: new Date().toISOString()
+      };
+    });
 
     if (action === 'commit') {
       if (mode === 'replace') {
@@ -321,9 +349,10 @@ function parseCsvToRecords(csvText: string): UserCredentialRecord[] {
     if (cols.length === 0 || cols.every(c => !c)) continue;
 
     // Determine values either by mapped header or by common index order
-    const uNum = (idxUNum >= 0 ? cols[idxUNum] : cols[0])?.trim() || `U-NEW-${i}`;
+    const rawUNum = (idxUNum >= 0 ? cols[idxUNum] : cols[0])?.trim() || `U-NEW-${i}`;
     const name = (idxName >= 0 ? cols[idxName] : cols[1])?.trim() || `Staff ${i}`;
     const exNum = (idxExNum >= 0 ? cols[idxExNum] : cols[2])?.trim() || 'N/A';
+    const safeId = sanitizeDocId(rawUNum);
 
     const getVal = (idx: number, fallbackIdx: number, defVal: string = 'N'): string => {
       if (idx >= 0 && cols[idx] !== undefined && cols[idx] !== '') return cols[idx].trim();
@@ -332,8 +361,8 @@ function parseCsvToRecords(csvText: string): UserCredentialRecord[] {
     };
 
     records.push({
-      id: uNum.toUpperCase(),
-      uNumber: uNum.toUpperCase(),
+      id: safeId,
+      uNumber: rawUNum.toUpperCase(),
       exNumber: exNum || 'N/A',
       name: name.toUpperCase(),
       credentials: {

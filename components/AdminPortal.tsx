@@ -85,6 +85,8 @@ export default function AdminPortal({
 
   // PDF Upload & Extraction State
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pasteMode, setPasteMode] = useState(false);
+  const [pastedText, setPastedText] = useState('');
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [parsedPreview, setParsedPreview] = useState<{ records: UserCredentialRecord[]; count: number } | null>(null);
@@ -328,18 +330,23 @@ export default function AdminPortal({
     URL.revokeObjectURL(url);
   };
 
-  // Handle PDF or CSV Upload to update master database
+  // Handle PDF or CSV Upload / Direct Paste to update master database
   const handlePdfUpload = async (action: 'preview' | 'commit') => {
-    if (!pdfFile && !parsedPreview) return;
+    if (!pdfFile && !pastedText.trim() && !parsedPreview) return;
 
     setIsUploadingPdf(true);
     setUploadError(null);
 
     try {
       const formData = new FormData();
-      if (pdfFile) {
+      if (pastedText.trim() && !pdfFile) {
+        const textBlob = new Blob([pastedText.trim()], { type: 'text/csv' });
+        const textFile = new File([textBlob], 'pasted_master_records.csv', { type: 'text/csv' });
+        formData.append('file', textFile);
+      } else if (pdfFile) {
         formData.append('file', pdfFile);
       }
+      
       if (parsedPreview && action === 'commit') {
         formData.append('json', JSON.stringify(parsedPreview.records));
       }
@@ -351,26 +358,44 @@ export default function AdminPortal({
         body: formData
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        setUploadError(data.error || 'File processing failed.');
+      let data: {
+        success?: boolean;
+        error?: string;
+        records?: UserCredentialRecord[];
+        count?: number;
+        message?: string;
+      } | null = null;
+
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const rawText = await res.text();
+        const titleMatch = rawText.match(/<title>([^<]*)<\/title>/i);
+        const errHeadline = titleMatch ? titleMatch[1] : (res.statusText || 'Server Error');
+        throw new Error(`Server returned ${res.status} (${errHeadline}). If the file is very large, try a smaller file or CSV format.`);
+      }
+
+      if (!res.ok || !data || !data.success) {
+        setUploadError(data?.error || 'File processing failed.');
         setIsUploadingPdf(false);
         return;
       }
 
       if (action === 'preview') {
-        setParsedPreview({ records: data.records, count: data.count });
+        setParsedPreview({ records: data.records || [], count: data.count || (data.records ? data.records.length : 0) });
         setMasterNotice(data.message || `Extracted ${data.count} staff records for preview.`);
       } else {
         setMasterNotice(data.message || `Master database successfully updated with ${data.count} staff records!`);
         setParsedPreview(null);
         setPdfFile(null);
+        setPastedText('');
         fetchMasterData();
         fetchFortnightData();
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
-      setUploadError('Failed processing file: ' + msg);
+      setUploadError(msg);
     } finally {
       setIsUploadingPdf(false);
     }
@@ -1363,24 +1388,81 @@ export default function AdminPortal({
               </div>
             </div>
 
-            {/* Upload form */}
-            <div className="mt-4 pt-4 border-t border-blue-900/60">
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  type="file"
-                  accept=".pdf,.csv,.txt"
-                  onChange={e => {
-                    if (e.target.files && e.target.files[0]) {
-                      setPdfFile(e.target.files[0]);
+            {/* Upload form / Direct Paste Switcher */}
+            <div className="mt-4 pt-4 border-t border-blue-900/60 space-y-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setPasteMode(false); setUploadError(null); }}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                    !pasteMode ? 'bg-blue-600 text-white shadow-sm' : 'darkblue-btn-secondary text-slate-300'
+                  }`}
+                >
+                  File Upload (.PDF / .CSV / .TXT)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setPasteMode(true); setUploadError(null); }}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                    pasteMode ? 'bg-blue-600 text-white shadow-sm' : 'darkblue-btn-secondary text-slate-300'
+                  }`}
+                >
+                  Direct CSV / Text Paste
+                </button>
+              </div>
+
+              {!pasteMode ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    type="file"
+                    accept=".pdf,.csv,.txt"
+                    onChange={e => {
+                      if (e.target.files && e.target.files[0]) {
+                        setPdfFile(e.target.files[0]);
+                        setParsedPreview(null);
+                        setUploadError(null);
+                      }
+                    }}
+                    className="text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
+                  />
+
+                  {pdfFile && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={isUploadingPdf}
+                        onClick={() => handlePdfUpload('preview')}
+                        className="darkblue-btn-primary flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-black cursor-pointer disabled:opacity-50"
+                      >
+                        {isUploadingPdf ? (
+                          <>
+                            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                            <span>Processing file...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Search className="h-3.5 w-3.5" />
+                            <span>Extract &amp; Preview File</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <textarea
+                    rows={4}
+                    value={pastedText}
+                    onChange={e => {
+                      setPastedText(e.target.value);
                       setParsedPreview(null);
                       setUploadError(null);
-                    }
-                  }}
-                  className="text-xs text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
-                />
-
-                {pdfFile && (
-                  <div className="flex items-center gap-2">
+                    }}
+                    placeholder={`Paste CSV rows or tab-separated table rows here...\nExample:\nUNUMBER,NAMES,EX Number,CUTE Access,Altea LH,M365,Turnaround companion App\nU194283,RAKESH PARMAR,EX855733,Y,SUP,Y,["MOD"]\nN/A (NEW STAFF 02),SARAH CONNOR,N/A,Y,N,N,["Y"]`}
+                    className="w-full rounded-xl border border-blue-900/80 bg-[#070e20] p-3 text-xs font-mono text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
+                  />
+                  {pastedText.trim() && (
                     <button
                       type="button"
                       disabled={isUploadingPdf}
@@ -1390,18 +1472,18 @@ export default function AdminPortal({
                       {isUploadingPdf ? (
                         <>
                           <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          <span>Processing file...</span>
+                          <span>Processing text...</span>
                         </>
                       ) : (
                         <>
                           <Search className="h-3.5 w-3.5" />
-                          <span>Extract &amp; Preview File</span>
+                          <span>Parse &amp; Preview Pasted Data</span>
                         </>
                       )}
                     </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
 
               {uploadError && (
                 <div className="mt-3 rounded-2xl border-2 border-red-500/50 bg-red-950/60 p-3 text-xs text-red-200 flex items-center gap-2 shadow-sm">

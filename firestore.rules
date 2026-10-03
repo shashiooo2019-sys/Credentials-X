@@ -24,11 +24,11 @@ service cloud.firestore {
     // Validation for Master Credential records
     function isValidMasterCredential(data) {
       return data.keys().hasAll(['id', 'uNumber', 'name', 'credentials'])
-        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
-        && data.uNumber is string && data.uNumber.size() > 0 && data.uNumber.size() <= 32
-        && data.name is string && data.name.size() > 0 && data.name.size() <= 128
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.uNumber is string && data.uNumber.size() > 0 && data.uNumber.size() <= 128
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
         && data.credentials is map
-        && (!('exNumber' in data) || (data.exNumber is string && data.exNumber.size() <= 64))
+        && (!('exNumber' in data) || (data.exNumber is string && data.exNumber.size() <= 128))
         && (!('notes' in data) || (data.notes is string && data.notes.size() <= 500))
         && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 64));
     }
@@ -37,14 +37,14 @@ service cloud.firestore {
     function isValidSubmission(data) {
       return data.keys().hasAll(['id', 'uNumber', 'name', 'verificationDate', 'submittedAt', 'fortnightPeriod', 'verifications', 'status'])
         && data.id is string && data.id.size() > 0 && data.id.size() <= 128
-        && data.uNumber is string && data.uNumber.size() > 0 && data.uNumber.size() <= 32
-        && data.name is string && data.name.size() > 0 && data.name.size() <= 128
+        && data.uNumber is string && data.uNumber.size() > 0 && data.uNumber.size() <= 128
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
         && data.verificationDate is string && data.verificationDate.size() <= 32
         && data.submittedAt is string && data.submittedAt.size() <= 64
         && data.fortnightPeriod is string && data.fortnightPeriod.size() <= 32
         && data.verifications is list && data.verifications.size() <= 50
         && (data.status == 'CONFIRMED' || data.status == 'CHANGE_REQUESTED')
-        && (!('exNumber' in data) || (data.exNumber is string && data.exNumber.size() <= 64))
+        && (!('exNumber' in data) || (data.exNumber is string && data.exNumber.size() <= 128))
         && (!('fortnightLabel' in data) || (data.fortnightLabel is string && data.fortnightLabel.size() <= 64))
         && (!('hasChangeRequests' in data) || (data.hasChangeRequests is bool))
         && (!('changeRequestCount' in data) || (data.changeRequestCount is number && data.changeRequestCount >= 0))
@@ -58,7 +58,7 @@ service cloud.firestore {
       allow get: if isValidId(staffId);
       allow list: if true;
       allow create: if isValidId(staffId) && isValidMasterCredential(incoming());
-      allow update: if isValidId(staffId) && isValidMasterCredential(incoming()) && incoming().uNumber == existing().uNumber;
+      allow update: if isValidId(staffId) && isValidMasterCredential(incoming());
       allow delete: if isValidId(staffId);
     }
 
@@ -67,7 +67,7 @@ service cloud.firestore {
       allow get: if isValidId(submissionId);
       allow list: if true;
       allow create: if isValidId(submissionId) && isValidSubmission(incoming());
-      allow update: if isValidId(submissionId) && isValidSubmission(incoming()) && incoming().uNumber == existing().uNumber;
+      allow update: if isValidId(submissionId) && isValidSubmission(incoming());
       allow delete: if isValidId(submissionId);
     }
   }

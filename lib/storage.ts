@@ -22,6 +22,23 @@ let memoryMasterCredentials: UserCredentialRecord[] = [...INITIAL_MASTER_CREDENT
 let memorySubmissions: SubmissionRecord[] = [];
 let isFirebaseInitialized = false;
 
+/**
+ * Sanitize document IDs for Firestore:
+ * Firestore document references must not contain slashes ('/') which create invalid path segments.
+ * Document ID must match ^[a-zA-Z0-9_-]+$
+ */
+export function sanitizeDocId(id: string | undefined | null): string {
+  if (!id || typeof id !== 'string') {
+    return `STAFF_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
+  }
+  // Replace slashes, spaces, parentheses, brackets, and any non-alphanumeric chars with underscore
+  let clean = id.trim().replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!clean) {
+    return `STAFF_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`.toUpperCase();
+  }
+  return clean.toUpperCase();
+}
+
 // Seed sample past submissions
 function createSeedSubmissions(): SubmissionRecord[] {
   return [
@@ -143,12 +160,13 @@ async function initializeFirebaseDataIfNeeded() {
     if (masterSnap.empty) {
       console.log("Bootstrapping INITIAL_MASTER_CREDENTIALS to Firebase Firestore...");
       const batch = writeBatch(db);
-      // Chunk into batches of up to 450 items
       for (const rec of INITIAL_MASTER_CREDENTIALS) {
-        const docRef = doc(db, 'master_credentials', rec.uNumber.trim().toUpperCase());
+        const safeId = sanitizeDocId(rec.id || rec.uNumber);
+        const docRef = doc(db, 'master_credentials', safeId);
         batch.set(docRef, {
           ...rec,
-          id: rec.uNumber.trim().toUpperCase(),
+          id: safeId,
+          uNumber: rec.uNumber.trim().toUpperCase(),
           credentials: {
             ...rec.credentials,
             cuteAccess: rec.credentials.cuteAccess || 'Y'
@@ -165,8 +183,9 @@ async function initializeFirebaseDataIfNeeded() {
     if (subSnap.empty && memorySubmissions.length > 0) {
       const batch = writeBatch(db);
       for (const sub of memorySubmissions) {
-        const docRef = doc(db, 'submissions', sub.id);
-        batch.set(docRef, sub);
+        const safeSubId = sanitizeDocId(sub.id);
+        const docRef = doc(db, 'submissions', safeSubId);
+        batch.set(docRef, { ...sub, id: safeSubId });
       }
       await batch.commit();
       console.log("Successfully seeded initial submissions to Firebase!");
@@ -191,10 +210,11 @@ export async function getMasterCredentials(): Promise<UserCredentialRecord[]> {
       const list: UserCredentialRecord[] = [];
       snap.forEach(d => {
         const data = d.data() as UserCredentialRecord;
+        const safeId = sanitizeDocId(data.id || d.id);
         list.push({
           ...data,
-          id: data.id || d.id,
-          uNumber: data.uNumber || d.id,
+          id: safeId,
+          uNumber: data.uNumber || safeId,
           credentials: {
             ...data.credentials,
             cuteAccess: data.credentials?.cuteAccess || 'Y'
@@ -236,16 +256,22 @@ export async function getMasterCredentials(): Promise<UserCredentialRecord[]> {
  * Save master credentials dataset to Firebase Firestore
  */
 export async function saveMasterCredentials(data: UserCredentialRecord[]): Promise<boolean> {
-  const safeData = data.map(r => ({
-    ...r,
-    id: r.uNumber.trim().toUpperCase(),
-    uNumber: r.uNumber.trim().toUpperCase(),
-    credentials: {
-      ...r.credentials,
-      cuteAccess: r.credentials?.cuteAccess || 'Y'
-    },
-    updatedAt: new Date().toISOString()
-  }));
+  const safeData = data.map((r, idx) => {
+    const rawUNum = (r.uNumber || r.id || `STAFF_${idx + 1}`).trim().toUpperCase();
+    const safeId = sanitizeDocId(r.id || rawUNum);
+    return {
+      ...r,
+      id: safeId,
+      uNumber: rawUNum,
+      name: (r.name || 'UNKNOWN').trim().toUpperCase(),
+      exNumber: r.exNumber || 'N/A',
+      credentials: {
+        ...r.credentials,
+        cuteAccess: r.credentials?.cuteAccess || 'Y'
+      },
+      updatedAt: new Date().toISOString()
+    };
+  });
 
   memoryMasterCredentials = safeData;
   try {
@@ -253,13 +279,17 @@ export async function saveMasterCredentials(data: UserCredentialRecord[]): Promi
   } catch {}
 
   try {
-    // Write all records to Firestore
-    const batch = writeBatch(db);
-    safeData.forEach(rec => {
-      const docRef = doc(db, 'master_credentials', rec.uNumber);
-      batch.set(docRef, rec, { merge: true });
-    });
-    await batch.commit();
+    // Write all records to Firestore in chunks of up to 400
+    const chunkSize = 400;
+    for (let i = 0; i < safeData.length; i += chunkSize) {
+      const chunk = safeData.slice(i, i + chunkSize);
+      const batch = writeBatch(db);
+      chunk.forEach(rec => {
+        const docRef = doc(db, 'master_credentials', rec.id);
+        batch.set(docRef, rec, { merge: true });
+      });
+      await batch.commit();
+    }
     return true;
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, 'master_credentials');
@@ -271,12 +301,13 @@ export async function saveMasterCredentials(data: UserCredentialRecord[]): Promi
  * Save single staff master record to Firebase Firestore
  */
 export async function saveSingleMasterRecord(record: UserCredentialRecord): Promise<UserCredentialRecord> {
-  const normUNum = record.uNumber.trim().toUpperCase();
+  const rawUNum = (record.uNumber || record.id || `STAFF_${Date.now()}`).trim().toUpperCase();
+  const safeId = sanitizeDocId(record.id || rawUNum);
   const safeRecord: UserCredentialRecord = {
     ...record,
-    id: normUNum,
-    uNumber: normUNum,
-    name: record.name.trim().toUpperCase(),
+    id: safeId,
+    uNumber: rawUNum,
+    name: (record.name || 'UNKNOWN').trim().toUpperCase(),
     exNumber: record.exNumber || 'N/A',
     credentials: {
       ...record.credentials,
@@ -286,19 +317,25 @@ export async function saveSingleMasterRecord(record: UserCredentialRecord): Prom
   };
 
   try {
-    const docRef = doc(db, 'master_credentials', normUNum);
+    const docRef = doc(db, 'master_credentials', safeId);
     await setDoc(docRef, safeRecord, { merge: true });
   } catch (err) {
-    handleFirestoreError(err, OperationType.WRITE, `master_credentials/${normUNum}`);
+    handleFirestoreError(err, OperationType.WRITE, `master_credentials/${safeId}`);
   }
 
   // Update memory cache
-  const idx = memoryMasterCredentials.findIndex(s => s.uNumber.trim().toUpperCase() === normUNum);
+  const idx = memoryMasterCredentials.findIndex(
+    s => s.id === safeId || s.uNumber.trim().toUpperCase() === rawUNum
+  );
   if (idx >= 0) {
     memoryMasterCredentials[idx] = safeRecord;
   } else {
     memoryMasterCredentials.unshift(safeRecord);
   }
+
+  try {
+    fs.writeFileSync(MASTER_FILE, JSON.stringify(memoryMasterCredentials, null, 2), 'utf-8');
+  } catch {}
 
   return safeRecord;
 }
@@ -306,16 +343,25 @@ export async function saveSingleMasterRecord(record: UserCredentialRecord): Prom
 /**
  * Delete a staff record from Firebase Firestore
  */
-export async function deleteStaffRecord(uNumber: string): Promise<boolean> {
-  const normUNum = uNumber.trim().toUpperCase();
+export async function deleteStaffRecord(uNumberOrId: string): Promise<boolean> {
+  const norm = uNumberOrId.trim().toUpperCase();
+  const safeId = sanitizeDocId(norm);
+
+  const existing = memoryMasterCredentials.find(
+    s => s.id === norm || s.id === safeId || s.uNumber.trim().toUpperCase() === norm
+  );
+  const docIdToDelete = existing?.id || safeId;
+
   try {
-    const docRef = doc(db, 'master_credentials', normUNum);
+    const docRef = doc(db, 'master_credentials', docIdToDelete);
     await deleteDoc(docRef);
   } catch (err) {
-    handleFirestoreError(err, OperationType.DELETE, `master_credentials/${normUNum}`);
+    handleFirestoreError(err, OperationType.DELETE, `master_credentials/${docIdToDelete}`);
   }
 
-  memoryMasterCredentials = memoryMasterCredentials.filter(s => s.uNumber.trim().toUpperCase() !== normUNum);
+  memoryMasterCredentials = memoryMasterCredentials.filter(
+    s => s.id !== docIdToDelete && s.uNumber.trim().toUpperCase() !== norm
+  );
   try {
     fs.writeFileSync(MASTER_FILE, JSON.stringify(memoryMasterCredentials, null, 2), 'utf-8');
   } catch {}
@@ -331,12 +377,16 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
   let updatedCount = 0;
   let addedCount = 0;
 
-  const batch = writeBatch(db);
+  const recordsToCommit: UserCredentialRecord[] = [];
 
-  incomingRecords.forEach(newRec => {
-    if (!newRec.uNumber) return;
-    const normUNum = newRec.uNumber.trim().toUpperCase();
-    const existingIndex = current.findIndex(s => s.uNumber.trim().toUpperCase() === normUNum);
+  incomingRecords.forEach((newRec, idx) => {
+    const rawUNum = (newRec.uNumber || newRec.id || `STAFF_${idx + 1}`).trim().toUpperCase();
+    if (!rawUNum) return;
+
+    const safeId = sanitizeDocId(newRec.id || rawUNum);
+    const existingIndex = current.findIndex(
+      s => s.id === safeId || s.uNumber.trim().toUpperCase() === rawUNum
+    );
 
     const safeCreds = {
       ...newRec.credentials,
@@ -348,7 +398,9 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
     if (existingIndex >= 0) {
       updatedRecord = {
         ...current[existingIndex],
-        name: newRec.name || current[existingIndex].name,
+        id: current[existingIndex].id || safeId,
+        uNumber: rawUNum,
+        name: newRec.name ? newRec.name.trim().toUpperCase() : current[existingIndex].name,
         exNumber: newRec.exNumber && newRec.exNumber !== 'N/A' ? newRec.exNumber : current[existingIndex].exNumber,
         credentials: {
           ...current[existingIndex].credentials,
@@ -360,10 +412,10 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
       updatedCount++;
     } else {
       updatedRecord = {
-        id: normUNum,
-        uNumber: normUNum,
+        id: safeId,
+        uNumber: rawUNum,
         exNumber: newRec.exNumber || 'N/A',
-        name: newRec.name || 'UNKNOWN',
+        name: (newRec.name || 'UNKNOWN').trim().toUpperCase(),
         credentials: safeCreds,
         updatedAt: new Date().toISOString()
       };
@@ -371,12 +423,20 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
       addedCount++;
     }
 
-    const docRef = doc(db, 'master_credentials', normUNum);
-    batch.set(docRef, updatedRecord, { merge: true });
+    recordsToCommit.push(updatedRecord);
   });
 
   try {
-    await batch.commit();
+    const chunkSize = 400;
+    for (let i = 0; i < recordsToCommit.length; i += chunkSize) {
+      const chunk = recordsToCommit.slice(i, i + chunkSize);
+      const batch = writeBatch(db);
+      chunk.forEach(rec => {
+        const docRef = doc(db, 'master_credentials', rec.id);
+        batch.set(docRef, rec, { merge: true });
+      });
+      await batch.commit();
+    }
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, 'master_credentials');
   }
@@ -394,8 +454,9 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
  */
 export async function registerNewStaff(uNumber: string, name: string, exNumber: string = 'N/A'): Promise<UserCredentialRecord> {
   const normUNum = uNumber.trim().toUpperCase();
+  const safeId = sanitizeDocId(normUNum);
   const current = await getMasterCredentials();
-  const existing = current.find(s => s.uNumber.trim().toUpperCase() === normUNum);
+  const existing = current.find(s => s.id === safeId || s.uNumber.trim().toUpperCase() === normUNum);
 
   if (existing) {
     if (name.trim()) existing.name = name.trim().toUpperCase();
@@ -405,7 +466,7 @@ export async function registerNewStaff(uNumber: string, name: string, exNumber: 
   }
 
   const newStaff: UserCredentialRecord = {
-    id: normUNum,
+    id: safeId,
     uNumber: normUNum,
     exNumber: exNumber.trim() || 'N/A',
     name: name.trim().toUpperCase(),
@@ -451,9 +512,10 @@ export async function getSubmissions(): Promise<SubmissionRecord[]> {
       const list: SubmissionRecord[] = [];
       snap.forEach(d => {
         const data = d.data() as SubmissionRecord;
+        const safeSubId = sanitizeDocId(data.id || d.id);
         list.push({
           ...data,
-          id: data.id || d.id
+          id: safeSubId
         });
       });
 
@@ -481,23 +543,28 @@ export async function getSubmissions(): Promise<SubmissionRecord[]> {
  * Save a single submission to Firebase Firestore
  */
 export async function saveSubmission(submission: SubmissionRecord): Promise<SubmissionRecord> {
-  const docRef = doc(db, 'submissions', submission.id);
+  const safeId = sanitizeDocId(submission.id);
+  const safeSubmission: SubmissionRecord = {
+    ...submission,
+    id: safeId
+  };
+  const docRef = doc(db, 'submissions', safeId);
 
   try {
-    await setDoc(docRef, submission);
+    await setDoc(docRef, safeSubmission, { merge: true });
   } catch (err) {
-    handleFirestoreError(err, OperationType.WRITE, `submissions/${submission.id}`);
+    handleFirestoreError(err, OperationType.WRITE, `submissions/${safeId}`);
   }
 
   const current = memorySubmissions;
   const existingIdx = current.findIndex(
-    s => s.uNumber.toLowerCase() === submission.uNumber.toLowerCase() && s.fortnightPeriod === submission.fortnightPeriod
+    s => s.id === safeId || (s.uNumber.toLowerCase() === submission.uNumber.toLowerCase() && s.fortnightPeriod === submission.fortnightPeriod)
   );
 
   if (existingIdx >= 0) {
-    current[existingIdx] = submission;
+    current[existingIdx] = safeSubmission;
   } else {
-    current.unshift(submission);
+    current.unshift(safeSubmission);
   }
 
   memorySubmissions = current;
@@ -505,7 +572,7 @@ export async function saveSubmission(submission: SubmissionRecord): Promise<Subm
     fs.writeFileSync(SUBMISSIONS_FILE, JSON.stringify(current, null, 2), 'utf-8');
   } catch {}
 
-  return submission;
+  return safeSubmission;
 }
 
 export function getFortnightPeriod(dateStr: string): { period: string; label: string; fortnightNum: 1 | 2; year: number; month: number } {
@@ -529,13 +596,15 @@ export function getFortnightPeriod(dateStr: string): { period: string; label: st
 
 export async function findStaffByUNumber(uNum: string): Promise<UserCredentialRecord | null> {
   const normalized = uNum.trim().toUpperCase();
+  const safeId = sanitizeDocId(normalized);
   const list = await getMasterCredentials();
   
   return list.find(s => {
-    const sUNum = s.uNumber.trim().toUpperCase();
-    if (sUNum === normalized) return true;
-    if (sUNum === `U${normalized}`) return true;
-    if (normalized === `U${sUNum}`) return true;
+    const sUNum = s.uNumber?.trim().toUpperCase();
+    const sId = s.id?.trim().toUpperCase();
+    if (sUNum === normalized || sId === safeId || sId === normalized) return true;
+    if (sUNum === `U${normalized}` || sUNum === normalized.replace(/^U/, '')) return true;
+    if (s.name?.trim().toUpperCase() === normalized) return true;
     return false;
   }) || null;
 }
