@@ -658,8 +658,8 @@ export default function AdminPortal({
   // IF NOT AUTHENTICATED: Show Admin Sign In Form
   if (!isAuthenticated) {
     return (
-      <div className="mx-auto max-w-md py-16 px-4">
-        <div className="darkblue-card rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+      <div className="w-full flex-1 flex items-center justify-center py-12 px-3 sm:px-6">
+        <div className="darkblue-card rounded-3xl p-8 sm:p-10 max-w-md w-full relative overflow-hidden">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
           <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-blue-500/10 blur-2xl" />
 
@@ -736,11 +736,11 @@ export default function AdminPortal({
 
   // AUTHENTICATED ADMIN DASHBOARD
   return (
-    <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="w-full max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8 space-y-6 flex-1 flex flex-col">
       {/* Top Navigation for Admin */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-blue-900/60 pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
             <span>Admin Operations &amp; Audit Portal</span>
           </h1>
           <p className="text-xs text-slate-300 mt-0.5 font-medium">
@@ -749,27 +749,27 @@ export default function AdminPortal({
         </div>
 
         {/* View Switcher: Audit vs Master Database */}
-        <div className="flex items-center rounded-2xl bg-[#070f22] p-1 border border-blue-900/60 text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+        <div className="flex flex-wrap items-center rounded-2xl bg-[#070f22] p-1 border border-blue-900/60 text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] gap-1">
           <button
             onClick={() => setAdminView('audit')}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 font-black transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl px-3.5 sm:px-4 py-2 font-black transition-all cursor-pointer whitespace-nowrap ${
               adminView === 'audit'
                 ? 'darkblue-btn-primary text-white'
                 : 'text-slate-400 hover:text-white hover:-translate-y-0.5'
             }`}
           >
-            <FileSpreadsheet className="h-4 w-4" />
+            <FileSpreadsheet className="h-4 w-4 shrink-0" />
             <span>Fortnight Audit &amp; Submissions</span>
           </button>
           <button
             onClick={() => setAdminView('master')}
-            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 font-black transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl px-3.5 sm:px-4 py-2 font-black transition-all cursor-pointer whitespace-nowrap ${
               adminView === 'master'
                 ? 'darkblue-btn-primary text-white'
                 : 'text-slate-400 hover:text-white hover:-translate-y-0.5'
             }`}
           >
-            <Database className="h-4 w-4" />
+            <Database className="h-4 w-4 shrink-0" />
             <span>Master PDF Database ({masterStaffList.length})</span>
           </button>
         </div>

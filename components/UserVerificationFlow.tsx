@@ -31,7 +31,10 @@ import {
   UserPlus,
   Mail,
   Lock,
-  Shield
+  Shield,
+  RotateCcw,
+  ArrowRight,
+  X
 } from 'lucide-react';
 
 export const OFFICIAL_REVIEW_EMAIL = 'Log-in Reviews - DELSM Operations and Security <ea8add7c.lufthansagroup.onmicrosoft.com@emea.teams.ms>';
@@ -45,6 +48,10 @@ export default function UserVerificationFlow() {
   const [isLoadingLookup, setIsLoadingLookup] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Array<{ uNumber: string; name: string }>>([]);
+
+  // Not found popup modal state
+  const [showNotFoundPopup, setShowNotFoundPopup] = useState(false);
+  const [notFoundUNumber, setNotFoundUNumber] = useState('');
 
   // Unlisted user prompt state (for users whose names do not appear in database)
   const [showNamePrompt, setShowNamePrompt] = useState(false);
@@ -111,15 +118,18 @@ export default function UserVerificationFlow() {
     setLookupError(null);
     setSuggestions([]);
     setShowNamePrompt(false);
+    setShowNotFoundPopup(false);
 
     try {
       const res = await fetch(`/api/credentials/lookup?uNumber=${encodeURIComponent(query)}`);
       const data = await res.json();
 
       if (!res.ok || !data.found) {
-        // User not in master database: Prompt user to input their name against U number!
-        setShowNamePrompt(true);
+        // User not in master database: Show popup with Option 1 (Try Again) & Option 2 (Add my name in database)
+        setNotFoundUNumber(query.toUpperCase());
         setUNumberInput(query.toUpperCase());
+        setShowNotFoundPopup(true);
+        setShowNamePrompt(false);
         setLookupError(null);
         if (data.suggestions) {
           setSuggestions(data.suggestions);
@@ -157,6 +167,23 @@ export default function UserVerificationFlow() {
     } finally {
       setIsLoadingLookup(false);
     }
+  };
+
+  // Option 1: Try Again action
+  const handleTryAgain = () => {
+    setShowNotFoundPopup(false);
+    setShowNamePrompt(false);
+    setLookupError(null);
+  };
+
+  // Option 2: Add my name in database action
+  const handleOpenAddName = () => {
+    setShowNotFoundPopup(false);
+    setShowNamePrompt(true);
+    setInputtedName('');
+    setInputtedExNumber('');
+    setIsAlsRole(false);
+    setLookupError(null);
   };
 
   // Register unlisted staff whose name does not appear in database
@@ -415,16 +442,16 @@ export default function UserVerificationFlow() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl py-8 px-4 sm:px-6">
+    <div className="w-full max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8 flex-1 flex flex-col">
       {/* Wizard Progress Stepper with Dark Blue Medallion Milestones */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-blue-900/60 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-blue-900/60 pb-4">
           <div>
             <span className="text-xs font-black text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5 text-sky-400" />
               <span>Verification Wizard · Step {currentStep} of 3</span>
             </span>
-            <h2 className="text-xl font-black text-white mt-0.5 tracking-tight drop-shadow-xs">
+            <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5 tracking-tight drop-shadow-xs">
               {currentStep === 1 && 'Step 1: Enter U-Number Identification'}
               {currentStep === 2 && 'Step 2: Confirm Employee Identity & Audit Date'}
               {currentStep === 3 && `Step 3: Review Credentials (${reviewedCount}/${totalActive} Confirmed)`}
@@ -432,7 +459,7 @@ export default function UserVerificationFlow() {
           </div>
 
           {currentStep === 3 && (
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className={`px-3 py-1 rounded-xl font-black border shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] hover:-translate-y-0.5 transition-transform duration-200 ${
                 remainingCount === 0
                   ? 'bg-emerald-950/80 text-emerald-200 border-emerald-500/60'
@@ -448,10 +475,10 @@ export default function UserVerificationFlow() {
         </div>
 
         {/* Dark Blue Step Milestones */}
-        <div className="mt-5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        <div className="mt-5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <span
-              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
                 currentStep >= 1
                   ? 'bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-950 text-white border border-blue-400/50 ring-2 ring-blue-500/30'
                   : 'bg-[#0a152e] text-slate-300 border border-blue-900/60'
@@ -459,21 +486,21 @@ export default function UserVerificationFlow() {
             >
               1
             </span>
-            <span className={`text-xs font-bold ${currentStep === 1 ? 'text-white font-black' : 'text-slate-300'}`}>
+            <span className={`text-xs font-bold whitespace-nowrap ${currentStep === 1 ? 'text-white font-black' : 'text-slate-300'}`}>
               Enter U-Number
             </span>
           </div>
 
-          <div className="h-2 flex-1 mx-3 rounded-full bg-[#070f24] overflow-hidden shadow-inner border border-blue-950">
+          <div className="h-2 flex-1 mx-2 sm:mx-3 rounded-full bg-[#070f24] overflow-hidden shadow-inner border border-blue-950">
             <div
               className="h-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
               style={{ width: currentStep >= 2 ? '100%' : '0%' }}
             />
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <span
-              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
                 currentStep >= 2
                   ? 'bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-950 text-white border border-blue-400/50 ring-2 ring-blue-500/30'
                   : 'bg-[#0a152e] text-slate-300 border border-blue-900/60'
@@ -481,21 +508,21 @@ export default function UserVerificationFlow() {
             >
               2
             </span>
-            <span className={`text-xs font-bold ${currentStep === 2 ? 'text-white font-black' : 'text-slate-300'}`}>
+            <span className={`text-xs font-bold whitespace-nowrap ${currentStep === 2 ? 'text-white font-black' : 'text-slate-300'}`}>
               Identity &amp; Date
             </span>
           </div>
 
-          <div className="h-2 flex-1 mx-3 rounded-full bg-[#070f24] overflow-hidden shadow-inner border border-blue-950">
+          <div className="h-2 flex-1 mx-2 sm:mx-3 rounded-full bg-[#070f24] overflow-hidden shadow-inner border border-blue-950">
             <div
               className="h-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 transition-all duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]"
               style={{ width: currentStep >= 3 ? '100%' : '0%' }}
             />
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <span
-              className={`flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all duration-200 shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] hover:-translate-y-0.5 ${
                 currentStep >= 3
                   ? 'bg-gradient-to-b from-blue-600 via-blue-700 to-indigo-950 text-white border border-blue-400/50 ring-2 ring-blue-500/30'
                   : 'bg-[#0a152e] text-slate-300 border border-blue-900/60'
@@ -503,7 +530,7 @@ export default function UserVerificationFlow() {
             >
               3
             </span>
-            <span className={`text-xs font-bold ${currentStep === 3 ? 'text-white font-black' : 'text-slate-300'}`}>
+            <span className={`text-xs font-bold whitespace-nowrap ${currentStep === 3 ? 'text-white font-black' : 'text-slate-300'}`}>
               Verify Credentials {currentStep === 3 && `(${reviewedCount}/${totalActive})`}
             </span>
           </div>
@@ -616,16 +643,129 @@ export default function UserVerificationFlow() {
             )}
           </form>
 
-          {/* Form to prompt user to input their name against U number if not found */}
+          {/* NOT FOUND POPUP MODAL WITH TWO OPTIONS */}
+          {showNotFoundPopup && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="darkblue-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border-2 border-amber-500/60 shadow-2xl space-y-5 bg-[#0b152d] relative animate-in zoom-in-95 duration-200">
+                {/* Top Close button */}
+                <button
+                  type="button"
+                  onClick={handleTryAgain}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-blue-900/50 transition-colors cursor-pointer"
+                  title="Close popup"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                {/* Header / Icon */}
+                <div className="text-center space-y-2 pt-1">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-lg">
+                    <AlertTriangle className="h-7 w-7 text-amber-400" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
+                    Your credentials were not found - please check your entry.
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300">
+                    No credential record was found for U-Number{' '}
+                    <span className="font-mono font-black text-sky-200 bg-blue-950 px-2 py-0.5 rounded border border-blue-800">
+                      {notFoundUNumber || uNumberInput}
+                    </span>{' '}
+                    in the master database.
+                  </p>
+                </div>
+
+                {/* Suggestions if any close matches */}
+                {suggestions.length > 0 && (
+                  <div className="rounded-xl border border-blue-900/60 bg-[#071024] p-3 text-xs">
+                    <p className="font-bold text-slate-200 mb-1.5 flex items-center gap-1.5">
+                      <Info className="h-3.5 w-3.5 text-sky-400" />
+                      <span>Did you mean one of these registered staff?</span>
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {suggestions.map((s, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setShowNotFoundPopup(false);
+                            setUNumberInput(s.uNumber);
+                            handleLookup(s.uNumber);
+                          }}
+                          className="darkblue-btn-secondary rounded-lg px-2.5 py-1 text-xs font-mono font-bold cursor-pointer hover:border-sky-400"
+                        >
+                          {s.uNumber} ({s.name})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* The Two Options Requested by User */}
+                <div className="space-y-3 pt-1">
+                  {/* Option 1: Do you want to try again */}
+                  <button
+                    type="button"
+                    onClick={handleTryAgain}
+                    className="w-full flex items-center justify-between p-4 rounded-2xl border-2 border-blue-500/40 bg-gradient-to-r from-[#091738] to-[#0c1e45] hover:border-blue-400 hover:from-[#0d224e] hover:to-[#112a5e] text-left transition-all cursor-pointer group shadow-md"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600/30 text-sky-300 border border-blue-500/40 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <RotateCcw className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-bold text-sky-400 uppercase tracking-wider block">
+                          Option 1
+                        </span>
+                        <span className="text-sm font-black text-white group-hover:text-sky-200 transition-colors">
+                          Do you want to try again
+                        </span>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Check your U-Number entry and re-type.
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-sky-400 group-hover:translate-x-1 transition-transform shrink-0 ml-2" />
+                  </button>
+
+                  {/* Option 2: Add my name in database */}
+                  <button
+                    type="button"
+                    onClick={handleOpenAddName}
+                    className="w-full flex items-center justify-between p-4 rounded-2xl border-2 border-amber-500/50 bg-gradient-to-r from-[#171c2b] to-[#1c2235] hover:border-amber-400 hover:from-[#21283d] hover:to-[#273048] text-left transition-all cursor-pointer group shadow-md"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 group-hover:bg-amber-500 group-hover:text-black transition-colors">
+                        <UserPlus className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">
+                          Option 2
+                        </span>
+                        <span className="text-sm font-black text-white group-hover:text-amber-200 transition-colors">
+                          Add my name in database
+                        </span>
+                        <p className="text-xs text-slate-300 mt-0.5">
+                          Register your name against this U-Number to report credentials.
+                        </p>
+                      </div>
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-amber-400 group-hover:translate-x-1 transition-transform shrink-0 ml-2" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Form to prompt user to input their name against U number if not found / selected in Option 2 */}
           {showNamePrompt && (
             <div className="mt-6 max-w-md mx-auto darkblue-card rounded-2xl p-5 text-left border-2 border-amber-500/40 bg-gradient-to-b from-[#131d36] to-[#0a1226]">
               <div className="flex items-center gap-2 text-amber-300 font-black text-sm sm:text-base mb-1">
                 <UserPlus className="h-5 w-5 text-amber-400 shrink-0" />
-                <span>Input Name for U-Number: {uNumberInput || 'New Profile'}</span>
+                <span>Add Name for U-Number: {uNumberInput || 'New Profile'}</span>
               </div>
               <p className="text-xs text-slate-300 mb-4">
-                Your name was not found in the master database. Please input your name against U-Number{' '}
-                <strong className="font-mono bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800 text-sky-200">{uNumberInput || 'provided'}</strong>. You can then inform your credentials status through &ldquo;Request Change / Request Access&rdquo;.
+                Please input your name against U-Number{' '}
+                <strong className="font-mono bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800 text-sky-200">{uNumberInput || 'provided'}</strong>. You can then verify and inform your credentials status through &ldquo;Request Change / Request Access&rdquo;.
               </p>
 
               <form onSubmit={handleRegisterUnlistedUser} className="space-y-3.5">
@@ -801,11 +941,11 @@ export default function UserVerificationFlow() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="darkblue-btn-secondary rounded-xl px-5 py-2.5 text-sm font-bold cursor-pointer"
+              className="w-full sm:w-auto darkblue-btn-secondary rounded-xl px-5 py-2.5 text-sm font-bold cursor-pointer text-center"
             >
               Back
             </button>
@@ -813,10 +953,10 @@ export default function UserVerificationFlow() {
               type="button"
               disabled={!identityConfirmed}
               onClick={() => setCurrentStep(3)}
-              className="darkblue-btn-primary flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-extrabold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto darkblue-btn-primary flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-extrabold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-center whitespace-normal"
             >
               <span>Continue to Credentials Review</span>
-              <UserCheck className="h-4 w-4" />
+              <UserCheck className="h-4 w-4 shrink-0" />
             </button>
           </div>
         </div>
@@ -831,10 +971,10 @@ export default function UserVerificationFlow() {
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-blue-900/60 pb-4">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-sky-400" />
+                  <Sparkles className="h-3.5 w-3.5 text-sky-400 shrink-0" />
                   <span>Step 3 of 3 · Final Verification</span>
                 </span>
-                <h2 className="text-2xl font-black tracking-tight text-white mt-0.5 drop-shadow-xs">
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5 drop-shadow-xs">
                   Verify Credentials &amp; Request Changes
                 </h2>
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-300">
@@ -906,11 +1046,11 @@ export default function UserVerificationFlow() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-blue-600 to-indigo-900 text-white text-xs font-black shadow-[0_2px_4px_rgba(37,99,235,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] border border-blue-400/40">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-blue-600 to-indigo-900 text-white text-xs font-black shadow-[0_2px_4px_rgba(37,99,235,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] border border-blue-400/40 shrink-0">
                     3
                   </span>
-                  <h3 className="text-base font-black text-white flex items-center gap-1.5">
-                    <ListChecks className="h-5 w-5 text-sky-400" />
+                  <h3 className="text-base font-black text-white flex items-center gap-1.5 flex-wrap">
+                    <ListChecks className="h-5 w-5 text-sky-400 shrink-0" />
                     <span>Confirmation Progress: {reviewedCount} of {totalActive} Credentials Reviewed</span>
                   </h3>
                 </div>
@@ -919,32 +1059,32 @@ export default function UserVerificationFlow() {
                   <span className="text-blue-900">·</span>
                   {remainingCount === 0 ? (
                     <span className="font-bold text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      All credentials confirmed (Ready to submit)
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <span>All credentials confirmed (Ready to submit)</span>
                     </span>
                   ) : (
                     <span className="font-bold text-amber-400 flex items-center gap-1">
-                      <Clock className="h-4 w-4 text-amber-400" />
-                      {remainingCount} field{remainingCount === 1 ? '' : 's'} remaining to confirm
+                      <Clock className="h-4 w-4 text-amber-400 shrink-0" />
+                      <span>{remainingCount} field{remainingCount === 1 ? '' : 's'} remaining to confirm</span>
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Quick Actions Buttons */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {remainingCount > 0 ? (
                   <button
                     type="button"
                     onClick={handleConfirmAllRemaining}
-                    className="emerald-btn-3d flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer"
+                    className="emerald-btn-3d flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer whitespace-normal"
                   >
-                    <Check className="h-4 w-4" />
+                    <Check className="h-4 w-4 shrink-0" />
                     <span>Confirm All Remaining ({remainingCount})</span>
                   </button>
                 ) : (
                   <div className="flex items-center gap-1.5 rounded-xl bg-gradient-to-b from-emerald-950/80 to-slate-950 px-3.5 py-2 text-xs font-extrabold text-emerald-300 border border-emerald-600/50 shadow-[0_2px_4px_rgba(5,150,105,0.2),inset_0_1px_0_rgba(255,255,255,0.1)]">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                     <span>100% Verified</span>
                   </div>
                 )}
@@ -976,7 +1116,7 @@ export default function UserVerificationFlow() {
             </div>
 
             {/* Stat Counters & Legend */}
-            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-blue-900/60 text-xs">
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-3 border-t border-blue-900/60 text-xs">
               <div className="rounded-2xl bg-gradient-to-b from-[#0d1a36] to-[#070f22] p-3.5 border border-blue-900/60 shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)] hover:-translate-y-1 transition-all duration-200">
                 <span className="text-slate-400 block text-[11px] font-bold uppercase tracking-wider">Total Active</span>
                 <span className="font-black text-white text-base mt-0.5 block">{totalActive} Fields</span>
@@ -984,15 +1124,15 @@ export default function UserVerificationFlow() {
               <div className="rounded-2xl bg-gradient-to-b from-emerald-950/60 to-[#070f22] p-3.5 border border-emerald-700/50 shadow-[0_2px_4px_rgba(5,150,105,0.2),inset_0_1px_0_rgba(255,255,255,0.05)] hover:-translate-y-1 transition-all duration-200">
                 <span className="text-emerald-300 block text-[11px] font-extrabold uppercase tracking-wider">Confirmed</span>
                 <span className="font-black text-emerald-200 text-base flex items-center gap-1 mt-0.5">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                  {confirmedCount} Working
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span>{confirmedCount} Working</span>
                 </span>
               </div>
               <div className="rounded-2xl bg-gradient-to-b from-amber-950/60 to-[#070f22] p-3.5 border border-amber-700/50 shadow-[0_2px_4px_rgba(217,119,6,0.2),inset_0_1px_0_rgba(255,255,255,0.05)] hover:-translate-y-1 transition-all duration-200">
                 <span className="text-amber-300 block text-[11px] font-extrabold uppercase tracking-wider">Changes</span>
                 <span className="font-black text-amber-200 text-base flex items-center gap-1 mt-0.5">
-                  <AlertTriangle className="h-4 w-4 text-amber-400" />
-                  {changeRequestedCount} Flagged
+                  <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+                  <span>{changeRequestedCount} Flagged</span>
                 </span>
               </div>
               <div className={`rounded-2xl p-3.5 border shadow-[0_2px_4px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)] hover:-translate-y-1 transition-all duration-200 ${
@@ -1004,12 +1144,12 @@ export default function UserVerificationFlow() {
                 <span className="font-black text-base flex items-center gap-1 mt-0.5">
                   {remainingCount > 0 ? (
                     <>
-                      <Clock className="h-4 w-4 text-amber-400" />
+                      <Clock className="h-4 w-4 text-amber-400 shrink-0" />
                       <span>{remainingCount} Pending</span>
                     </>
                   ) : (
                     <>
-                      <Check className="h-4 w-4 text-emerald-400" />
+                      <Check className="h-4 w-4 text-emerald-400 shrink-0" />
                       <span>0 Left</span>
                     </>
                   )}
@@ -1020,9 +1160,9 @@ export default function UserVerificationFlow() {
 
           {/* Active Credentials Section */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                <Layers className="h-4 w-4 text-sky-400" />
+                <Layers className="h-4 w-4 text-sky-400 shrink-0" />
                 <span>Assigned Credentials ({activeFields.length})</span>
               </h3>
               <span className="text-xs font-bold">
@@ -1079,19 +1219,19 @@ export default function UserVerificationFlow() {
                             {/* Live field confirmation state tag */}
                             {isConfirmed && (
                               <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-950/80 px-2.5 py-0.5 text-[11px] font-black text-emerald-300 border border-emerald-700 shadow-2xs">
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                                 <span>Confirmed Working</span>
                               </span>
                             )}
                             {isChangeRequested && (
                               <span className="inline-flex items-center gap-1 rounded-lg bg-amber-950/80 px-2.5 py-0.5 text-[11px] font-black text-amber-300 border border-amber-700 shadow-2xs">
-                                <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                                <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
                                 <span>Change Requested</span>
                               </span>
                             )}
                             {isPending && (
                               <span className="inline-flex items-center gap-1 rounded-lg bg-blue-950 px-2.5 py-0.5 text-[11px] font-extrabold text-slate-300 border border-blue-800 shadow-2xs">
-                                <Clock className="h-3.5 w-3.5 text-sky-400" />
+                                <Clock className="h-3.5 w-3.5 text-sky-400 shrink-0" />
                                 <span>Pending Confirmation</span>
                               </span>
                             )}
@@ -1102,29 +1242,29 @@ export default function UserVerificationFlow() {
                         </div>
 
                         {/* Confirmation Toggle Buttons */}
-                        <div className="flex items-center rounded-xl bg-[#060e20] p-1 border border-blue-900/60 text-xs shrink-0 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center rounded-xl bg-[#060e20] p-1 border border-blue-900/60 text-xs shrink-0 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] gap-1">
                           <button
                             type="button"
                             onClick={() => handleStatusChange(cfg.key, 'CONFIRMED')}
-                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all ${
+                            className={`flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all whitespace-nowrap ${
                               isConfirmed
                                 ? 'emerald-btn-3d text-white'
                                 : 'text-slate-400 hover:text-white hover:-translate-y-0.5'
                             }`}
                           >
-                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                             <span>Confirmed</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleStatusChange(cfg.key, 'CHANGE_REQUESTED')}
-                            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all ${
+                            className={`flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-1.5 font-extrabold cursor-pointer transition-all whitespace-nowrap ${
                               isChangeRequested
                                 ? 'amber-btn-3d text-white'
                                 : 'text-slate-400 hover:text-white hover:-translate-y-0.5'
                             }`}
                           >
-                            <AlertTriangle className="h-3.5 w-3.5" />
+                            <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                             <span>Request Change</span>
                           </button>
                         </div>
@@ -1136,8 +1276,8 @@ export default function UserVerificationFlow() {
                           <label className="font-extrabold">
                             {isChangeRequested ? (
                               <span className="text-amber-300 font-black flex items-center gap-1">
-                                <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-                                Specify change or issue details:
+                                <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                                <span>Specify change or issue details:</span>
                               </span>
                             ) : (
                               <span>Remarks / Notes (optional):</span>
@@ -1159,7 +1299,7 @@ export default function UserVerificationFlow() {
                                 key={chipIdx}
                                 type="button"
                                 onClick={() => handleRemarkChange(cfg.key, chip)}
-                                className="darkblue-btn-secondary rounded-lg px-2.5 py-0.5 font-bold cursor-pointer"
+                                className="darkblue-btn-secondary rounded-lg px-2.5 py-0.5 font-bold cursor-pointer whitespace-nowrap"
                               >
                                 {chip}
                               </button>
@@ -1198,7 +1338,7 @@ export default function UserVerificationFlow() {
               <button
                 type="button"
                 onClick={() => setShowUnassigned(!showUnassigned)}
-                className="flex w-full items-center justify-between text-left cursor-pointer"
+                className="flex flex-wrap items-center justify-between gap-3 w-full text-left cursor-pointer"
               >
                 <div>
                   <h4 className="text-sm font-black text-white">
@@ -1208,7 +1348,7 @@ export default function UserVerificationFlow() {
                     These systems are marked as &ldquo;N&rdquo; or unassigned in your master profile. No confirmation required unless you need new access.
                   </p>
                 </div>
-                <div className="darkblue-btn-secondary flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl">
+                <div className="darkblue-btn-secondary flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl shrink-0">
                   <span>{showUnassigned ? 'Hide' : 'View or Request Access'}</span>
                   {showUnassigned ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 </div>
@@ -1229,7 +1369,7 @@ export default function UserVerificationFlow() {
                             : 'border-blue-900/50 bg-[#071024]'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <span className="font-extrabold text-white">{cfg.label}</span>
                             <span className="ml-2 font-mono text-slate-400">(Current: N)</span>
@@ -1250,7 +1390,7 @@ export default function UserVerificationFlow() {
                                 onClick={() => handleStatusChange(cfg.key, 'CHANGE_REQUESTED')}
                                 className="darkblue-btn-secondary flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer"
                               >
-                                <PlusCircle className="h-3.5 w-3.5 text-sky-400" />
+                                <PlusCircle className="h-3.5 w-3.5 text-sky-400 shrink-0" />
                                 <span>Request Access</span>
                               </button>
                             )}
@@ -1386,14 +1526,14 @@ export default function UserVerificationFlow() {
               <button
                 type="button"
                 onClick={handleConfirmAllRemaining}
-                className="amber-btn-3d flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer shrink-0"
+                className="amber-btn-3d flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-extrabold cursor-pointer shrink-0 whitespace-nowrap"
               >
-                <Check className="h-4 w-4" />
+                <Check className="h-4 w-4 shrink-0" />
                 <span>Confirm All Remaining ({remainingCount})</span>
               </button>
             </div>
           ) : (
-            <div className="rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-b from-emerald-950/40 via-[#0d1a36] to-[#070f22] p-4 text-xs text-emerald-200 flex items-center justify-between gap-3 shadow-md hover:-translate-y-0.5 transition-all duration-200">
+            <div className="rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-b from-emerald-950/40 via-[#0d1a36] to-[#070f22] p-4 text-xs text-emerald-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 shadow-md hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 className="h-6 w-6 text-emerald-400 shrink-0" />
                 <div>
@@ -1405,7 +1545,7 @@ export default function UserVerificationFlow() {
                   </p>
                 </div>
               </div>
-              <span className="font-mono font-black text-xs bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl shadow-[0_2px_4px_rgba(5,150,105,0.3)]">
+              <span className="font-mono font-black text-xs bg-emerald-600 text-white px-3.5 py-1.5 rounded-xl shadow-[0_2px_4px_rgba(5,150,105,0.3)] whitespace-nowrap shrink-0">
                 Ready to Submit
               </span>
             </div>
@@ -1419,11 +1559,11 @@ export default function UserVerificationFlow() {
           )}
 
           {/* Submit Actions */}
-          <div className="flex items-center justify-between gap-4 pt-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 pt-2">
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="darkblue-btn-secondary rounded-xl px-5 py-3 text-sm font-bold cursor-pointer"
+              className="w-full sm:w-auto darkblue-btn-secondary rounded-xl px-5 py-3 text-sm font-bold cursor-pointer text-center"
             >
               Back
             </button>
@@ -1431,7 +1571,7 @@ export default function UserVerificationFlow() {
               type="button"
               disabled={submitting || remainingCount > 0}
               onClick={handleSubmitVerification}
-              className={`flex items-center gap-2.5 rounded-2xl px-7 py-3.5 text-sm font-black text-white shadow-md transition-all cursor-pointer ${
+              className={`w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl px-7 py-3.5 text-sm font-black text-white shadow-md transition-all cursor-pointer whitespace-normal text-center ${
                 remainingCount > 0
                   ? 'bg-blue-950/50 border border-blue-900/40 text-slate-500 cursor-not-allowed opacity-60'
                   : 'darkblue-btn-primary'
@@ -1444,12 +1584,12 @@ export default function UserVerificationFlow() {
                 </>
               ) : remainingCount > 0 ? (
                 <>
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-4 w-4 shrink-0" />
                   <span>Confirm Remaining ({remainingCount} Left)</span>
                 </>
               ) : (
                 <>
-                  <Send className="h-4 w-4" />
+                  <Send className="h-4 w-4 shrink-0" />
                   <span>Submit Bi-Weekly Verification</span>
                 </>
               )}

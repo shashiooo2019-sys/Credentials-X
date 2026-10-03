@@ -184,11 +184,11 @@ export default function PrintableReceipt({
   };
 
   return (
-    <div className="mx-auto max-w-4xl py-6 px-4 sm:px-6">
+    <div className="w-full max-w-7xl mx-auto py-6 px-3 sm:px-6 lg:px-8 flex-1 flex flex-col">
       {/* Top action bar (hidden during print) with Dark Blue Card Surface */}
       <div className="print:hidden mb-6 flex flex-wrap items-center justify-between gap-4 darkblue-card rounded-2xl p-5 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500 to-emerald-700 text-white shadow-md border border-emerald-400/40">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500 to-emerald-700 text-white shadow-md border border-emerald-400/40 shrink-0">
             <CheckCircle2 className="h-6 w-6 drop-shadow-xs" />
           </div>
           <div>
@@ -201,7 +201,7 @@ export default function PrintableReceipt({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
           <button
             onClick={() => {
               if (!emailSent) {
@@ -211,7 +211,7 @@ export default function PrintableReceipt({
               }
             }}
             disabled={isSendingEmail}
-            className="flex items-center gap-1.5 darkblue-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md cursor-pointer disabled:opacity-60"
+            className="flex items-center justify-center gap-1.5 darkblue-btn-primary px-4 py-2.5 text-xs font-bold text-white shadow-md cursor-pointer disabled:opacity-60 whitespace-nowrap"
           >
             {isSendingEmail ? (
               <>
@@ -220,35 +220,35 @@ export default function PrintableReceipt({
               </>
             ) : emailSent ? (
               <>
-                <Mail className="h-3.5 w-3.5 text-amber-300" />
+                <Mail className="h-3.5 w-3.5 text-amber-300 shrink-0" />
                 <span>View Email Summary</span>
               </>
             ) : (
               <>
-                <Send className="h-3.5 w-3.5" />
+                <Send className="h-3.5 w-3.5 shrink-0" />
                 <span>Send Email Summary</span>
               </>
             )}
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer whitespace-nowrap"
           >
-            <Printer className="h-3.5 w-3.5 text-sky-400" />
+            <Printer className="h-3.5 w-3.5 text-sky-400 shrink-0" />
             <span>Print / PDF</span>
           </button>
           <button
             onClick={handleDownloadTxt}
-            className="flex items-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 darkblue-btn-secondary px-3.5 py-2.5 text-xs font-bold text-slate-200 cursor-pointer whitespace-nowrap"
           >
-            <Download className="h-3.5 w-3.5 text-teal-400" />
+            <Download className="h-3.5 w-3.5 text-teal-400 shrink-0" />
             <span>Download (.TXT)</span>
           </button>
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-xl border border-sky-800/60 bg-slate-900/80 px-3.5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:-translate-y-0.5 transition-all shadow-xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-sky-800/60 bg-slate-900/80 px-3.5 py-2.5 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white hover:-translate-y-0.5 transition-all shadow-xs cursor-pointer whitespace-nowrap"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
             <span>New Review</span>
           </button>
         </div>
