@@ -28,6 +28,7 @@ export interface UserCredentialRecord {
   exNumber: string;
   name: string;
   credentials: CredentialFields;
+  orderIndex?: number; // Preserves the exact CSV / imported file order
   updatedAt?: string;
   notes?: string;
 }

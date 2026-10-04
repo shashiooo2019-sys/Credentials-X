@@ -3,7 +3,8 @@ import {
   getMasterCredentials,
   saveMasterCredentials,
   saveSingleMasterRecord,
-  deleteStaffRecord
+  deleteStaffRecord,
+  clearAllMasterCredentials
 } from '@/lib/storage';
 import { INITIAL_MASTER_CREDENTIALS } from '@/lib/initial-data';
 import { UserCredentialRecord } from '@/lib/types';
@@ -70,9 +71,21 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const uNumber = searchParams.get('uNumber');
+    const isAll = searchParams.get('all') === 'true' || searchParams.get('clearAll') === 'true';
+
+    if (isAll) {
+      const result = await clearAllMasterCredentials();
+      return NextResponse.json({
+        success: true,
+        message: `Entire Master Credentials Registry (${result.deletedCount} staff profiles) deleted successfully.`,
+        deletedCount: result.deletedCount,
+        count: 0,
+        staff: []
+      });
+    }
 
     if (!uNumber) {
-      return NextResponse.json({ success: false, error: 'uNumber parameter is required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'uNumber parameter or all=true is required' }, { status: 400 });
     }
 
     await deleteStaffRecord(uNumber);

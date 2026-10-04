@@ -130,10 +130,35 @@ export async function POST(req: NextRequest) {
 
     const prompt = `
 You are an expert aviation and credentials data extraction system.
-Analyze the attached PDF document containing staff credentials (which may contain a full staff table or just a few names to add/update).
-Extract every row in the table into a clean JSON array of staff records.
+Analyze the attached PDF document containing staff credentials (which may contain a full master staff table or just a few names to add/update).
+Extract every row in the table into a clean JSON array of staff records matching the exact column structure below.
 
-Each object must match this TypeScript structure:
+Expected Table Columns & Mapping:
+1. UNUMBER -> string uNumber (e.g. "U194283" or "N/A (NEW STAFF 02)")
+2. EX Number -> string exNumber (e.g. "EX855733" or "N/A")
+3. NAMES -> string name (e.g. "RAKESH PARMAR")
+4. ONE RES -> string oneRes ("Y" | "N" | "")
+5. ALTEA LHCM -> string alteaLhc ("SUP" | "Y" | "N" | "")
+6. Altea LXCM -> string alteaLxc (ignore field, set to "N" unless specified)
+7. LOOK -> string look ("Y" | "N" | "")
+8. EBASE -> string ebase ("Y" | "N" | "")
+9. LMS -> string lms ("Y" | "N" | "")
+10. MesWeb -> string mesWeb ("Y" | "N" | "")
+11. MesWeb Internet -> string mesWebIn ("Y" | "N" | "")
+12. WorldTracer -> string worldTracer ("Y" | "N" | "")
+13. WT Tablet -> string wtTablet (ignore field, set to "N" unless specified)
+14. SBH -> string sbh ("Y" | "N" | "")
+15. DASGO -> string dasgo ("Y" | "Edit" | "View only" | "N" | "")
+16. MS365 -> string ms365 ("Y" | "N" | "")
+17. LHALTEA FM -> string lhalteaF ("Y" | "N" | "")
+18. LX ALTEA FM -> string lxAlteaF ("Y" | "N" | "")
+19. FLOAT -> string float ("Y" | "N" | "")
+20. FLOAT Backup -> string floatBac ("Y" | "N" | "")
+21. PKI -> string pki ("Y" | "N" | "")
+22. TAC -> string tac (Turnaround companion App access codes: 'Y', 'MOD', 'ALS', or array/string like '["MOD"]', '["ALS"]', '["Y"]', '["MOD","ALS","Y"]', or "N")
+23. EMM -> string emm ("Y" | "N" | "")
+
+Each JSON object must have this structure:
 {
   "id": string (unique ID, use uNumber),
   "uNumber": string (e.g. "U194283"),
@@ -143,12 +168,14 @@ Each object must match this TypeScript structure:
     "cuteAccess": string ("Y" | "N", default "Y"),
     "oneRes": string ("Y" | "N" | ""),
     "alteaLhc": string ("SUP" | "Y" | "N" | ""),
+    "alteaLxc": string ("Y" | "N" | ""),
     "look": string ("Y" | "N" | ""),
     "ebase": string ("Y" | "N" | ""),
     "lms": string ("Y" | "N" | ""),
     "mesWeb": string ("Y" | "N" | ""),
     "mesWebIn": string ("Y" | "N" | ""),
     "worldTracer": string ("Y" | "N" | ""),
+    "wtTablet": string ("Y" | "N" | ""),
     "sbh": string ("Y" | "N" | ""),
     "dasgo": string ("Y" | "N" | "Edit" | "View only" | ""),
     "ms365": string ("Y" | "N" | ""),
@@ -163,7 +190,7 @@ Each object must match this TypeScript structure:
 }
 
 Important Instructions:
-- Set cuteAccess to "Y" by default for everyone unless specified as N.
+- Set cuteAccess to "Y" by default for all staff.
 - Support documents with only a few names/records as well as full master documents.
 - Return ONLY a raw JSON array. Do not wrap with markdown code blocks or explanations.
 `;
@@ -228,6 +255,7 @@ Important Instructions:
         uNumber: rawUNum,
         exNumber: r.exNumber || 'N/A',
         name: (r.name || 'UNKNOWN').trim().toUpperCase(),
+        orderIndex: idx,
         credentials: {
           cuteAccess: r.credentials?.cuteAccess ?? 'Y',
           oneRes: r.credentials?.oneRes ?? 'N',
@@ -319,28 +347,47 @@ function parseCsvToRecords(csvText: string): UserCredentialRecord[] {
     return headerCols.findIndex(h => keywords.some(k => h.includes(k)));
   };
 
-  const idxUNum = findCol('unum', 'staffid', 'unumber', 'id');
-  const idxName = findCol('name', 'staffname', 'names');
-  const idxExNum = findCol('exno', 'exnumber', 'exnum', 'ex');
-  const idxCute = findCol('cute');
-  const idxOneRes = findCol('oneres', '1res');
-  const idxAltea = findCol('altealh', 'altea', 'lhc');
+  const idxUNum = findCol('unumber', 'unum', 'staffid', 'staffno', 'id');
+  const idxExNum = findCol('exnumber', 'exno', 'exnum', 'ex');
+  const idxName = findCol('names', 'name', 'staffname', 'fullname');
+  const idxOneRes = findCol('oneres', '1res', 'one');
+  const idxAlteaLhc = findCol('altealhcm', 'altealhc', 'altealh', 'lhcm');
+  const idxAlteaLxc = findCol('altealxcm', 'altealxc', 'lxcm');
   const idxLook = findCol('look');
   const idxEbase = findCol('ebase');
   const idxLms = findCol('lms');
-  const idxMes = findCol('mesweb', 'mes');
-  const idxMesIn = findCol('meswebin', 'internet');
-  const idxWt = findCol('world', 'tracer');
+  
+  // Specific match for MesWeb vs MesWeb Internet (ensure 'names' is never matched by 'mes')
+  const idxMesIn = findCol('meswebinternet', 'meswebin', 'mesinternet', 'mesin', 'internet');
+  let idxMes = findCol('mesweb', 'mesw', 'mesinternal');
+  if (idxMes === -1) {
+    idxMes = headerCols.findIndex((h, idx) => !h.includes('name') && h.includes('mes') && idx !== idxMesIn);
+  }
+  
+  // Specific match for WorldTracer vs WT Tablet
+  const idxWtTablet = findCol('wttablet', 'tablet');
+  let idxWt = findCol('worldtracer', 'worldtrac', 'tracer', 'world');
+  if (idxWt === -1 || idxWt === idxWtTablet) {
+    idxWt = headerCols.findIndex((h, idx) => (h.includes('world') || h.includes('tracer')) && idx !== idxWtTablet);
+  }
+
   const idxSbh = findCol('sbh');
   const idxDasgo = findCol('dasgo');
-  const idxM365 = findCol('m365', 'ms365', '365');
-  const idxLhFm = findCol('lhaltea', 'lhfm');
-  const idxLxFm = findCol('lxaltea', 'lxfm');
-  const idxFloat = findCol('float');
-  const idxFloatBac = findCol('floatbac', 'backup');
+  const idxM365 = findCol('ms365', 'm365', '365');
+  const idxLhFm = findCol('lhalteafm', 'lhaltea', 'lhfm');
+  const idxLxFm = findCol('lxalteafm', 'lxaltea', 'lxfm');
+  
+  // Specific match for FLOAT vs FLOAT Backup
+  const idxFloatBac = findCol('floatbackup', 'floatbac', 'backup');
+  let idxFloat = findCol('float');
+  if (idxFloat === idxFloatBac) {
+    idxFloat = headerCols.findIndex((h, idx) => h.includes('float') && idx !== idxFloatBac);
+  }
+
   const idxPki = findCol('pki');
   const idxTac = findCol('tac', 'turnaround');
-  const idxEmm = findCol('emm');
+  const idxEmm = headerCols.findIndex(h => h === 'emm' || h.startsWith('emm'));
+  const idxCute = findCol('cute');
 
   const records: UserCredentialRecord[] = [];
 
@@ -348,10 +395,14 @@ function parseCsvToRecords(csvText: string): UserCredentialRecord[] {
     const cols = parseLine(lines[i]);
     if (cols.length === 0 || cols.every(c => !c)) continue;
 
-    // Determine values either by mapped header or by common index order
+    // Expected master column layout:
+    // 0: UNUMBER, 1: EX Number, 2: NAMES, 3: ONE RES, 4: ALTEA LHCM, 5: Altea LXCM (ignore),
+    // 6: LOOK, 7: EBASE, 8: LMS, 9: MesWeb, 10: MesWeb Internet, 11: WorldTracer, 12: WT Tablet (ignore),
+    // 13: SBH, 14: DASGO, 15: MS365, 16: LHALTEA FM, 17: LX ALTEA FM, 18: FLOAT, 19: FLOAT Backup,
+    // 20: PKI, 21: TAC, 22: EMM
     const rawUNum = (idxUNum >= 0 ? cols[idxUNum] : cols[0])?.trim() || `U-NEW-${i}`;
-    const name = (idxName >= 0 ? cols[idxName] : cols[1])?.trim() || `Staff ${i}`;
-    const exNum = (idxExNum >= 0 ? cols[idxExNum] : cols[2])?.trim() || 'N/A';
+    const exNum = (idxExNum >= 0 ? cols[idxExNum] : cols[1])?.trim() || 'N/A';
+    const name = (idxName >= 0 ? cols[idxName] : cols[2])?.trim() || `Staff ${i}`;
     const safeId = sanitizeDocId(rawUNum);
 
     const getVal = (idx: number, fallbackIdx: number, defVal: string = 'N'): string => {
@@ -365,26 +416,29 @@ function parseCsvToRecords(csvText: string): UserCredentialRecord[] {
       uNumber: rawUNum.toUpperCase(),
       exNumber: exNum || 'N/A',
       name: name.toUpperCase(),
+      orderIndex: i - 1,
       credentials: {
-        cuteAccess: getVal(idxCute, 3, 'Y') || 'Y',
-        oneRes: getVal(idxOneRes, 4, 'N'),
-        alteaLhc: getVal(idxAltea, 5, 'N'),
+        cuteAccess: getVal(idxCute, -1, 'Y') || 'Y',
+        oneRes: getVal(idxOneRes, 3, 'N'),
+        alteaLhc: getVal(idxAlteaLhc, 4, 'N'),
+        alteaLxc: getVal(idxAlteaLxc, 5, 'N'),
         look: getVal(idxLook, 6, 'N'),
         ebase: getVal(idxEbase, 7, 'N'),
         lms: getVal(idxLms, 8, 'N'),
         mesWeb: getVal(idxMes, 9, 'N'),
         mesWebIn: getVal(idxMesIn, 10, 'N'),
         worldTracer: getVal(idxWt, 11, 'N'),
-        sbh: getVal(idxSbh, 12, 'N'),
-        dasgo: getVal(idxDasgo, 13, 'N'),
-        ms365: getVal(idxM365, 14, 'N'),
-        lhalteaF: getVal(idxLhFm, 15, 'N'),
-        lxAlteaF: getVal(idxLxFm, 16, 'N'),
-        float: getVal(idxFloat, 17, 'N'),
-        floatBac: getVal(idxFloatBac, 18, 'N'),
-        pki: getVal(idxPki, 19, 'N'),
-        tac: getVal(idxTac, 20, 'N'),
-        emm: getVal(idxEmm, 21, 'N')
+        wtTablet: getVal(idxWtTablet, 12, 'N'),
+        sbh: getVal(idxSbh, 13, 'N'),
+        dasgo: getVal(idxDasgo, 14, 'N'),
+        ms365: getVal(idxM365, 15, 'N'),
+        lhalteaF: getVal(idxLhFm, 16, 'N'),
+        lxAlteaF: getVal(idxLxFm, 17, 'N'),
+        float: getVal(idxFloat, 18, 'N'),
+        floatBac: getVal(idxFloatBac, 19, 'N'),
+        pki: getVal(idxPki, 20, 'N'),
+        tac: getVal(idxTac, 21, 'N'),
+        emm: getVal(idxEmm, 22, 'N')
       },
       updatedAt: new Date().toISOString()
     });

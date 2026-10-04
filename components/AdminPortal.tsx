@@ -79,9 +79,80 @@ export default function AdminPortal({
 
   // Master Database Management State
   const [masterStaffList, setMasterStaffList] = useState<UserCredentialRecord[]>([]);
-  const [masterSearch, setMasterSearch] = useState('');
+  const [masterSearchUNum, setMasterSearchUNum] = useState('');
+  const [masterSearchName, setMasterSearchName] = useState('');
+  const [credentialFieldFilters, setCredentialFieldFilters] = useState<Record<string, string>>({});
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [loadingMaster, setLoadingMaster] = useState(false);
   const [masterNotice, setMasterNotice] = useState<string | null>(null);
+
+  // Filtered master staff list strictly maintaining original CSV import order
+  const filteredMasterStaff = useMemo(() => {
+    return masterStaffList.filter(staff => {
+      // 1. Filter by U-Number
+      if (masterSearchUNum.trim()) {
+        const uQuery = masterSearchUNum.trim().toUpperCase();
+        if (!staff.uNumber.toUpperCase().includes(uQuery)) return false;
+      }
+
+      // 2. Filter by Name
+      if (masterSearchName.trim()) {
+        const nameQuery = masterSearchName.trim().toUpperCase();
+        if (!staff.name.toUpperCase().includes(nameQuery)) return false;
+      }
+
+      // 3. Filter by individual Credential Field values (e.g. LOOK: Y/N, TAC: MOD/ALS/Y/N, etc.)
+      for (const [key, filterVal] of Object.entries(credentialFieldFilters)) {
+        if (!filterVal || filterVal === 'ALL') continue;
+
+        const val = staff.credentials[key as keyof CredentialFields] || '';
+        const normVal = String(val).toUpperCase();
+
+        if (key === 'tac') {
+          if (filterVal === 'N') {
+            if (normVal !== 'N' && normVal !== '["N"]' && normVal !== '') return false;
+          } else if (filterVal === 'Y') {
+            if (!normVal.includes('Y')) return false;
+          } else if (filterVal === 'MOD') {
+            if (!normVal.includes('MOD')) return false;
+          } else if (filterVal === 'ALS') {
+            if (!normVal.includes('ALS')) return false;
+          } else if (filterVal === 'ALL_CODES') {
+            if (!normVal.includes('MOD') && !normVal.includes('ALS') && !normVal.includes('Y')) return false;
+          } else {
+            if (!normVal.includes(filterVal.toUpperCase())) return false;
+          }
+        } else {
+          const target = filterVal.toUpperCase();
+          if (target === 'Y') {
+            if (normVal !== 'Y' && !normVal.includes('Y')) return false;
+          } else if (target === 'N') {
+            if (normVal !== 'N' && normVal !== '' && normVal !== '["N"]') return false;
+          } else if (target === 'SUP') {
+            if (!normVal.includes('SUP')) return false;
+          } else if (target === 'EDIT') {
+            if (!normVal.includes('EDIT')) return false;
+          } else if (target === 'VIEW ONLY') {
+            if (!normVal.includes('VIEW') && !normVal.includes('ONLY')) return false;
+          } else {
+            if (!normVal.includes(target)) return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  }, [masterStaffList, masterSearchUNum, masterSearchName, credentialFieldFilters]);
+
+  const activeCredentialFilterCount = Object.values(credentialFieldFilters).filter(v => v && v !== 'ALL').length +
+    (masterSearchUNum.trim() ? 1 : 0) +
+    (masterSearchName.trim() ? 1 : 0);
+
+  const clearAllMasterFilters = () => {
+    setMasterSearchUNum('');
+    setMasterSearchName('');
+    setCredentialFieldFilters({});
+  };
 
   // PDF Upload & Extraction State
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -94,6 +165,8 @@ export default function AdminPortal({
   // Edit / Add Staff Modal State
   const [editingStaff, setEditingStaff] = useState<UserCredentialRecord | null>(null);
   const [isNewStaffModalOpen, setIsNewStaffModalOpen] = useState(false);
+  const [isDeleteDbModalOpen, setIsDeleteDbModalOpen] = useState(false);
+  const [isDeletingAllDb, setIsDeletingAllDb] = useState(false);
   const [, startTransition] = useTransition();
 
   // Filtered submissions based on search input
@@ -241,7 +314,7 @@ export default function AdminPortal({
   const fetchMasterData = useCallback(async () => {
     setLoadingMaster(true);
     try {
-      const url = `/api/credentials/master?q=${encodeURIComponent(masterSearch)}`;
+      const url = `/api/credentials/master`;
       const res = await fetch(url);
       const data = await res.json();
 
@@ -253,7 +326,7 @@ export default function AdminPortal({
     } finally {
       setLoadingMaster(false);
     }
-  }, [masterSearch]);
+  }, []);
 
   useEffect(() => {
     let ignore = false;
@@ -271,7 +344,7 @@ export default function AdminPortal({
             setFortnightLabel(auditData.label || '');
           }
 
-          const masterUrl = `/api/credentials/master?q=${encodeURIComponent(masterSearch)}`;
+          const masterUrl = `/api/credentials/master`;
           const masterRes = await fetch(masterUrl);
           const masterData = await masterRes.json();
           if (!ignore && masterData.success) {
@@ -288,37 +361,39 @@ export default function AdminPortal({
     return () => {
       ignore = true;
     };
-  }, [isAuthenticated, filterYear, filterMonth, filterFortnight, statusFilter, masterSearch]);
+  }, [isAuthenticated, filterYear, filterMonth, filterFortnight, statusFilter]);
 
   // Download CSV Upload Template for Admin
   const downloadCsvTemplate = () => {
     const headers = [
       'UNUMBER',
-      'NAMES',
       'EX Number',
-      'CUTE Access',
-      'Altea LH',
+      'NAMES',
+      'ONE RES',
+      'ALTEA LHCM',
+      'Altea LXCM',
       'LOOK',
       'EBASE',
       'LMS',
       'MesWeb',
       'MesWeb Internet',
       'WorldTracer',
+      'WT Tablet',
       'SBH',
       'DASGO',
-      'M365',
-      'LH Altea FM',
-      'LX Altea FM',
+      'MS365',
+      'LHALTEA FM',
+      'LX ALTEA FM',
       'FLOAT',
       'FLOAT Backup',
       'PKI',
-      'Turnaround companion App',
+      'TAC',
       'EMM'
     ];
     const sampleRows = [
-      '"U194283","RAKESH PARMAR","EX855733","Y","SUP","Y","Y","Y","Y","Y","Y","N","Y","Y","N","N","N","N","N","[\"MOD\"]","Y"',
-      '"U194317","JASPREET MALIK","EX855755","Y","SUP","Y","Y","Y","Y","Y","Y","Y","Y","Y","N","N","N","N","N","[\"MOD\"]","Y"',
-      '"U200001","NEW STAFF MEMBER","N/A","Y","Y","Y","N","Y","N","N","N","N","Y","Y","N","N","N","N","N","[\"Y\"]","N"'
+      '"U194283","EX855733","RAKESH PARMAR","N","SUP","N","Y","Y","Y","Y","N","Y","N","N","Y","Y","N","N","N","N","Y","[\"MOD\"]","N"',
+      '"U194317","EX855755","JASPREET MALIK","N","SUP","N","Y","Y","Y","Y","N","Y","N","Y","Y","Y","N","N","N","N","Y","[\"MOD\"]","N"',
+      '"U200001","N/A","NEW STAFF MEMBER","Y","Y","N","Y","Y","N","Y","N","Y","N","N","Y","Y","N","N","N","N","N","[\"Y\"]","N"'
     ];
     const content = [headers.join(','), ...sampleRows].join('\n');
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
@@ -545,26 +620,27 @@ export default function AdminPortal({
   const exportMasterCredentialsFileLatest = () => {
     const headers = [
       'UNUMBER',
-      'NAMES',
       'EX Number',
-      'CUTE Access',
+      'NAMES',
       'ONE RES',
-      'Altea LH',
+      'ALTEA LHCM',
+      'Altea LXCM',
       'LOOK',
       'EBASE',
       'LMS',
       'MesWeb',
       'MesWeb Internet',
       'WorldTracer',
+      'WT Tablet',
       'SBH',
       'DASGO',
-      'M365',
-      'LH Altea FM',
-      'LX Altea FM',
+      'MS365',
+      'LHALTEA FM',
+      'LX ALTEA FM',
       'FLOAT',
       'FLOAT Backup',
       'PKI',
-      'Turnaround companion App',
+      'TAC',
       'EMM',
       'Last Updated'
     ];
@@ -576,17 +652,18 @@ export default function AdminPortal({
       rows.push(
         [
           `"${s.uNumber}"`,
-          `"${s.name}"`,
           `"${s.exNumber || 'N/A'}"`,
-          `"${c.cuteAccess || 'Y'}"`,
+          `"${s.name}"`,
           `"${c.oneRes || 'N'}"`,
           `"${c.alteaLhc || 'N'}"`,
+          `"N/A"`, // Altea LXCM ignored field
           `"${c.look || 'N'}"`,
           `"${c.ebase || 'N'}"`,
           `"${c.lms || 'N'}"`,
           `"${c.mesWeb || 'N'}"`,
           `"${c.mesWebIn || 'N'}"`,
           `"${c.worldTracer || 'N'}"`,
+          `"N/A"`, // WT Tablet ignored field
           `"${c.sbh || 'N'}"`,
           `"${c.dasgo || 'N'}"`,
           `"${c.ms365 || 'N'}"`,
@@ -652,6 +729,31 @@ export default function AdminPortal({
       }
     } catch (err) {
       console.error('Error deleting staff:', err);
+    }
+  };
+
+  // Delete entire Master Credentials Registry
+  const handleDeleteEntireDatabase = async () => {
+    setIsDeletingAllDb(true);
+    try {
+      const res = await fetch('/api/credentials/master?all=true', {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMasterNotice('Entire Master Credentials Database has been deleted successfully.');
+        setMasterStaffList([]);
+        setIsDeleteDbModalOpen(false);
+        fetchMasterData();
+        fetchFortnightData();
+      } else {
+        setUploadError(data.error || 'Failed to delete database');
+      }
+    } catch (err) {
+      console.error('Error deleting entire database:', err);
+      setUploadError('Network error while attempting to clear database.');
+    } finally {
+      setIsDeletingAllDb(false);
     }
   };
 
@@ -1459,7 +1561,7 @@ export default function AdminPortal({
                       setParsedPreview(null);
                       setUploadError(null);
                     }}
-                    placeholder={`Paste CSV rows or tab-separated table rows here...\nExample:\nUNUMBER,NAMES,EX Number,CUTE Access,Altea LH,M365,Turnaround companion App\nU194283,RAKESH PARMAR,EX855733,Y,SUP,Y,["MOD"]\nN/A (NEW STAFF 02),SARAH CONNOR,N/A,Y,N,N,["Y"]`}
+                    placeholder={`Paste CSV rows or tab-separated table rows here...\nExample:\nUNUMBER,EX Number,NAMES,ONE RES,ALTEA LHCM,Altea LXCM,LOOK,EBASE,LMS,MesWeb,MesWeb Internet,WorldTracer,WT Tablet,SBH,DASGO,MS365,LHALTEA FM,LX ALTEA FM,FLOAT,FLOAT Backup,PKI,TAC,EMM\nU194283,EX855733,RAKESH PARMAR,Y,SUP,N/A,Y,Y,Y,Y,Y,Y,N/A,Y,Y,Y,Y,Y,Y,N,Y,["MOD"],Y\nU289110,EX992014,SARAH CONNOR,Y,Y,N/A,N,Y,Y,N,N,Y,N/A,N,N,Y,N,N,N,N,Y,["Y"],N`}
                     className="w-full rounded-xl border border-blue-900/80 bg-[#070e20] p-3 text-xs font-mono text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-400"
                   />
                   {pastedText.trim() && (
@@ -1527,10 +1629,12 @@ export default function AdminPortal({
                       <thead className="bg-[#0b1b3d] text-white sticky top-0 font-bold">
                         <tr>
                           <th className="p-2">U-Number</th>
+                          <th className="p-2">EX-Number</th>
                           <th className="p-2">Name</th>
-                          <th className="p-2">Type</th>
+                          <th className="p-2">Status</th>
+                          <th className="p-2">ONE RES</th>
                           <th className="p-2">Altea LH</th>
-                          <th className="p-2">M365</th>
+                          <th className="p-2">MS365</th>
                           <th className="p-2">TAC</th>
                         </tr>
                       </thead>
@@ -1542,6 +1646,7 @@ export default function AdminPortal({
                           return (
                             <tr key={i}>
                               <td className="p-2 font-mono font-extrabold text-sky-300">{r.uNumber}</td>
+                              <td className="p-2 font-mono text-slate-300">{r.exNumber || 'N/A'}</td>
                               <td className="p-2 font-bold text-white">{r.name}</td>
                               <td className="p-2">
                                 {isExisting ? (
@@ -1554,6 +1659,7 @@ export default function AdminPortal({
                                   </span>
                                 )}
                               </td>
+                              <td className="p-2 font-mono text-slate-200">{r.credentials.oneRes || 'N'}</td>
                               <td className="p-2 font-mono text-slate-200">{r.credentials.alteaLhc || 'N'}</td>
                               <td className="p-2 font-mono text-slate-200">{r.credentials.ms365 || 'N'}</td>
                               <td className="p-2 font-mono text-slate-200">{formatCredentialDisplay('tac', r.credentials.tac)}</td>
@@ -1575,35 +1681,21 @@ export default function AdminPortal({
 
           {/* Master Staff Database Table */}
           <div className="darkblue-card rounded-3xl overflow-hidden shadow-md w-full">
+            {/* Top Toolbar Header */}
             <div className="p-4 border-b border-blue-900/60 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-black text-white">
-                  Active Master Credentials Registry ({masterStaffList.length} Staff Profiles)
+                <h3 className="text-sm font-black text-white flex items-center gap-2">
+                  <span>Active Master Credentials Registry</span>
+                  <span className="rounded-full bg-sky-950 px-2.5 py-0.5 text-xs font-bold text-sky-300 border border-sky-600/40">
+                    {filteredMasterStaff.length} {filteredMasterStaff.length === masterStaffList.length ? 'Staff Profiles' : `of ${masterStaffList.length} Staff Profiles`}
+                  </span>
                 </h3>
-                <p className="text-xs text-slate-300 font-medium">
-                  Data source used for live bi-weekly staff validation
+                <p className="text-xs text-slate-300 font-medium mt-0.5">
+                  Maintains exact imported CSV sequence · Live bi-weekly validation data source
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                {/* Search Bar */}
-                <div className="relative flex-1 sm:flex-initial min-w-[160px] w-full sm:w-48 lg:w-56">
-                  <input
-                    type="text"
-                    value={masterSearch}
-                    onChange={e => {
-                      const val = e.target.value;
-                      setMasterSearch(val);
-                      startTransition(() => {
-                        fetchMasterData();
-                      });
-                    }}
-                    placeholder="Search name or U-Number..."
-                    className="w-full rounded-xl border-2 border-blue-900/60 bg-[#071024] px-3 py-1.5 pl-8 text-xs font-bold text-white placeholder-slate-400 focus:border-blue-500 shadow-inner"
-                  />
-                  <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-sky-400" />
-                </div>
-
                 {/* Export Master File (Latest) Button */}
                 <button
                   type="button"
@@ -1612,7 +1704,7 @@ export default function AdminPortal({
                   className="darkblue-btn-secondary flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold cursor-pointer shrink-0"
                 >
                   <Download className="h-3.5 w-3.5 text-sky-400" />
-                  <span>Export Master File (Latest)</span>
+                  <span>Export Master File</span>
                 </button>
 
                 {/* Export Confirmations by Login Type */}
@@ -1634,7 +1726,368 @@ export default function AdminPortal({
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span>Add Staff Record</span>
                 </button>
+
+                {/* Delete Entire Database Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteDbModalOpen(true)}
+                  title="Delete entire Active Master Credentials Registry to re-import"
+                  className="flex items-center gap-1.5 rounded-xl border border-red-500/60 bg-red-950/70 hover:bg-red-900/90 text-red-200 px-3.5 py-1.5 text-xs font-black cursor-pointer shrink-0 transition-all hover:border-red-400 shadow-sm"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                  <span>Delete Entire Database</span>
+                </button>
               </div>
+            </div>
+
+            {/* Comprehensive Search & Credential Field Filter Bar */}
+            <div className="p-3.5 sm:p-4 bg-[#08132b] border-b border-blue-900/60 space-y-3">
+              <div className="flex flex-col md:flex-row md:items-center gap-2.5">
+                {/* Search by U-Number */}
+                <div className="relative flex-1 min-w-[170px]">
+                  <input
+                    type="text"
+                    value={masterSearchUNum}
+                    onChange={e => setMasterSearchUNum(e.target.value)}
+                    placeholder="Search by U-Number (e.g. U194283)..."
+                    className="w-full rounded-xl border-2 border-blue-900/60 bg-[#060e20] px-3 py-1.5 pl-8 text-xs font-bold text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none shadow-inner"
+                  />
+                  <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-sky-400" />
+                  {masterSearchUNum && (
+                    <button
+                      type="button"
+                      onClick={() => setMasterSearchUNum('')}
+                      className="absolute right-2 top-1.5 p-0.5 text-slate-400 hover:text-white"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Search by Name */}
+                <div className="relative flex-1 min-w-[170px]">
+                  <input
+                    type="text"
+                    value={masterSearchName}
+                    onChange={e => setMasterSearchName(e.target.value)}
+                    placeholder="Search by Staff Name (e.g. RAKESH)..."
+                    className="w-full rounded-xl border-2 border-blue-900/60 bg-[#060e20] px-3 py-1.5 pl-8 text-xs font-bold text-white placeholder-slate-400 focus:border-sky-400 focus:outline-none shadow-inner"
+                  />
+                  <Users className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-indigo-400" />
+                  {masterSearchName && (
+                    <button
+                      type="button"
+                      onClick={() => setMasterSearchName('')}
+                      className="absolute right-2 top-1.5 p-0.5 text-slate-400 hover:text-white"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Toggle Field Filters Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 border ${
+                    showAdvancedFilters || activeCredentialFilterCount > 0
+                      ? 'border-sky-400 bg-sky-950/80 text-sky-200'
+                      : 'border-blue-900/60 bg-[#060e20] text-slate-300 hover:text-white hover:border-blue-700'
+                  }`}
+                >
+                  <Filter className="h-3.5 w-3.5 text-sky-400" />
+                  <span>Credential Filters</span>
+                  {activeCredentialFilterCount > 0 && (
+                    <span className="rounded-full bg-sky-500 text-slate-950 px-1.5 py-0.2 text-[10px] font-black">
+                      {activeCredentialFilterCount}
+                    </span>
+                  )}
+                </button>
+
+                {activeCredentialFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllMasterFilters}
+                    className="flex items-center gap-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 text-xs font-bold cursor-pointer shrink-0 transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    <span>Clear Filters</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Collapsible / Expandable Credential Field Filters Panel */}
+              {showAdvancedFilters && (
+                <div className="pt-3 border-t border-blue-900/50">
+                  <div className="text-[11px] font-black text-sky-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Filter Staff by System Credential Value:</span>
+                    <span className="text-slate-400 normal-case font-normal text-[11px]">
+                      Matches exact or partial credential code
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {/* LOOK Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">LOOK</label>
+                      <select
+                        value={credentialFieldFilters.look || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, look: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">LOOK: Y (Active)</option>
+                        <option value="N">LOOK: N (None)</option>
+                      </select>
+                    </div>
+
+                    {/* TAC Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">TAC (Turnaround)</label>
+                      <select
+                        value={credentialFieldFilters.tac || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, tac: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All TAC</option>
+                        <option value="MOD">TAC: MOD</option>
+                        <option value="ALS">TAC: ALS</option>
+                        <option value="Y">TAC: Y</option>
+                        <option value="ALL_CODES">TAC: Any (MOD, ALS, Y)</option>
+                        <option value="N">TAC: N (None)</option>
+                      </select>
+                    </div>
+
+                    {/* Altea LH Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">Altea LH</label>
+                      <select
+                        value={credentialFieldFilters.alteaLhc || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, alteaLhc: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Altea LH</option>
+                        <option value="SUP">Altea LH: SUP</option>
+                        <option value="Y">Altea LH: Y</option>
+                        <option value="N">Altea LH: N</option>
+                      </select>
+                    </div>
+
+                    {/* ONE RES Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">ONE RES</label>
+                      <select
+                        value={credentialFieldFilters.oneRes || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, oneRes: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">ONE RES: Y</option>
+                        <option value="N">ONE RES: N</option>
+                      </select>
+                    </div>
+
+                    {/* MesWeb Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">MesWeb</label>
+                      <select
+                        value={credentialFieldFilters.mesWeb || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, mesWeb: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">MesWeb: Y</option>
+                        <option value="N">MesWeb: N</option>
+                      </select>
+                    </div>
+
+                    {/* MesWeb Internet Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">MesWeb Internet</label>
+                      <select
+                        value={credentialFieldFilters.mesWebIn || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, mesWebIn: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">MesWeb In: Y</option>
+                        <option value="N">MesWeb In: N</option>
+                      </select>
+                    </div>
+
+                    {/* WorldTracer Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">WorldTracer</label>
+                      <select
+                        value={credentialFieldFilters.worldTracer || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, worldTracer: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">WorldTracer: Y</option>
+                        <option value="N">WorldTracer: N</option>
+                      </select>
+                    </div>
+
+                    {/* DASGO Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">DASGO</label>
+                      <select
+                        value={credentialFieldFilters.dasgo || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, dasgo: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">DASGO: Y</option>
+                        <option value="Edit">DASGO: Edit</option>
+                        <option value="View only">DASGO: View only</option>
+                        <option value="N">DASGO: N</option>
+                      </select>
+                    </div>
+
+                    {/* MS365 Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">MS365</label>
+                      <select
+                        value={credentialFieldFilters.ms365 || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, ms365: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">MS365: Y</option>
+                        <option value="N">MS365: N</option>
+                      </select>
+                    </div>
+
+                    {/* EBASE Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">EBASE</label>
+                      <select
+                        value={credentialFieldFilters.ebase || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, ebase: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">EBASE: Y</option>
+                        <option value="N">EBASE: N</option>
+                      </select>
+                    </div>
+
+                    {/* LMS Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">LMS</label>
+                      <select
+                        value={credentialFieldFilters.lms || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, lms: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">LMS: Y</option>
+                        <option value="N">LMS: N</option>
+                      </select>
+                    </div>
+
+                    {/* SBH Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">SBH</label>
+                      <select
+                        value={credentialFieldFilters.sbh || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, sbh: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">SBH: Y</option>
+                        <option value="N">SBH: N</option>
+                      </select>
+                    </div>
+
+                    {/* PKI Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">PKI Certificate</label>
+                      <select
+                        value={credentialFieldFilters.pki || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, pki: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">PKI: Y</option>
+                        <option value="N">PKI: N</option>
+                      </select>
+                    </div>
+
+                    {/* EMM Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">EMM Profile</label>
+                      <select
+                        value={credentialFieldFilters.emm || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, emm: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">EMM: Y</option>
+                        <option value="N">EMM: N</option>
+                      </select>
+                    </div>
+
+                    {/* FLOAT Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">FLOAT</label>
+                      <select
+                        value={credentialFieldFilters.float || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, float: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">FLOAT: Y</option>
+                        <option value="N">FLOAT: N</option>
+                      </select>
+                    </div>
+
+                    {/* LH Altea FM Filter */}
+                    <div className="rounded-xl border border-blue-900/70 bg-[#060e20] p-2 text-xs">
+                      <label className="block text-[10px] font-extrabold text-sky-200 uppercase mb-1">LH Altea FM</label>
+                      <select
+                        value={credentialFieldFilters.lhalteaF || 'ALL'}
+                        onChange={e => setCredentialFieldFilters(prev => ({ ...prev, lhalteaF: e.target.value }))}
+                        className="w-full rounded-lg bg-[#0a1532] border border-blue-800/80 px-2 py-1 text-xs text-white font-bold focus:border-sky-400"
+                      >
+                        <option value="ALL">All Values</option>
+                        <option value="Y">LH FM: Y</option>
+                        <option value="N">LH FM: N</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Active Filter Badges */}
+              {activeCredentialFilterCount > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[11px] font-bold text-slate-400 mr-1">Active Filters:</span>
+                  {masterSearchUNum && (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-blue-950 px-2 py-0.5 text-[11px] font-bold text-sky-300 border border-blue-800">
+                      <span>U-No: &quot;{masterSearchUNum}&quot;</span>
+                      <button type="button" onClick={() => setMasterSearchUNum('')} className="hover:text-white cursor-pointer"><X className="h-3 w-3" /></button>
+                    </span>
+                  )}
+                  {masterSearchName && (
+                    <span className="inline-flex items-center gap-1 rounded-md bg-indigo-950 px-2 py-0.5 text-[11px] font-bold text-indigo-300 border border-indigo-800">
+                      <span>Name: &quot;{masterSearchName}&quot;</span>
+                      <button type="button" onClick={() => setMasterSearchName('')} className="hover:text-white cursor-pointer"><X className="h-3 w-3" /></button>
+                    </span>
+                  )}
+                  {Object.entries(credentialFieldFilters).map(([k, v]) => {
+                    if (!v || v === 'ALL') return null;
+                    const label = CREDENTIAL_FIELD_CONFIG.find(c => c.key === k)?.shortCode || k;
+                    return (
+                      <span key={k} className="inline-flex items-center gap-1 rounded-md bg-sky-950 px-2 py-0.5 text-[11px] font-bold text-sky-200 border border-sky-700">
+                        <span>{label}: {v}</span>
+                        <button type="button" onClick={() => setCredentialFieldFilters(prev => ({ ...prev, [k]: 'ALL' }))} className="hover:text-white cursor-pointer"><X className="h-3 w-3" /></button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Credential Status Color-Coding Legend */}
@@ -1671,11 +2124,25 @@ export default function AdminPortal({
             {loadingMaster ? (
               <div className="py-16 text-center text-sm text-slate-300">
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-sky-400 border-t-transparent mx-auto mb-2" />
-                <span>Loading master records...</span>
+                <span>Loading master records in CSV import order...</span>
               </div>
-            ) : masterStaffList.length === 0 ? (
-              <div className="py-16 text-center text-sm text-slate-300">
-                No staff records match your search criteria.
+            ) : filteredMasterStaff.length === 0 ? (
+              <div className="py-16 text-center text-sm text-slate-300 space-y-3">
+                <Database className="h-8 w-8 text-slate-500 mx-auto" />
+                <p className="font-bold text-white">
+                  {masterStaffList.length === 0
+                    ? 'Master database is currently empty. Upload a CSV / PDF file above to import staff credentials.'
+                    : 'No staff records match your search and filter criteria.'}
+                </p>
+                {activeCredentialFilterCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllMasterFilters}
+                    className="darkblue-btn-secondary text-xs px-3.5 py-1.5 rounded-xl cursor-pointer"
+                  >
+                    Reset All Filters ({masterStaffList.length} Total Records)
+                  </button>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto max-h-[620px] w-full border-t border-blue-900/60">
@@ -1693,15 +2160,22 @@ export default function AdminPortal({
                       </th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">EX-No (ALS)</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">CUTE</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">ONE RES</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">Altea LH</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">LOOK</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">EBASE</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">LMS</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">MesWeb</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">MesWeb Internet</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">WorldTrac</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">SBH</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">DASGO</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">M365</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">LH Altea FM</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">LX Altea FM</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">FLOAT</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">FLOAT Bac</th>
+                      <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">PKI</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs" title="Turnaround companion App (Codes: Y, MOD, ALS)">
                         Turnaround App (TAC)
                       </th>
@@ -1710,7 +2184,7 @@ export default function AdminPortal({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-blue-950/80 bg-[#070e20]">
-                    {masterStaffList.map(staff => {
+                    {filteredMasterStaff.map(staff => {
                       const isAls = isUserAls(staff.credentials, staff.exNumber);
                       return (
                         <tr key={staff.id || staff.uNumber} className="group hover:bg-blue-950/40 transition-colors">
@@ -1735,6 +2209,9 @@ export default function AdminPortal({
                             {renderRegistryCredentialBadge(staff.uNumber, 'cuteAccess', staff.credentials.cuteAccess || 'Y')}
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'oneRes', staff.credentials.oneRes)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
                             {renderRegistryCredentialBadge(staff.uNumber, 'alteaLhc', staff.credentials.alteaLhc)}
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
@@ -1750,6 +2227,9 @@ export default function AdminPortal({
                             {renderRegistryCredentialBadge(staff.uNumber, 'mesWeb', staff.credentials.mesWeb)}
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'mesWebIn', staff.credentials.mesWebIn)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
                             {renderRegistryCredentialBadge(staff.uNumber, 'worldTracer', staff.credentials.worldTracer)}
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
@@ -1760,6 +2240,21 @@ export default function AdminPortal({
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
                             {renderRegistryCredentialBadge(staff.uNumber, 'ms365', staff.credentials.ms365)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'lhalteaF', staff.credentials.lhalteaF)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'lxAlteaF', staff.credentials.lxAlteaF)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'float', staff.credentials.float)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'floatBac', staff.credentials.floatBac)}
+                          </td>
+                          <td className="py-2 px-2 sm:px-3 text-center border-b border-blue-950/80">
+                            {renderRegistryCredentialBadge(staff.uNumber, 'pki', staff.credentials.pki)}
                           </td>
                           <td className="py-2 px-2 sm:px-3 text-center whitespace-nowrap border-b border-blue-950/80">
                             {renderRegistryCredentialBadge(staff.uNumber, 'tac', staff.credentials.tac)}
@@ -1965,6 +2460,63 @@ export default function AdminPortal({
           }}
           onSave={handleSaveStaffRecord}
         />
+      )}
+
+      {/* CONFIRMATION POPUP: Delete Entire Master Database Modal */}
+      {isDeleteDbModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-3xl border-2 border-red-500/80 bg-[#0a1226] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-red-600/20 blur-3xl" />
+            
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-950/90 border border-red-500/60 shadow-inner shrink-0">
+                <AlertTriangle className="h-6 w-6 text-red-400 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-white">Delete Entire Database</h3>
+                <p className="text-xs text-red-300 font-bold">Master Credentials Registry Purge</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-red-500/40 bg-red-950/60 p-4 sm:p-5 mb-5 shadow-inner">
+              <p className="text-sm font-black text-white leading-relaxed text-center">
+                Are you sure you want to delete entire Database? All existing data will be lost!
+              </p>
+              <p className="mt-2.5 text-xs text-red-200 text-center font-medium">
+                This will delete all {masterStaffList.length} active staff credential profiles currently stored in the database so you can perform a clean re-import from PDF / CSV.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-2 border-t border-blue-900/60">
+              <button
+                type="button"
+                disabled={isDeletingAllDb}
+                onClick={() => setIsDeleteDbModalOpen(false)}
+                className="darkblue-btn-secondary px-4 py-2.5 text-xs font-bold rounded-xl cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingAllDb}
+                onClick={handleDeleteEntireDatabase}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-b from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 px-5 py-2.5 text-xs font-black text-white active:scale-95 transition-all shadow-[0_4px_14px_rgba(239,68,68,0.4)] cursor-pointer disabled:opacity-50"
+              >
+                {isDeletingAllDb ? (
+                  <>
+                    <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Purging Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 text-white" />
+                    <span>Yes, Delete Entire Database</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

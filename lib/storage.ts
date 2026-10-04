@@ -154,10 +154,23 @@ ensureLocalCache();
 async function initializeFirebaseDataIfNeeded() {
   if (isFirebaseInitialized) return;
   try {
+    // If local master file exists and has empty array, user explicitly cleared it
+    let localFileExplicitlyEmpty = false;
+    if (fs.existsSync(MASTER_FILE)) {
+      try {
+        const content = fs.readFileSync(MASTER_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (Array.isArray(parsed) && parsed.length === 0) {
+          localFileExplicitlyEmpty = true;
+          memoryMasterCredentials = [];
+        }
+      } catch {}
+    }
+
     const masterCol = collection(db, 'master_credentials');
     const masterSnap = await getDocs(masterCol);
 
-    if (masterSnap.empty) {
+    if (masterSnap.empty && !localFileExplicitlyEmpty) {
       console.log("Bootstrapping INITIAL_MASTER_CREDENTIALS to Firebase Firestore...");
       const batch = writeBatch(db);
       for (const rec of INITIAL_MASTER_CREDENTIALS) {
@@ -215,12 +228,16 @@ export async function getMasterCredentials(): Promise<UserCredentialRecord[]> {
           ...data,
           id: safeId,
           uNumber: data.uNumber || safeId,
+          orderIndex: data.orderIndex !== undefined ? data.orderIndex : list.length,
           credentials: {
             ...data.credentials,
             cuteAccess: data.credentials?.cuteAccess || 'Y'
           }
         });
       });
+
+      // Sort by original file orderIndex
+      list.sort((a, b) => (a.orderIndex ?? 999999) - (b.orderIndex ?? 999999));
 
       // Update memory cache
       memoryMasterCredentials = list;
@@ -243,12 +260,14 @@ export async function getMasterCredentials(): Promise<UserCredentialRecord[]> {
       const content = fs.readFileSync(MASTER_FILE, 'utf-8');
       const parsed = JSON.parse(content);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.sort((a, b) => (a.orderIndex ?? 999999) - (b.orderIndex ?? 999999));
         memoryMasterCredentials = parsed;
         return parsed;
       }
     }
   } catch {}
 
+  memoryMasterCredentials.sort((a, b) => (a.orderIndex ?? 999999) - (b.orderIndex ?? 999999));
   return memoryMasterCredentials;
 }
 
@@ -265,6 +284,7 @@ export async function saveMasterCredentials(data: UserCredentialRecord[]): Promi
       uNumber: rawUNum,
       name: (r.name || 'UNKNOWN').trim().toUpperCase(),
       exNumber: r.exNumber || 'N/A',
+      orderIndex: r.orderIndex !== undefined ? r.orderIndex : idx,
       credentials: {
         ...r.credentials,
         cuteAccess: r.credentials?.cuteAccess || 'Y'
@@ -273,6 +293,7 @@ export async function saveMasterCredentials(data: UserCredentialRecord[]): Promi
     };
   });
 
+  safeData.sort((a, b) => (a.orderIndex ?? 999999) - (b.orderIndex ?? 999999));
   memoryMasterCredentials = safeData;
   try {
     fs.writeFileSync(MASTER_FILE, JSON.stringify(safeData, null, 2), 'utf-8');
@@ -370,6 +391,40 @@ export async function deleteStaffRecord(uNumberOrId: string): Promise<boolean> {
 }
 
 /**
+ * Delete entire Master Credentials Registry from Firebase Firestore and local memory
+ */
+export async function clearAllMasterCredentials(): Promise<{ success: boolean; deletedCount: number }> {
+  let count = memoryMasterCredentials.length;
+  try {
+    const masterCol = collection(db, 'master_credentials');
+    const snap = await getDocs(masterCol);
+    if (!snap.empty) {
+      count = Math.max(count, snap.size);
+      const docs = snap.docs;
+      const chunkSize = 400;
+      for (let i = 0; i < docs.length; i += chunkSize) {
+        const chunk = docs.slice(i, i + chunkSize);
+        const batch = writeBatch(db);
+        chunk.forEach(d => {
+          batch.delete(d.ref);
+        });
+        await batch.commit();
+      }
+    }
+  } catch (err) {
+    console.warn("Notice during clearing Firestore master credentials:", err);
+  }
+
+  isFirebaseInitialized = true;
+  memoryMasterCredentials = [];
+  try {
+    fs.writeFileSync(MASTER_FILE, JSON.stringify([], null, 2), 'utf-8');
+  } catch {}
+
+  return { success: true, deletedCount: count };
+}
+
+/**
  * Upsert records: overwrites existing credentials for matching U-number, and adds new U-numbers to Firebase
  */
 export async function upsertMasterCredentials(incomingRecords: UserCredentialRecord[]): Promise<{ updatedCount: number; addedCount: number; totalCount: number }> {
@@ -402,6 +457,7 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
         uNumber: rawUNum,
         name: newRec.name ? newRec.name.trim().toUpperCase() : current[existingIndex].name,
         exNumber: newRec.exNumber && newRec.exNumber !== 'N/A' ? newRec.exNumber : current[existingIndex].exNumber,
+        orderIndex: current[existingIndex].orderIndex !== undefined ? current[existingIndex].orderIndex : (newRec.orderIndex ?? idx),
         credentials: {
           ...current[existingIndex].credentials,
           ...safeCreds
@@ -416,6 +472,7 @@ export async function upsertMasterCredentials(incomingRecords: UserCredentialRec
         uNumber: rawUNum,
         exNumber: newRec.exNumber || 'N/A',
         name: (newRec.name || 'UNKNOWN').trim().toUpperCase(),
+        orderIndex: newRec.orderIndex !== undefined ? newRec.orderIndex : (current.length + idx),
         credentials: safeCreds,
         updatedAt: new Date().toISOString()
       };
