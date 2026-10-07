@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useTransition, useCallback, useMemo, useRef } from 'react';
 import {
   SubmissionRecord,
   UserCredentialRecord,
@@ -30,7 +30,9 @@ import {
   Edit2,
   FileSpreadsheet,
   Check,
-  Clock
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -168,6 +170,19 @@ export default function AdminPortal({
   const [isDeleteDbModalOpen, setIsDeleteDbModalOpen] = useState(false);
   const [isDeletingAllDb, setIsDeletingAllDb] = useState(false);
   const [, startTransition] = useTransition();
+
+  // Horizontal Scroll Reference for Master Staff Table
+  const masterTableScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollMasterTable = (direction: 'left' | 'right') => {
+    if (masterTableScrollRef.current) {
+      const scrollDistance = 320;
+      masterTableScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollDistance : scrollDistance,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Filtered submissions based on search input
   const filteredSubmissions = submissions.filter(sub => {
@@ -2090,13 +2105,38 @@ export default function AdminPortal({
               )}
             </div>
 
-            {/* Credential Status Color-Coding Legend */}
+            {/* Credential Status Color-Coding Legend & Horizontal Scroll Controls */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-[#091530] border-b border-blue-900/60 text-xs">
-              <div className="flex items-center gap-2 text-slate-300">
-                <span className="font-extrabold text-white">Live Verification Status:</span>
-                <span className="font-bold text-sky-300 bg-blue-950 px-2.5 py-0.5 rounded border border-blue-800">
-                  Cycle: {fortnightLabel}
-                </span>
+              <div className="flex flex-wrap items-center gap-3 text-slate-300">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-white">Live Verification Status:</span>
+                  <span className="font-bold text-sky-300 bg-blue-950 px-2.5 py-0.5 rounded border border-blue-800">
+                    Cycle: {fortnightLabel}
+                  </span>
+                </div>
+
+                {/* Direct Horizontal Table Navigation Buttons for Non-Touch Screens */}
+                <div className="flex items-center gap-1 bg-[#060e20] px-2 py-0.5 rounded-xl border border-sky-800/70 shadow-inner">
+                  <span className="text-[10px] font-black text-sky-300 uppercase tracking-wider hidden sm:inline mr-0.5">Scroll:</span>
+                  <button
+                    type="button"
+                    onClick={() => scrollMasterTable('left')}
+                    title="Scroll table left across columns"
+                    className="flex items-center gap-0.5 rounded-lg bg-sky-950 hover:bg-sky-500 hover:text-slate-950 text-sky-200 px-2 py-0.5 text-[11px] font-black cursor-pointer border border-sky-700/80 transition-all active:scale-95 shadow-2xs"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                    <span>Left</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollMasterTable('right')}
+                    title="Scroll table right across columns"
+                    className="flex items-center gap-0.5 rounded-lg bg-sky-950 hover:bg-sky-500 hover:text-slate-950 text-sky-200 px-2 py-0.5 text-[11px] font-black cursor-pointer border border-sky-700/80 transition-all active:scale-95 shadow-2xs"
+                  >
+                    <span>Right</span>
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-3.5">
@@ -2145,18 +2185,46 @@ export default function AdminPortal({
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto max-h-[620px] w-full border-t border-blue-900/60">
+              <div ref={masterTableScrollRef} className="overflow-x-auto max-h-[620px] w-full border-t border-blue-900/60 scroll-smooth">
                 <table className="w-full text-left text-xs border-separate border-spacing-0">
                   <thead className="bg-[#0b1b3d] text-white sticky top-0 border-b border-blue-900/80 z-20 font-black">
                     <tr>
-                      {/* Frozen Pane Column 1: U-Number (narrower on mobile: 68px, standard on desktop: 95px) */}
-                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-3 font-black sticky left-0 top-0 z-30 bg-[#0d2047] w-[68px] min-w-[68px] max-w-[68px] sm:w-24 sm:min-w-[95px] sm:max-w-[95px] border-b border-blue-900/80 text-[11px] sm:text-xs text-center sm:text-left">
+                      {/* Frozen Pane Column 1: Staff Name (30% less wide: ~130px on desktop, ~85px on mobile, with Freeze Pane & Scroll Controls) */}
+                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-2.5 font-black sticky left-0 top-0 z-30 bg-[#0d2047] w-[85px] min-w-[85px] max-w-[105px] sm:w-[130px] sm:min-w-[130px] sm:max-w-[145px] border-b border-r border-blue-900/80 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.5)] text-[11px] sm:text-xs">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="truncate">Name</span>
+                          {/* Scroll Left & Scroll Right Quick Controls on top of Name */}
+                          <div className="flex items-center gap-0.5 shrink-0" title="Scroll columns horizontally">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                scrollMasterTable('left');
+                              }}
+                              title="Scroll Table Left"
+                              className="p-1 rounded bg-[#07122a] hover:bg-sky-400 hover:text-slate-950 text-sky-300 border border-sky-800/80 cursor-pointer transition-colors shadow-2xs"
+                            >
+                              <ChevronLeft className="h-3 w-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                scrollMasterTable('right');
+                              }}
+                              title="Scroll Table Right"
+                              className="p-1 rounded bg-[#07122a] hover:bg-sky-400 hover:text-slate-950 text-sky-300 border border-sky-800/80 cursor-pointer transition-colors shadow-2xs"
+                            >
+                              <ChevronRight className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </th>
+
+                      {/* Column 2: U-Number */}
+                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-3 font-black text-center sm:text-left sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs w-[68px] min-w-[68px] sm:w-24 sm:min-w-[95px]">
                         <span className="sm:hidden">U-No</span>
                         <span className="hidden sm:inline">U-Number</span>
-                      </th>
-                      {/* Frozen Pane Column 2: Staff Name (narrower on mobile: 95px-115px, standard on desktop: 170px-210px) */}
-                      <th className="py-2 px-1.5 sm:py-2.5 sm:px-3 font-black sticky left-[68px] sm:left-[95px] top-0 z-30 bg-[#0d2047] min-w-[95px] max-w-[115px] sm:min-w-[170px] sm:max-w-[210px] border-b border-r border-blue-900/80 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.5)] text-[11px] sm:text-xs">
-                        Name
                       </th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">EX-No (ALS)</th>
                       <th className="py-2 px-2 sm:py-2.5 sm:px-3 font-black text-center sticky top-0 z-10 bg-[#0b1b3d] border-b border-blue-900/80 whitespace-nowrap text-[11px] sm:text-xs">CUTE</th>
@@ -2188,15 +2256,15 @@ export default function AdminPortal({
                       const isAls = isUserAls(staff.credentials, staff.exNumber);
                       return (
                         <tr key={staff.id || staff.uNumber} className="group hover:bg-blue-950/40 transition-colors">
-                          {/* Frozen Pane Column 1: U-Number */}
-                          <td className="py-2 px-1.5 sm:px-3 font-mono font-black text-sky-300 sticky left-0 z-10 bg-[#091530] group-hover:bg-[#0c1c42] w-[68px] min-w-[68px] max-w-[68px] sm:w-24 sm:min-w-[95px] sm:max-w-[95px] border-b border-blue-900/60 text-[11px] sm:text-xs tracking-tight">
-                            {staff.uNumber}
-                          </td>
-                          {/* Frozen Pane Column 2: Staff Name */}
-                          <td className="py-2 px-1.5 sm:px-3 font-bold text-white sticky left-[68px] sm:left-[95px] z-10 bg-[#091530] group-hover:bg-[#0c1c42] min-w-[95px] max-w-[115px] sm:min-w-[170px] sm:max-w-[210px] border-b border-r border-blue-900/80 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.5)]">
-                            <span className="truncate block text-[11px] sm:text-xs" title={staff.name}>
+                          {/* Frozen Pane Column 1: Staff Name (30% less wide) */}
+                          <td className="py-2 px-1.5 sm:px-2.5 font-bold text-white sticky left-0 z-10 bg-[#091530] group-hover:bg-[#0c1c42] w-[85px] min-w-[85px] max-w-[105px] sm:w-[130px] sm:min-w-[130px] sm:max-w-[145px] border-b border-r border-blue-900/80 shadow-[4px_0_6px_-2px_rgba(0,0,0,0.5)]">
+                            <span className="truncate block text-[11px] sm:text-xs font-bold" title={staff.name}>
                               {staff.name}
                             </span>
+                          </td>
+                          {/* Column 2: U-Number */}
+                          <td className="py-2 px-1.5 sm:px-3 font-mono font-black text-sky-300 whitespace-nowrap text-center sm:text-left border-b border-blue-950/80 text-[11px] sm:text-xs tracking-tight">
+                            {staff.uNumber}
                           </td>
                           <td className="py-2 px-2 sm:px-3 font-mono text-slate-300 whitespace-nowrap text-center border-b border-blue-950/80 text-[11px] sm:text-xs">
                             {isAls ? (
