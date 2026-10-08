@@ -34,6 +34,7 @@ import {
   Shield,
   RotateCcw,
   ArrowRight,
+  Eye,
   X
 } from 'lucide-react';
 
@@ -81,6 +82,54 @@ export default function UserVerificationFlow() {
 
   // Step 4 state
   const [completedSubmission, setCompletedSubmission] = useState<SubmissionRecord | null>(null);
+
+  // Already submitted prompt state
+  const [existingSubmissionPrompt, setExistingSubmissionPrompt] = useState<{
+    staff: UserCredentialRecord;
+    submission: SubmissionRecord;
+    fortnightLabel: string;
+  } | null>(null);
+
+  const setupStaffSession = (staff: UserCredentialRecord) => {
+    if (!staff.credentials.cuteAccess) {
+      staff.credentials.cuteAccess = 'Y';
+    }
+
+    setStaffData(staff);
+    setUNumberInput(staff.uNumber);
+    setRegistrationNotice(null);
+    setConfirmationEmail(`${staff.uNumber.toLowerCase()}@lhg.com`);
+
+    // Pre-initialize verification states for visible fields
+    const initialVerifications: Record<string, { status: 'PENDING' | 'CONFIRMED' | 'CHANGE_REQUESTED' | 'NOT_APPLICABLE'; remark: string }> = {};
+
+    CREDENTIAL_FIELD_CONFIG.forEach(cfg => {
+      const val = staff.credentials[cfg.key];
+      const isActive = isFieldActive(val);
+      initialVerifications[cfg.key] = {
+        status: isActive ? 'PENDING' : 'NOT_APPLICABLE',
+        remark: ''
+      };
+    });
+
+    setFieldVerifications(initialVerifications);
+    setCurrentStep(2);
+  };
+
+  const handleProceedAmended = () => {
+    if (!existingSubmissionPrompt) return;
+    const staff = existingSubmissionPrompt.staff;
+    setExistingSubmissionPrompt(null);
+    setupStaffSession(staff);
+  };
+
+  const handleViewSubmitted = () => {
+    if (!existingSubmissionPrompt) return;
+    const sub = existingSubmissionPrompt.submission;
+    setExistingSubmissionPrompt(null);
+    setCompletedSubmission(sub);
+    setCurrentStep(4);
+  };
 
   // Helper: check if a field is visible for the current user
   const isFieldVisible = (cfg: (typeof CREDENTIAL_FIELD_CONFIG)[number]) => {
@@ -138,30 +187,20 @@ export default function UserVerificationFlow() {
       }
 
       const staff: UserCredentialRecord = data.staff;
-      // Ensure CUTE Access default is 'Y'
-      if (!staff.credentials.cuteAccess) {
-        staff.credentials.cuteAccess = 'Y';
+      const existingSubmission = data.existingSubmission as SubmissionRecord | null;
+      const fortnightLabel = data.currentFortnightLabel || 'Current Fortnight';
+
+      if (existingSubmission) {
+        setExistingSubmissionPrompt({
+          staff,
+          submission: existingSubmission,
+          fortnightLabel
+        });
+        setIsLoadingLookup(false);
+        return;
       }
 
-      setStaffData(staff);
-      setUNumberInput(staff.uNumber);
-      setRegistrationNotice(null);
-      setConfirmationEmail(`${staff.uNumber.toLowerCase()}@lhg.com`);
-
-      // Pre-initialize verification states for visible fields
-      const initialVerifications: Record<string, { status: 'PENDING' | 'CONFIRMED' | 'CHANGE_REQUESTED' | 'NOT_APPLICABLE'; remark: string }> = {};
-
-      CREDENTIAL_FIELD_CONFIG.forEach(cfg => {
-        const val = staff.credentials[cfg.key];
-        const isActive = isFieldActive(val);
-        initialVerifications[cfg.key] = {
-          status: isActive ? 'PENDING' : 'NOT_APPLICABLE',
-          remark: ''
-        };
-      });
-
-      setFieldVerifications(initialVerifications);
-      setCurrentStep(2);
+      setupStaffSession(staff);
     } catch {
       setLookupError('Network error while looking up credentials. Please try again.');
     } finally {
@@ -1594,6 +1633,65 @@ export default function UserVerificationFlow() {
                 </>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Existing Submission Already Performed for Fortnight Prompt */}
+      {existingSubmissionPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4">
+          <div className="w-full max-w-lg rounded-3xl darkblue-card p-6 sm:p-8 shadow-2xl border-2 border-amber-500/60 text-white space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-3.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shrink-0 mt-0.5">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-black text-amber-300 uppercase tracking-wider">
+                  Audit Period: {existingSubmissionPrompt.fortnightLabel}
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-white mt-0.5 tracking-tight">
+                  Verification Already Submitted!
+                </h3>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-[#070e20] p-4 border border-blue-900/60 text-xs text-slate-300 space-y-2">
+              <p className="font-bold text-white text-sm">
+                Staff: {existingSubmissionPrompt.staff.name} ({existingSubmissionPrompt.staff.uNumber})
+              </p>
+              <p className="leading-relaxed">
+                Verification already submitted for this fortnight! Do you want to proceed with an amended submission or do you want to view the Submitted verification?
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={handleProceedAmended}
+                className="w-full sm:flex-1 darkblue-btn-primary flex items-center justify-center gap-2 py-3 px-4 text-xs font-black cursor-pointer shadow-md"
+              >
+                <RotateCcw className="h-4 w-4 text-sky-300" />
+                <span>Proceed with Amended Submission</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleViewSubmitted}
+                className="w-full sm:flex-1 darkblue-btn-secondary flex items-center justify-center gap-2 py-3 px-4 text-xs font-black cursor-pointer text-slate-200"
+              >
+                <Eye className="h-4 w-4 text-teal-300" />
+                <span>View Submitted Verification</span>
+              </button>
+            </div>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => setExistingSubmissionPrompt(null)}
+                className="text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-colors"
+              >
+                Cancel / Enter Different U-Number
+              </button>
+            </div>
           </div>
         </div>
       )}

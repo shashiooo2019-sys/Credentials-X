@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findStaffByUNumber, getMasterCredentials, registerNewStaff } from '@/lib/storage';
+import { findStaffByUNumber, getMasterCredentials, registerNewStaff, getSubmissions, getFortnightPeriod } from '@/lib/storage';
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,9 +35,18 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const allSubmissions = await getSubmissions();
+    const currentFortnight = getFortnightPeriod(new Date().toISOString());
+    const existingSubmission = allSubmissions.find(
+      s => s.uNumber.trim().toUpperCase() === staff.uNumber.trim().toUpperCase() &&
+           s.fortnightPeriod === currentFortnight.period
+    );
+
     return NextResponse.json({
       found: true,
-      staff
+      staff,
+      existingSubmission: existingSubmission || null,
+      currentFortnightLabel: currentFortnight.label
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';

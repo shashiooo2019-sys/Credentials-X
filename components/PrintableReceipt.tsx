@@ -551,6 +551,17 @@ export default function PrintableReceipt({
 
             {/* Email Message Content Body */}
             <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs text-slate-200 bg-[#060c1c]">
+              {/* Compliance Disclaimer Notice */}
+              <div className="rounded-2xl border border-amber-500/60 bg-amber-950/40 p-3.5 text-amber-200 text-xs flex items-start gap-2.5 shadow-sm">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
+                <div>
+                  <p className="font-bold">Compliance Notice (Simulated Email)</p>
+                  <p className="mt-0.5 text-amber-100/90 leading-relaxed font-medium">
+                    Due to compliance reasons, this App is presently not transmitting any emails. Please view the Simulated Corporate Email Preview and take a screenshot or copy text for your records.
+                  </p>
+                </div>
+              </div>
+
               {/* LHG Corporate Email Banner */}
               <div className="rounded-2xl bg-gradient-to-r from-[#0a1633] via-[#0f2452] to-[#0a1633] text-white p-4.5 flex items-center justify-between shadow-md border border-sky-700/50">
                 <div className="flex items-center gap-3">
